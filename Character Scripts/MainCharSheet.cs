@@ -121,8 +121,10 @@ public class MainCharacterSheet : MonoBehaviour
     private enum BonusAttack
     {
         None,
-        BasicDamage,
-        DoubleBeam
+        FastAttack,
+        StrongAttack,
+        DoubleBeam,
+        FastBeam
     }
 
     private enum BonusSpeed

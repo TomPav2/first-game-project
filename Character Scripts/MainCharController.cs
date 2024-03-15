@@ -33,6 +33,9 @@ public class MainCharController : MonoBehaviour
         if (speedX > 0 || speedY > 0)
         {
             body.velocity = new Vector2(dirRight ? speedX : -speedX, dirUp ? speedY : -speedY) * speed * Time.deltaTime;
+        } else
+        {
+            body.velocity = Vector2.zero;
         }
     }
 

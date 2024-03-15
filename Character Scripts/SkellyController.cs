@@ -10,7 +10,7 @@ using Unity.VisualScripting.Antlr3.Runtime;
 public class SkellyController : MonoBehaviour
 {
     // pointers
-    [SerializeField] private HealthBarController healthBar;
+    [SerializeField] private SliderController healthBar;
     [SerializeField] private Rigidbody2D body;
     [SerializeField] private Animator animator;
     [SerializeField] private GameManager manager;
@@ -37,7 +37,7 @@ public class SkellyController : MonoBehaviour
     // ---------------- LIFECYCLE ----------------
     private void Awake()
     {
-        healthBar = GetComponentInChildren<HealthBarController>();
+        healthBar = GetComponentInChildren<SliderController>();
         body = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
@@ -87,7 +87,7 @@ public class SkellyController : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = true;
         body.simulated = true;
         switchState(EnemyState.Idle);
-        animator.ResetTrigger("idle"); // not needed after spawn
+        animator.ResetTrigger(Trigger.idle); // not needed after spawn
         navigatorProcess = StartCoroutine(navigator());
         yield break;
     }
@@ -97,11 +97,11 @@ public class SkellyController : MonoBehaviour
         switchState(EnemyState.Dying);
         GetComponent<CapsuleCollider2D>().enabled = false;
         body.simulated = false;
+        healthBar.fade();
         yield return new WaitForSeconds(1);
 
         animator.enabled = false;
         GetComponent<SpriteRenderer>().enabled = false;
-        healthBar.show(false);
         switchState(EnemyState.Dead);
         //spawnManager.makeAvailable(this);
         yield break;
@@ -118,7 +118,7 @@ public class SkellyController : MonoBehaviour
         // if target is reached...
         if (Vector2.Distance(transform.position, target) <= distanceTolerance)
         {
-            if (state == EnemyState.InertiaWalk)
+            if (state == EnemyState.InertiaRun)
             {
                 // if state was inertia, stop and look around
                 switchState(EnemyState.InertiaStand);
@@ -141,7 +141,7 @@ public class SkellyController : MonoBehaviour
         GetComponent<SpriteRenderer>().flipX = ((transform.position.x - motion.x) > 0);
     }
 
-    private IEnumerator inertiaWalk()
+    private IEnumerator inertiaRun()
     {
         yield return new WaitForSeconds(5);
         switchState(EnemyState.Walking);
@@ -166,56 +166,63 @@ public class SkellyController : MonoBehaviour
         if (this.state == state) return;
         this.state = state;
 
-        animator.ResetTrigger("idle");
-        animator.ResetTrigger("walk");
-        animator.ResetTrigger("run");
+        animator.ResetTrigger(Trigger.idle);
+        animator.ResetTrigger(Trigger.walk);
+        animator.ResetTrigger(Trigger.run);
 
         switch (state)
         {
             case EnemyState.Idle:
                 currentSpeed = 0;
-                animator.SetTrigger("idle");
+                animator.SetTrigger(Trigger.idle);
                 break;
 
             case EnemyState.Walking:
                 currentSpeed = slow;
-                animator.SetTrigger("walk");
+                animator.SetTrigger(Trigger.walk);
                 break;
 
             case EnemyState.Following:
                 currentSpeed = fast;
                 if (currentProcess != null) StopCoroutine(currentProcess);
-                animator.SetTrigger("run");
+                animator.SetTrigger(Trigger.run);
                 break;
 
-            case EnemyState.InertiaWalk:
+            case EnemyState.InertiaRun:
                 currentSpeed = fast;
-                currentProcess = StartCoroutine(inertiaWalk());
-                animator.SetTrigger("run");
+                currentProcess = StartCoroutine(inertiaRun());
                 break;
 
             case EnemyState.InertiaStand:
                 currentSpeed = 0;
                 if (currentProcess != null) StopCoroutine(currentProcess);
                 currentProcess = StartCoroutine(inertiaLook());
-                animator.SetTrigger("idle");
+                animator.SetTrigger(Trigger.idle);
                 target = transform.position;
                 break;
 
             case EnemyState.Dying:
                 currentSpeed = 0;
-                animator.SetTrigger("die");
+                animator.SetTrigger(Trigger.die);
                 break;
 
             case EnemyState.Dead:
-                animator.SetTrigger("idle");
+                animator.SetTrigger(Trigger.idle);
                 break;
         }
     }
 
+    private static class Trigger
+    {
+        public static readonly String walk = "walk";
+        public static readonly String run = "run";
+        public static readonly String idle = "idle";
+        public static readonly String die = "die";
+    }
+
     private bool movingState()
     {
-        return (state == EnemyState.Walking || state == EnemyState.Following || state == EnemyState.InertiaWalk);
+        return (state == EnemyState.Walking || state == EnemyState.Following || state == EnemyState.InertiaRun);
     }
 
     // ---------------- TARGETTING ----------------
@@ -242,7 +249,7 @@ public class SkellyController : MonoBehaviour
                     yield return new WaitForSeconds(1f);
                     break;
 
-                case EnemyState.InertiaWalk:
+                case EnemyState.InertiaRun:
                     updateTarget();
                     yield return new WaitForSeconds(0.1f);
                     break;
@@ -278,7 +285,7 @@ public class SkellyController : MonoBehaviour
                     break;
 
                 case EnemyState.Following:
-                    switchState(EnemyState.InertiaWalk);
+                    switchState(EnemyState.InertiaRun);
                     break;
             }
     }
@@ -296,7 +303,7 @@ public class SkellyController : MonoBehaviour
     }
 
     // ---------------- COMBAT ----------------
-    private void takeDamage(byte amount, DamageType type)
+    public void damage(byte amount, DamageType type)
     {
         if (amount == 0) return;
         if (amount < health) health -= amount;
@@ -306,8 +313,7 @@ public class SkellyController : MonoBehaviour
             if (type == DamageType.LMB || type == DamageType.RMB) mainChar.offerLife();
             die();
         }
-        healthBar.show(true);
-        healthBar.updateHealth(maxHealth, health);
+        healthBar.updateValue(maxHealth, health);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -324,7 +330,7 @@ public class SkellyController : MonoBehaviour
         if (collision.gameObject.tag == Tag.AttackLMB)
         {
             LMBAttack projectile = collision.GetComponent<LMBAttack>();
-            takeDamage(projectile.Hit(true), DamageType.LMB);
+            damage(projectile.Hit(true), DamageType.LMB);
         }
     }
 }

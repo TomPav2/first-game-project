@@ -7,6 +7,7 @@ public static class GameValues
         public static readonly String wall = "Wall";
         public static readonly String player = "Player";
         public static readonly String AttackLMB = "LMB Attack";
+        public static readonly String enemy = "Enemy";
     }
 
     public enum EnemyState
@@ -17,7 +18,7 @@ public static class GameValues
         Idle,
         Walking,
         Following,
-        InertiaWalk,
+        InertiaRun,
         InertiaStand,
         Dying
     }

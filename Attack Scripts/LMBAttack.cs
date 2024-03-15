@@ -16,6 +16,7 @@ public class LMBAttack : MonoBehaviour
     private bool move = false;
     private bool fading = false;
     private float alpha = 1f;
+    private float fadeAmount;
 
     private Coroutine timer;
 
@@ -24,6 +25,7 @@ public class LMBAttack : MonoBehaviour
         StartCoroutine(controlRoutine());
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<PolygonCollider2D>().enabled = false;
+        fadeAmount =  1f / (fadeTime * 60f);
     }
 
     private void FixedUpdate()
@@ -34,7 +36,7 @@ public class LMBAttack : MonoBehaviour
 
         if (fading && alpha > 0f)
         {
-            alpha -= 1f / (fadeTime * 60f);
+            alpha -= fadeAmount;
             if (alpha < 0f) alpha = 0f;
             Color color = Color.white.WithAlpha(alpha);
             GetComponent<SpriteRenderer>().color = color;
