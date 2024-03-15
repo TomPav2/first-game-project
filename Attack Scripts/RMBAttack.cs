@@ -9,6 +9,8 @@ public class RMBAttack : MonoBehaviour
     [SerializeField] private LayerMask collideLayers;
     [SerializeField] private SliderController mainIndicator;
     [SerializeField] private SliderController bonusIndicator;
+    [SerializeField] private LineRenderer laserLine;
+    [SerializeField] private ParticleSystem laserParticles;
 
     private static readonly ushort chargeLimit = 1000;
 
@@ -20,6 +22,8 @@ public class RMBAttack : MonoBehaviour
     private Battery bonusBattery = null;
 
     private Battery usedBattery = null;
+
+    private bool visualsEnabled = false;
 
     private void Start()
     {
@@ -40,6 +44,7 @@ public class RMBAttack : MonoBehaviour
                 usedBattery = mainBattery;
             }
             usedBattery.inUse = true;
+            enableVisuals(true);
         }
 
         // on RMB up, release the used battery
@@ -48,26 +53,39 @@ public class RMBAttack : MonoBehaviour
             usedBattery.inUse = false;
             StartCoroutine(chargeRoutine(usedBattery));
             usedBattery = null;
+            enableVisuals(false);
         }
 
         // if there is a battery in use, try drain and perform attack
-        if (usedBattery != null && usedBattery.drain())
+        if (usedBattery != null)
         {
-            Vector2 clickPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 from = transform.position;
-            Vector2 direction = clickPosition - from;
-            RaycastHit2D hit = Physics2D.Raycast(from, direction, Mathf.Infinity, collideLayers);
-
-            // this should only occur in development, but it is safer to keep it
-            if (hit == false) return;
-
-            if (hit.collider.CompareTag(Tag.enemy))
+            if (usedBattery.drain())
             {
-                SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
-                enemyController.damage(1, DamageType.RMB);
-            }
+                // raycast from start position (above player) to mouse position
+                Vector2 clickPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 from = transform.position;
+                Vector2 direction = clickPosition - from;
+                RaycastHit2D hit = Physics2D.Raycast(from, direction, Mathf.Infinity, collideLayers);
 
-            Debug.DrawLine(from, hit.point, Color.red);
+                // this should only occur in development, but it is safer to keep it
+                if (hit == false) return;
+
+                // set line renderer posistions
+                laserLine.SetPosition(0, transform.position);
+                laserLine.SetPosition(1, hit.point);
+                laserParticles.transform.position = hit.point;
+                laserParticles.transform.right = laserParticles.transform.position - transform.position;
+
+                // deal damage
+                if (hit.collider.CompareTag(Tag.enemy))
+                {
+                    SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
+                    enemyController.damage(1, DamageType.RMB);
+                }
+            } else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects
+            {
+                enableVisuals(false);
+            }
         }
     }
 
@@ -92,6 +110,14 @@ public class RMBAttack : MonoBehaviour
         chargeDelay = 0.3f;
         chargeInterval = 0.15f;
         chargeAmount = 2;
+    }
+
+    private void enableVisuals(bool enable)
+    {
+        visualsEnabled = enable;
+        laserLine.enabled = enable;
+        if (enable) laserParticles.Play();
+        else laserParticles.Stop();
     }
 
     private IEnumerator chargeRoutine(Battery battery)

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class SliderController : MonoBehaviour
 {
-    [SerializeField] private UnityEngine.UI.Slider slider;
+    [SerializeField] private Slider slider;
     [SerializeField] private Image background;
     [SerializeField] private Image fill;
 

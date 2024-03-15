@@ -6,7 +6,7 @@ using static GameValues;
 public class LMBAttack : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
-    [SerializeField] private MainCharController mainChar;
+    [SerializeField] private Transform mainCharTransform;
     [SerializeField] private byte damage;
     [SerializeField] private float cooldown;
     [SerializeField] private float fadeTime;
@@ -70,7 +70,7 @@ public class LMBAttack : MonoBehaviour
     private void startAttack()
     {
         // setup position, rotation, and target
-        transform.position = mainChar.transform.position;
+        transform.position = mainCharTransform.position;
         Vector3 clickPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         clickPosition.z = 0;
         transform.right = clickPosition - transform.position;

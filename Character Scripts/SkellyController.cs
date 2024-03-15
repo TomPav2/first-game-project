@@ -1,11 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 using static GameValues;
-using Unity.VisualScripting.Antlr3.Runtime;
 
 public class SkellyController : MonoBehaviour
 {
