@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class MainCharacterSheet : MonoBehaviour
@@ -8,50 +9,85 @@ public class MainCharacterSheet : MonoBehaviour
     public HeartController healthBar;
     public DamageFX damageFX;
 
+    // attacks
+    [SerializeField] private RMBAttack laserAttack;
+
+    [SerializeField] private GameObject attackBasic;
+    [SerializeField] private GameObject attackFast;
+    [SerializeField] private GameObject attackStrong;
+    private GameObject currentAttack;
+
     // health stats
-    private byte maxHealth = 12;
-    private byte health = 12;
+    private byte maxHealth;
+
+    private byte health;
     private readonly int regenInterval = 30;
-    private bool lifesteal = false;
+    private bool lifesteal;
     private Coroutine regenerator;
 
     // active bonuses
-    private BonusHealth activeHealth = BonusHealth.None;
-    private BonusAttack activeAttack = BonusAttack.None;
-    private BonusSpeed activeSpeed = BonusSpeed.None;
+    private BonusHealth activeHealth;
+    private BonusAttack activeAttack;
+    private BonusSpeed activeSpeed;
+    private List<int> emptyUpgrades;
 
+    private void Start()
+    {
+        init();
+    }
 
     public void test()
     {
-        heal(1);
+        //TODO remove
+        applyBonus(BonusAttack.FastAttack);
     }
 
-    private IEnumerator regenRoutine()
+    public void init()
     {
-        yield return new WaitForSeconds(regenInterval);
-        if (activeHealth == BonusHealth.Regen) heal(1);
-        else yield break;
+        // TODO laserAttack.reset
+        currentAttack = attackBasic;
+        currentAttack.SetActive(true);
+        maxHealth = 12;
+        health = 12;
+        healthBar.displayHp(health);
+        lifesteal = false;
+        if (regenerator != null) StopCoroutine(regenerator);
+        activeHealth = BonusHealth.None;
+        activeAttack = BonusAttack.None;
+        activeSpeed = BonusSpeed.None;
+        emptyUpgrades = new List<int> { 0, 1, 2 };
     }
 
-    public void selectBonus() {
-        // TODO: test this
-        int bonusType = UnityEngine.Random.Range(0, 3);
-    
+    public void selectBonus()
+    {
+        int index = UnityEngine.Random.Range(0, emptyUpgrades.Count);
+        int bonusType = emptyUpgrades[index];
+        emptyUpgrades.Remove(bonusType);
+
         Array bonusValues;
-        if (bonusType == 0) {
-            bonusValues = Enum.GetValues(typeof(BonusHealth));
-            activeHealth = (BonusHealth) bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length-1));
-            applyBonus(activeHealth);
-        } else if (bonusType == 1)
+        switch (bonusType)
         {
-            bonusValues = Enum.GetValues(typeof(BonusAttack));
-            activeAttack = (BonusAttack) bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length-1));
-            applyBonus(activeHealth);
-        } else if (bonusType == 2)
-        {
-            bonusValues = Enum.GetValues(typeof(BonusSpeed));
-            activeSpeed = (BonusSpeed) bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length - 1));
-            applyBonus(activeHealth);
+            case 0:
+                {
+                    bonusValues = Enum.GetValues(typeof(BonusHealth));
+                    activeHealth = (BonusHealth)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    applyBonus(activeHealth);
+                    break;
+                }
+            case 1:
+                {
+                    bonusValues = Enum.GetValues(typeof(BonusAttack));
+                    activeAttack = (BonusAttack)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    applyBonus(activeAttack);
+                    break;
+                }
+            case 2:
+                {
+                    bonusValues = Enum.GetValues(typeof(BonusSpeed));
+                    activeSpeed = (BonusSpeed)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    applyBonus(activeSpeed);
+                    break;
+                }
         }
     }
 
@@ -76,9 +112,10 @@ public class MainCharacterSheet : MonoBehaviour
         damageFX.playDamageEffect(amount);
         if (health <= amount)
         {
-            // TODO death
+            // TODO death animation and screen
             health = 0;
-        } else health -= amount;
+        }
+        else health -= amount;
         healthBar.displayHp(health);
     }
 
@@ -104,11 +141,31 @@ public class MainCharacterSheet : MonoBehaviour
                     //TODO recharging laser
                     break;
                 }
+
+            case BonusAttack.FastAttack:
+                {
+                    currentAttack.SetActive(false);
+                    currentAttack = attackFast;
+                    currentAttack.SetActive(true);
+                    break;
+                }
+            case BonusAttack.StrongAttack:
+                {
+                    currentAttack.SetActive(false);
+                    currentAttack = attackStrong;
+                    currentAttack.SetActive(true);
+                    break;
+                }
             default: break;
         }
     }
 
-
+    private IEnumerator regenRoutine()
+    {
+        yield return new WaitForSeconds(regenInterval);
+        if (activeHealth == BonusHealth.Regen) heal(1);
+        else yield break;
+    }
 
     private enum BonusHealth
     {

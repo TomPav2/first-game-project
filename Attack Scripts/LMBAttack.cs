@@ -7,6 +7,7 @@ public class LMBAttack : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private Transform mainCharTransform;
+    [SerializeField] private ParticleSystem attackParticles;
     [SerializeField] private byte damage;
     [SerializeField] private float cooldown;
     [SerializeField] private float fadeTime;
@@ -82,6 +83,7 @@ public class LMBAttack : MonoBehaviour
         GetComponent<SpriteRenderer>().color = Color.white;
         GetComponent<PolygonCollider2D>().enabled = true;
         alpha = 1f;
+        attackParticles.Play();
 
         // start the timer
         timer = StartCoroutine(timerRoutine(true));
@@ -121,6 +123,7 @@ public class LMBAttack : MonoBehaviour
         else
         {
             fading = true;
+            attackParticles.Stop();
             yield return new WaitForSeconds(fadeTime);
             endAdttack();
             yield break;

@@ -13,6 +13,9 @@ public class RMBAttack : MonoBehaviour
     [SerializeField] private ParticleSystem laserParticles;
 
     private static readonly ushort chargeLimit = 1000;
+    private readonly float widthMin = 0.5f;
+    private readonly float widthMax = 1f;
+    private readonly float widthChange = 0.08f;
 
     private float chargeDelay = 0.5f;
     private float chargeInterval = 0.1f;
@@ -24,6 +27,7 @@ public class RMBAttack : MonoBehaviour
     private Battery usedBattery = null;
 
     private bool visualsEnabled = false;
+    private bool laserIncreasing = false;
 
     private void Start()
     {
@@ -76,13 +80,20 @@ public class RMBAttack : MonoBehaviour
                 laserParticles.transform.position = hit.point;
                 laserParticles.transform.right = laserParticles.transform.position - transform.position;
 
+                // change laser intensity so that it doesn't look like a solid line
+                laserLine.startWidth = laserIncreasing ? laserLine.startWidth + widthChange : laserLine.startWidth - widthChange;
+                laserLine.endWidth = laserIncreasing ? laserLine.endWidth + widthChange : laserLine.endWidth - widthChange;
+                if (laserLine.startWidth >= widthMax) laserIncreasing = false;
+                else if (laserLine.startWidth <= widthMin) laserIncreasing = true;
+
                 // deal damage
                 if (hit.collider.CompareTag(Tag.enemy))
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
                     enemyController.damage(1, DamageType.RMB);
                 }
-            } else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects
+            }
+            else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects
             {
                 enableVisuals(false);
             }
@@ -92,11 +103,15 @@ public class RMBAttack : MonoBehaviour
     public void resetAttack()
     {
         StopAllCoroutines();
+        enableVisuals(false);
         chargeDelay = 0.5f;
         chargeInterval = 0.1f;
         chargeAmount = 1;
         mainBattery = new Battery(mainIndicator);
         bonusBattery = null;
+        laserIncreasing = false;
+        laserLine.startWidth = widthMax;
+        laserLine.endWidth = widthMax;
     }
 
     public void unlockDouble()
