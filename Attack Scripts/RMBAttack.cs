@@ -84,6 +84,10 @@ public class RMBAttack : MonoBehaviour
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
                     enemyController.damage(1, DamageType.RMB);
+                } else if (hit.collider.CompareTag(Tag.spawner))
+                {
+                    SpawnerController spawner = hit.collider.GetComponent<SpawnerController>();
+                    spawner.damage(1);
                 }
             }
             else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects

@@ -4,7 +4,7 @@ public class MainCharController : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D body;
     [SerializeField] private SpriteRenderer sprite;
-    [SerializeField] private int speed = 5;
+    [SerializeField] private int speed;
     [SerializeField] private Sprite spriteRight;
     [SerializeField] private Sprite spriteLeft;
     [SerializeField] private GameObject healthBar;
@@ -43,6 +43,11 @@ public class MainCharController : MonoBehaviour
     public void setSpeedUpgrade(float speedUpgrade)
     {
         this.speedUpgrade = speedUpgrade;
+    }
+
+    public void setBonusSprite()
+    {
+        // TODO
     }
 
     private void turnRight()

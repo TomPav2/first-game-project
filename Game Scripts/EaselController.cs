@@ -1,22 +1,34 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EaselController : MonoBehaviour
 {
     [SerializeField] private LevelManager level1;
     [SerializeField] private SliderController progressSlider;
+    [SerializeField] private Image sliderFill;
+
+    private readonly Color active = new Color(0.4f, 0.4f, 1);
+    private readonly Color inactive = new Color(0.4f, 0.4f, 0.4f);
 
     private short target = 1200;
     private short progress = 0;
-    private short notifyAt = -1;
+    private short notifyAtValue = -1;
     private bool currentlyPainting = false;
     private Coroutine painting;
+
+    private void Start()
+    {
+        // TODO this will not be needed when level is properly set up
+        setUp(1, false);
+    }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
         {
             painting = StartCoroutine(paintRoutine());
+            sliderFill.color = active;
             currentlyPainting = true;
         }
         if (currentlyPainting)
@@ -30,17 +42,18 @@ public class EaselController : MonoBehaviour
         }
     }
 
-    public void setUp(short notifyAt, bool reset)
+    public void setUp(float notifyAt, bool reset)
     {
-        this.notifyAt = notifyAt;
         progress = 0;
         if (reset) target = 1200;
+        notifyAtValue = (short) (Mathf.Round(target / notifyAt));
         progressSlider.updateValue(target, 0);
     }
 
     public void speedUpgrade()
     {
-        if (progress > 0) progress = (short)(progress * 2 / 3); 
+        if (progress > 0) progress = (short)(progress * 2 / 3);
+        if (notifyAtValue > 0) notifyAtValue = (short)(notifyAtValue * 2 / 3);
         target = 800;
     }
 
@@ -48,17 +61,19 @@ public class EaselController : MonoBehaviour
     {
         stopPainting();
         // TODO notify levelmanager
+        Debug.Log("DONE");
     }
 
     private void stopPainting()
     {
         if (painting != null) StopCoroutine(painting);
+        sliderFill.color = inactive;
         currentlyPainting = false;
     }
 
     private bool inArea()
     {
-        return true;
+        return true; // TODO
     }
 
     private IEnumerator paintRoutine()
@@ -73,9 +88,9 @@ public class EaselController : MonoBehaviour
                 complete();
                 yield break;
             }
-            if (progress >= notifyAt)
+            if (progress >= notifyAtValue)
             {
-                notifyAt = -1;
+                notifyAtValue = -1;
                 // TODO notify levelmanager
             }
             yield return new WaitForSeconds(0.1f);
