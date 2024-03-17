@@ -20,6 +20,10 @@ public class SliderController : MonoBehaviour
 
     public void updateValue(float max, float current)
     {
+        if (max == 0)
+        {
+            Debug.LogError("Trying to set slider with max value of 0 on slider" + gameObject.name); return;
+        }
         if (alpha < 1f)
         {
             if (fading != null && current > 0) StopCoroutine(fading);
@@ -28,7 +32,8 @@ public class SliderController : MonoBehaviour
         }
         if (current > 0)
         {
-            slider.value = current / max;
+            float newValue = Mathf.Clamp01(current / max);
+            slider.value = newValue;
             fill.enabled = true;
         }
         else

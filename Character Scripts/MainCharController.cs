@@ -13,6 +13,7 @@ public class MainCharController : MonoBehaviour
     private bool dirUp = true;
     private float speedX = 0;
     private float speedY = 0;
+    private float speedUpgrade = 1;
 
     private void FixedUpdate()
     {
@@ -32,11 +33,16 @@ public class MainCharController : MonoBehaviour
 
         if (speedX > 0 || speedY > 0)
         {
-            body.velocity = new Vector2(dirRight ? speedX : -speedX, dirUp ? speedY : -speedY) * speed * Time.deltaTime;
+            body.velocity = speed * speedUpgrade * Time.deltaTime * new Vector2(dirRight ? speedX : -speedX, dirUp ? speedY : -speedY);
         } else
         {
             body.velocity = Vector2.zero;
         }
+    }
+
+    public void setSpeedUpgrade(float speedUpgrade)
+    {
+        this.speedUpgrade = speedUpgrade;
     }
 
     private void turnRight()

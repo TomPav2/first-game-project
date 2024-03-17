@@ -31,11 +31,17 @@ public class HeartController : MonoBehaviour
 
     private void Awake()
     {
+        resetController();
+    }
+
+    public void resetController()
+    {
         // map hearts and sprites to arrays
         health[0] = hp1;
         health[1] = hp2;
         health[2] = hp3;
         health[3] = hp4;
+        hp4.enabled = false;
 
         heart[0] = heart0;
         heart[1] = heart1;
@@ -51,9 +57,8 @@ public class HeartController : MonoBehaviour
 
         int value1 = (newHp - (index1 * 4));
         int value2 = (newHp - (index2 * 4));
-
-        health[index1].sprite = heart[value1];
-        if (index1 != index2 && value2 >= 0) health[index2].sprite = heart[value2];
+        if (index1 <= 3) health[index1].sprite = heart[value1];
+        if (index1 != index2 && value2 >= 0 && index2 <= 3) health[index2].sprite = heart[value2];
 
         if (newHp > currentHp) StartCoroutine(healFlash());
         currentHp = newHp;
@@ -71,7 +76,7 @@ public class HeartController : MonoBehaviour
         hp3Flash.enabled = true;
         if (hp4.enabled) hp4Flash.enabled = true;
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.15f);
 
         hp1Flash.enabled = false;
         hp2Flash.enabled = false;

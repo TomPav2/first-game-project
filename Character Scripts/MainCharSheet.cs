@@ -6,8 +6,12 @@ using UnityEngine;
 
 public class MainCharacterSheet : MonoBehaviour
 {
-    public HeartController healthBar;
-    public DamageFX damageFX;
+    // pointers
+    [SerializeField] private HeartController healthBar;
+
+    [SerializeField] private DamageFX damageFX;
+    [SerializeField] private EaselController easel;
+    [SerializeField] private MainCharController charController;
 
     // attacks
     [SerializeField] private RMBAttack laserAttack;
@@ -27,6 +31,7 @@ public class MainCharacterSheet : MonoBehaviour
 
     // active bonuses
     private BonusHealth activeHealth;
+
     private BonusAttack activeAttack;
     private BonusSpeed activeSpeed;
     private List<int> emptyUpgrades;
@@ -39,22 +44,22 @@ public class MainCharacterSheet : MonoBehaviour
     public void test()
     {
         //TODO remove
-        applyBonus(BonusAttack.FastAttack);
     }
 
     public void init()
     {
-        // TODO laserAttack.reset
+        laserAttack.resetAttack();
         currentAttack = attackBasic;
         currentAttack.SetActive(true);
         maxHealth = 12;
         health = 12;
-        healthBar.displayHp(health);
+        healthBar.resetController();
         lifesteal = false;
         if (regenerator != null) StopCoroutine(regenerator);
         activeHealth = BonusHealth.None;
         activeAttack = BonusAttack.None;
         activeSpeed = BonusSpeed.None;
+        charController.setSpeedUpgrade(1);
         emptyUpgrades = new List<int> { 0, 1, 2 };
     }
 
@@ -96,7 +101,7 @@ public class MainCharacterSheet : MonoBehaviour
         if (lifesteal)
         {
             int roll = UnityEngine.Random.Range(0, 10);
-            if (roll == 0) heal(0);
+            if (roll == 0) heal(1);
         }
     }
 
@@ -115,7 +120,11 @@ public class MainCharacterSheet : MonoBehaviour
             // TODO death animation and screen
             health = 0;
         }
-        else health -= amount;
+        else
+        {
+            health -= amount;
+            if (activeHealth == BonusHealth.Maxhealth) laserAttack.addCharge(100);
+        }
         healthBar.displayHp(health);
     }
 
@@ -138,7 +147,6 @@ public class MainCharacterSheet : MonoBehaviour
                     maxHealth = 16;
                     healthBar.unlockBonus();
                     heal(4);
-                    //TODO recharging laser
                     break;
                 }
 
@@ -156,6 +164,27 @@ public class MainCharacterSheet : MonoBehaviour
                     currentAttack.SetActive(true);
                     break;
                 }
+            case BonusAttack.FastBeam:
+                {
+                    laserAttack.unlockSpeed();
+                    break;
+                }
+            case BonusAttack.DoubleBeam:
+                {
+                    laserAttack.unlockDouble();
+                    break;
+                }
+
+            case BonusSpeed.PaintSpeed:
+                {
+                    //easel.speedUpgrade(); TODO
+                    break;
+                }
+            case BonusSpeed.MoveSpeed:
+                {
+                    charController.setSpeedUpgrade(1.2f);
+                    break;
+                }
             default: break;
         }
     }
@@ -163,8 +192,8 @@ public class MainCharacterSheet : MonoBehaviour
     private IEnumerator regenRoutine()
     {
         yield return new WaitForSeconds(regenInterval);
-        if (activeHealth == BonusHealth.Regen) heal(1);
-        else yield break;
+        heal(1);
+        yield break;
     }
 
     private enum BonusHealth

@@ -39,14 +39,7 @@ public class RMBAttack : MonoBehaviour
         // on RMB down, select and activate the battery with lower charge
         if (Input.GetMouseButtonDown(1))
         {
-            if (bonusBattery != null && (bonusBattery.charge > mainBattery.charge))
-            {
-                usedBattery = bonusBattery;
-            }
-            else
-            {
-                usedBattery = mainBattery;
-            }
+            usedBattery = selectBattery(true);
             usedBattery.inUse = true;
             enableVisuals(true);
         }
@@ -121,10 +114,27 @@ public class RMBAttack : MonoBehaviour
 
     public void unlockSpeed()
     {
-        // TODO test this
-        chargeDelay = 0.3f;
+        chargeDelay = 0.2f;
         chargeInterval = 0.15f;
         chargeAmount = 2;
+    }
+
+    public void addCharge(byte amount)
+    {
+        selectBattery(false).forceCharge(amount);
+    }
+
+    private Battery selectBattery(bool selectHigherCharge)
+    {
+        if (bonusBattery == null) return mainBattery;
+        if (bonusBattery.charge > mainBattery.charge)
+        {
+            return selectHigherCharge ? bonusBattery : mainBattery;
+        }
+        else
+        {
+            return selectHigherCharge ? mainBattery : bonusBattery;
+        }
     }
 
     private void enableVisuals(bool enable)
@@ -180,6 +190,13 @@ public class RMBAttack : MonoBehaviour
                 return false;
             }
             return true;
+        }
+
+        public void forceCharge(byte amount)
+        {
+            charge += amount;
+            if(charge > chargeLimit) charge = chargeLimit;
+            indicator.updateValue(chargeLimit, charge);
         }
     }
 }
