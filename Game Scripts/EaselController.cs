@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 public class EaselController : MonoBehaviour
 {
-    [SerializeField] private LevelManager level1;
+    [SerializeField] private LevelManager levelManager;
     [SerializeField] private SliderController progressSlider;
     [SerializeField] private Image sliderFill;
+    [SerializeField] private Transform mainChar;
 
     private readonly Color active = new Color(0.4f, 0.4f, 1);
     private readonly Color inactive = new Color(0.4f, 0.4f, 0.4f);
@@ -17,19 +18,11 @@ public class EaselController : MonoBehaviour
     private bool currentlyPainting = false;
     private Coroutine painting;
 
-    private void Start()
-    {
-        // TODO this will not be needed when level is properly set up
-        setUp(1, false);
-    }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
         {
-            painting = StartCoroutine(paintRoutine());
-            sliderFill.color = active;
-            currentlyPainting = true;
+            startPainting();
         }
         if (currentlyPainting)
         {
@@ -42,11 +35,10 @@ public class EaselController : MonoBehaviour
         }
     }
 
-    public void setUp(float notifyAt, bool reset)
+    public void setUp(float notifyAt)
     {
         progress = 0;
-        if (reset) target = 1200;
-        notifyAtValue = (short) (Mathf.Round(target / notifyAt));
+        notifyAtValue = (short)(Mathf.Round(target * notifyAt));
         progressSlider.updateValue(target, 0);
     }
 
@@ -60,8 +52,21 @@ public class EaselController : MonoBehaviour
     private void complete()
     {
         stopPainting();
-        // TODO notify levelmanager
-        Debug.Log("DONE");
+        levelManager.finishStage();
+        Debug.Log("DONE"); // TODO remove
+    }
+
+    private void startPainting()
+    {
+        if (progress == 0)
+        {
+            progress++;
+            levelManager.startStage();
+        }
+        sliderFill.color = active;
+        painting = StartCoroutine(paintRoutine());
+        Debug.Log("Painting");
+        currentlyPainting = true;
     }
 
     private void stopPainting()
@@ -73,7 +78,11 @@ public class EaselController : MonoBehaviour
 
     private bool inArea()
     {
-        return true; // TODO
+        float distX = transform.position.x - mainChar.position.x;
+        if (Mathf.Abs(distX) > 7) return false;
+        float distY = transform.position.y - mainChar.position.y;
+        if (Mathf.Abs(distY) > 7) return false;
+        return true;
     }
 
     private IEnumerator paintRoutine()
@@ -91,7 +100,7 @@ public class EaselController : MonoBehaviour
             if (progress >= notifyAtValue)
             {
                 notifyAtValue = -1;
-                // TODO notify levelmanager
+                Debug.Log("TO spawn bonus"); // TODO notify levelmanager
             }
             yield return new WaitForSeconds(0.1f);
         }

@@ -10,6 +10,7 @@ public class RMBAttack : MonoBehaviour
     [SerializeField] private SliderController mainIndicator;
     [SerializeField] private SliderController bonusIndicator;
     [SerializeField] private LineRenderer laserLine;
+    [SerializeField] private LineRenderer laserFork;
     [SerializeField] private ParticleSystem laserParticles;
 
     private static readonly ushort chargeLimit = 1000;
@@ -23,11 +24,17 @@ public class RMBAttack : MonoBehaviour
 
     private Battery mainBattery = null;
     private Battery bonusBattery = null;
-
     private Battery usedBattery = null;
 
     private bool visualsEnabled = false;
     private bool laserIncreasing = false;
+    private bool isOffset = false; // true when character is facing left
+
+    private readonly Vector3 offsetX = new Vector3(-0.7f, 0, 0);
+    private readonly Vector3 forkOffsetRight1 = new Vector3(-1.65f, -0.25f, 0);
+    private readonly Vector3 forkOffsetRight2 = new Vector3(1.55f, -0.25f, 0);
+    private readonly Vector3 forkOffsetLeft1 = new Vector3(-1.35f, -0.25f, 0);
+    private readonly Vector3 forkOffsetLeft2 = new Vector3(1.65f, -0.25f, 0);
 
     private void Start()
     {
@@ -73,6 +80,11 @@ public class RMBAttack : MonoBehaviour
                 laserParticles.transform.position = hit.point;
                 laserParticles.transform.right = laserParticles.transform.position - transform.position;
 
+                // set positions for the fork
+                laserFork.SetPosition(0, transform.position + (isOffset ? forkOffsetLeft1 : forkOffsetRight1));
+                laserFork.SetPosition(1, transform.position);
+                laserFork.SetPosition(2, transform.position + (isOffset ? forkOffsetLeft2 : forkOffsetRight2));
+
                 // change laser intensity so that it doesn't look like a solid line
                 laserLine.startWidth = laserIncreasing ? laserLine.startWidth + widthChange : laserLine.startWidth - widthChange;
                 laserLine.endWidth = laserIncreasing ? laserLine.endWidth + widthChange : laserLine.endWidth - widthChange;
@@ -84,16 +96,34 @@ public class RMBAttack : MonoBehaviour
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
                     enemyController.damage(1, DamageType.RMB);
-                } else if (hit.collider.CompareTag(Tag.spawner))
+                }
+                else if (hit.collider.CompareTag(Tag.spawner))
                 {
                     SpawnerController spawner = hit.collider.GetComponent<SpawnerController>();
                     spawner.damage(1);
                 }
             }
-            else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects
+            else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects (without starting recharging)
             {
                 enableVisuals(false);
             }
+        }
+    }
+
+    public void setOffset(bool left)
+    {
+        if (left)
+        {
+            if (!isOffset)
+            {
+                isOffset = true;
+                transform.position += offsetX;
+            }
+        }
+        else if (isOffset)
+        {
+            isOffset = false;
+            transform.position -= offsetX;
         }
     }
 
@@ -145,6 +175,7 @@ public class RMBAttack : MonoBehaviour
     {
         visualsEnabled = enable;
         laserLine.enabled = enable;
+        laserFork.enabled = enable;
         if (enable) laserParticles.Play();
         else laserParticles.Stop();
     }
@@ -199,7 +230,7 @@ public class RMBAttack : MonoBehaviour
         public void forceCharge(byte amount)
         {
             charge += amount;
-            if(charge > chargeLimit) charge = chargeLimit;
+            if (charge > chargeLimit) charge = chargeLimit;
             indicator.updateValue(chargeLimit, charge);
         }
     }

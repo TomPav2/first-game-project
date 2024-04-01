@@ -8,14 +8,12 @@ public class MainCharacterSheet : MonoBehaviour
 {
     // pointers
     [SerializeField] private HeartController healthBar;
-
     [SerializeField] private DamageFX damageFX;
     [SerializeField] private EaselController easel;
     [SerializeField] private MainCharController charController;
 
     // attacks
     [SerializeField] private RMBAttack laserAttack;
-
     [SerializeField] private GameObject attackBasic;
     [SerializeField] private GameObject attackFast;
     [SerializeField] private GameObject attackStrong;
@@ -49,6 +47,10 @@ public class MainCharacterSheet : MonoBehaviour
     public void init()
     {
         laserAttack.resetAttack();
+        if (currentAttack != null && currentAttack != attackBasic)
+        {
+            currentAttack.SetActive(false);
+        }
         currentAttack = attackBasic;
         currentAttack.SetActive(true);
         maxHealth = 12;

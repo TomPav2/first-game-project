@@ -77,6 +77,10 @@ public class LMBAttack : MonoBehaviour
         transform.right = clickPosition - transform.position;
         targetPos = clickPosition;
 
+        // perform one move so that it does not start at the centre of character
+        targetPos = Vector2.MoveTowards(targetPos, transform.position, -speed / 10);
+        transform.position = Vector2.MoveTowards(transform.position, targetPos, speed / 10);
+
         // set moving, visible, enable collider
         move = true;
         GetComponent<SpriteRenderer>().enabled = true;

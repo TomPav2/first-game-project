@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using static GameValues;
 
 public class MainCharController : MonoBehaviour
 {
@@ -7,13 +9,25 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private int speed;
     [SerializeField] private Sprite spriteRight;
     [SerializeField] private Sprite spriteLeft;
+    [SerializeField] private Sprite spriteRightBonus;
+    [SerializeField] private Sprite spriteLeftBonus;
     [SerializeField] private GameObject healthBar;
+    [SerializeField] private RMBAttack laserAttack;
+
+    private Sprite activeSpriteRight;
+    private Sprite activeSpriteLeft;
 
     private bool dirRight = true;
     private bool dirUp = true;
     private float speedX = 0;
     private float speedY = 0;
     private float speedUpgrade = 1;
+
+    private void Awake()
+    {
+        activeSpriteRight = spriteRight;
+        activeSpriteLeft = spriteLeft;
+    }
 
     private void FixedUpdate()
     {
@@ -45,17 +59,13 @@ public class MainCharController : MonoBehaviour
         this.speedUpgrade = speedUpgrade;
     }
 
-    public void setBonusSprite()
-    {
-        // TODO
-    }
-
     private void turnRight()
     {
         if (!dirRight)
         {
             sprite.sprite = spriteRight;
             dirRight = true;
+            laserAttack.setOffset(!dirRight);
         }
     }
 
@@ -65,6 +75,28 @@ public class MainCharController : MonoBehaviour
         {
             sprite.sprite = spriteLeft;
             dirRight = false;
+            laserAttack.setOffset(!dirRight);
+        }
+    }
+
+    private IEnumerator pickUpBonus()
+    {
+        activeSpriteRight = spriteRightBonus;
+        activeSpriteLeft = spriteLeftBonus;
+        sprite.sprite = dirRight ? activeSpriteRight : activeSpriteLeft;
+        yield return new WaitForSeconds(1);
+
+        activeSpriteRight = spriteRight;
+        activeSpriteLeft = spriteLeft;
+        sprite.sprite = dirRight ? activeSpriteRight : activeSpriteLeft;
+        yield break;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag(Tag.bonus))
+        {
+            StartCoroutine(pickUpBonus());
         }
     }
 }

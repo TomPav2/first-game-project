@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
+using Random = UnityEngine.Random;
 
 public class SkellyController : MonoBehaviour
 {
@@ -9,26 +11,31 @@ public class SkellyController : MonoBehaviour
     [SerializeField] private SliderController healthBar;
     [SerializeField] private Rigidbody2D body;
     [SerializeField] private Animator animator;
-    [SerializeField] private GameManager manager;
+    [SerializeField] private Sprite defaultSprite;
+    private LevelManager manager;
+    private SpawnerManager spawner;
     private MainCharacterSheet mainChar;
+    private RavenController raven;
+    //private CrowController crow;
 
     // movement
     private Vector2 target;
+    private bool isInFinalArea = false;
+
     private float distanceTolerance = 0.2f;
     private byte currentSpeed = 0;
 
-    private readonly byte fast = 7;
-    private readonly byte slow = 4;
+    private readonly byte fast = 10;
+    private readonly byte slow = 6;
 
     // combat
-    private float maxHealth;
-    private float health;
+    private int maxHealth;
+    public int health {  get; private set; }
 
     // processing
     private EnemyState state = EnemyState.None;
 
     private Coroutine currentProcess;
-    private Coroutine navigatorProcess;
 
     // ---------------- LIFECYCLE ----------------
     private void Awake()
@@ -43,12 +50,15 @@ public class SkellyController : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = false;
     }
 
-    public void init(MainCharacterSheet character, GameManager gameManager)
+    public void init(MainCharacterSheet character, LevelManager levelManager, SpawnerManager spawnerManager, RavenController ravenController)
     {
-        manager = gameManager;
+        manager = levelManager;
         mainChar = character;
+        spawner = spawnerManager;
+        raven = ravenController;
     }
-    public void spawn(Vector2 pos, float hp)
+
+    public void spawn(Vector2 pos, int hp)
     {
         transform.position = pos;
         maxHealth = hp;
@@ -56,12 +66,13 @@ public class SkellyController : MonoBehaviour
         currentProcess = StartCoroutine(performSpawn());
     }
 
-    private void die()
+    private void die(DamageType damageType)
     {
-        if (currentProcess != null) StopCoroutine(currentProcess);
-        if (navigatorProcess != null) StopCoroutine(navigatorProcess);
+        StopAllCoroutines();
+        manager.addScore(damageType);
+        if (raven != null) raven.deregister(this);
 
-        StartCoroutine(performDeath());
+        deathFirstStage();
     }
 
     private IEnumerator performSpawn()
@@ -69,13 +80,11 @@ public class SkellyController : MonoBehaviour
         switchState(EnemyState.Spawning);
         GetComponent<SpriteRenderer>().enabled = true;
 
-        Color color = Color.white;
         float alpha = 0f;
         while (alpha < 1f)
         {
             alpha += 0.1f;
-            color.a = alpha;
-            GetComponent<SpriteRenderer>().color = color;
+            GetComponent<SpriteRenderer>().color = Color.white.WithAlpha(alpha);
             yield return new WaitForSeconds(0.1f);
         }
 
@@ -84,23 +93,41 @@ public class SkellyController : MonoBehaviour
         body.simulated = true;
         switchState(EnemyState.Idle);
         animator.ResetTrigger(Trigger.idle); // not needed after spawn
-        navigatorProcess = StartCoroutine(navigator());
+        StartCoroutine(navigator());
         yield break;
     }
 
-    private IEnumerator performDeath()
+    // disables collision and starts death animation
+    private void deathFirstStage()
     {
         switchState(EnemyState.Dying);
         GetComponent<CapsuleCollider2D>().enabled = false;
         body.simulated = false;
         healthBar.fade();
-        yield return new WaitForSeconds(1);
+        spawner.removeFromLiving(this);
+    }
 
-        animator.enabled = false;
-        GetComponent<SpriteRenderer>().enabled = false;
+    // called by animation event, stops animation and performs fade
+    private void deathSecondStage()
+    {
         switchState(EnemyState.Dead);
-        //spawnManager.makeAvailable(this);
-        yield break;
+        animator.enabled = false;
+        currentProcess = StartCoroutine(deathFadeProcess());
+    }
+
+
+    private IEnumerator deathFadeProcess()
+    {
+        float alpha = 1f;
+        while (alpha > 0f)
+        {
+            alpha -= 0.2f;
+            GetComponent<SpriteRenderer>().color = Color.white.WithAlpha(alpha);
+            yield return new WaitForSeconds(0.1f);
+        }
+        GetComponent<SpriteRenderer>().sprite = defaultSprite;
+        GetComponent<SpriteRenderer>().enabled = false;
+        spawner.makeAvailable(this);
     }
 
     // ---------------- MOVEMENT ----------------
@@ -121,11 +148,15 @@ public class SkellyController : MonoBehaviour
             }
             else if (state == EnemyState.Walking)
             {
-                // if state was walking, get a new target
-                targetWaypoint();
+                // if state was walking and not in target area, get a new target
+                if (isInFinalArea)
+                {
+                    switchState(EnemyState.Idle);
+                    currentProcess = StartCoroutine(idleTimer());
+                }
+                else targetWaypoint();
             }
         }
-        // TODO random location in target area
 
         Vector2 motion = Vector2.MoveTowards(transform.position, target, Time.deltaTime * currentSpeed);
         body.MovePosition(motion);
@@ -223,7 +254,6 @@ public class SkellyController : MonoBehaviour
 
     // ---------------- TARGETTING ----------------
 
-
     private IEnumerator navigator()
     {
         while (true)
@@ -262,7 +292,7 @@ public class SkellyController : MonoBehaviour
             }
         }
     }
-    
+
     private void updateTarget()
     {
         if (manager.charLoS(transform.position))
@@ -274,10 +304,7 @@ public class SkellyController : MonoBehaviour
         else switch (state)
             {
                 case EnemyState.Idle:
-                    if (!isInFinalArea())
-                    {
-                        targetWaypoint();
-                    }
+                    if (!isInFinalArea) targetWaypoint();
                     break;
 
                 case EnemyState.Following:
@@ -288,14 +315,17 @@ public class SkellyController : MonoBehaviour
 
     private void targetWaypoint()
     {
-        //TODO
-        //rotate();
+        target = manager.getWaypoint(transform, isInFinalArea);
+        switchState(EnemyState.Walking);
+        rotate();
     }
 
-    private bool isInFinalArea()
+    private IEnumerator idleTimer()
     {
-        //TODO
-        return false;
+        float randomTime = Random.Range(5f, 10f);
+        yield return new WaitForSeconds(randomTime);
+        targetWaypoint();
+        yield break;
     }
 
     // ---------------- COMBAT ----------------
@@ -307,9 +337,16 @@ public class SkellyController : MonoBehaviour
         {
             health = 0;
             if (type == DamageType.LMB || type == DamageType.RMB) mainChar.offerLife();
-            die();
+            die(type);
         }
         healthBar.updateValue(maxHealth, health);
+    }
+
+    public int damageMax(DamageType type)
+    {
+        healthBar.updateValue(maxHealth, 0);
+        die(type);
+        return health;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -317,16 +354,30 @@ public class SkellyController : MonoBehaviour
         if (collision.gameObject.tag == Tag.player)
         {
             mainChar.damage(1);
-            die();
+            die(DamageType.Contact);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == Tag.AttackLMB)
+        if (collision.gameObject.CompareTag(Tag.attackLMB))
         {
             LMBAttack projectile = collision.GetComponent<LMBAttack>();
             damage(projectile.Hit(true), DamageType.LMB);
+        }
+        else if (collision.gameObject.CompareTag(Tag.raven))
+        {
+            isInFinalArea = true;
+            raven.register(this);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag(Tag.raven))
+        {
+            isInFinalArea = false;
+            raven.deregister(this);
         }
     }
 }
