@@ -1,5 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using Unity.VisualScripting;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using static GameValues;
 
@@ -59,6 +63,12 @@ public class SpawnerManager : MonoBehaviour
         availableEnemies.Add(enemy);
     }
 
+    // this is not to punish player for destroying the portal at certain times
+    public void fakeSpawnedEnemies(byte amount)
+    {
+        enemiesSpawned += amount;
+    }
+
     private void destroyAllEnemies()
     {
         foreach (SkellyController enemy in livingEnemies)
@@ -78,7 +88,7 @@ public class SpawnerManager : MonoBehaviour
     // ------------ spawning ------------
     public void startStage(LevelManager.Stage stage)
     {
-        spawnerRoutine = StartCoroutine(mainSpawningProcess(stage.spawnInterval, stage.spawnerLifetime, stage.maxSpawners, stage.intensity));
+        spawnerRoutine = StartCoroutine(mainSpawningProcess(stage));
     }
 
     public void endStage()
@@ -97,20 +107,24 @@ public class SpawnerManager : MonoBehaviour
     }
 
     // this is a bad way of getting a random available element, but I like the idea of the player getting a break by chance
-    private void delegateSpawning(int avgTime, float avgInterval, int enemyHealth)
+    private void delegateSpawning(LevelManager.Stage stage, int enemyHealth)
     {
+        bool fast = UnityEngine.Random.Range(0, 2) == 0;
+        int avgTime = fast ? stage.fastSpawnerLifetime : stage.slowSpawnerLifetime;
+        float avgInterval = fast ? stage.fastSpawnerInterval : stage.slowSpawnerInterval;
+
         bool success = false;
         byte attmepts = 5;
         while (!success && attmepts > 0)
         {
-            int spawnerId = Random.Range(0, spawners.Count);
+            int spawnerId = UnityEngine.Random.Range(0, spawners.Count);
             success = spawners[spawnerId].engage(avgTime, avgInterval, enemyHealth);
             attmepts -= 1;
         }
         if (success) activeSpawners++;
     }
 
-    private IEnumerator mainSpawningProcess(float interval, int lifetime, byte spawnerLimit, float desiredIntensity)
+    private IEnumerator mainSpawningProcess(LevelManager.Stage stage)
     {
         int currentInterval = 0;
         int enemyHealth = Difficulty.baseHealth;
@@ -122,21 +136,22 @@ public class SpawnerManager : MonoBehaviour
                 enemyHealth += enemyHealth / 10;
 
             // if time taken by combat is below treshold, and a spawner is available, start a spawner
-            if (currentInterval == 0) delegateSpawning(lifetime, interval, enemyHealth);
+            if (currentInterval == 0) delegateSpawning(stage, enemyHealth);
             else
             {
-                if (activeSpawners < spawnerLimit)
+                Debug.Log("Time blocked currently: " + enemiesSpawned * Difficulty.baseHealth / Difficulty.estimatedDPS);
+                if (activeSpawners < stage.maxSpawners)
                 {
                     int timeBlocked = enemiesSpawned * Difficulty.baseHealth / Difficulty.estimatedDPS;
-                    float timeBlockedProportion = timeBlocked / (currentInterval * 30);
-                    Debug.Log("Intensity: " + timeBlockedProportion + " / " + desiredIntensity);
-                    if (timeBlockedProportion < desiredIntensity) delegateSpawning(lifetime, interval, enemyHealth);
+                    float timeBlockedProportion = timeBlocked / (float)(currentInterval * Difficulty.interval);
+                    Debug.Log("Intensity: " + Math.Round(timeBlockedProportion, 3) + " / " + stage.intensity);
+                    if (timeBlockedProportion < stage.intensity) delegateSpawning(stage, enemyHealth);
                 }
             }
 
             // increase interval counter and wait for next
             currentInterval++;
-            yield return new WaitForSeconds(30);
+            yield return new WaitForSeconds(Difficulty.interval);
         }
     }
 }

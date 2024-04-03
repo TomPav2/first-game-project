@@ -18,8 +18,9 @@ public static class GameValues
     {
         public static readonly byte estimatedDPS = 35;
         public static readonly byte baseHealth = 100;
-        public static readonly byte raiseHealthInterval = 4; // interval is 30 seconds
-        public static readonly byte raiseHealthGracePeriod = 8;
+        public static readonly byte interval = 15;
+        public static readonly byte raiseHealthInterval = 8; // raise every two minutes
+        public static readonly byte raiseHealthGracePeriod = 16; // don't raise for the first four minutes
     }
 
     public enum EnemyState

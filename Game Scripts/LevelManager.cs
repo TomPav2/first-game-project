@@ -56,7 +56,13 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                if (waypoint.priority < bestTarget.Value.priority && checkLoS(from, waypoint.position))
+                if ((waypoint.priority < bestTarget.Value.priority) && (checkLoS(from, waypoint.position)))
+                {
+                    bestTarget = waypoint;
+                }
+                else if ((waypoint.priority == bestTarget.Value.priority)
+                    && Vector2.Distance(waypoint.position, from.position) < Vector2.Distance(bestTarget.Value.position, from.position)
+                    && checkLoS(from, waypoint.position))
                 {
                     bestTarget = waypoint;
                 }
@@ -136,6 +142,10 @@ public class LevelManager : MonoBehaviour
 
     private void setupNextStage()
     {
+        if (stages.Count == 0)
+        {
+            Debug.Log("OUT OF STAGES");
+        } else // TODO replace with final stage
         easel.setUp(stages[0].bonusSpawn);
     }
 
@@ -154,7 +164,9 @@ public class LevelManager : MonoBehaviour
     // ------------ game data ------------
     private void initStages()
     {
-        stages.Add(new Stage(1, 1, 0.5f, 3, 150, 0.75f));
+        Stage stage1 = new Stage().setNumber(1).setMaxSpawners(1).setIntensity(0.5f).setSlowSpawnerInterval(3)
+            .setSlowSpawnerLifetime(150).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(50).setBonusSpawn(0.75f);
+        stages.Add(stage1);
     }
 
     private void initAreas()
@@ -188,8 +200,8 @@ public class LevelManager : MonoBehaviour
 
         public Vector2 getFuzzyPosition()
         {
-            float posX = UnityEngine.Random.Range(position.x - 2, position.x + 2);
-            float posY = UnityEngine.Random.Range(position.y - 2, position.y + 2);
+            float posX = Random.Range(position.x - 2, position.x + 2);
+            float posY = Random.Range(position.y - 2, position.y + 2);
             return new Vector2(posX, posY);
         }
     }
@@ -232,21 +244,61 @@ public class LevelManager : MonoBehaviour
 
     public record Stage
     {
-        public byte number { get; }
-        public byte maxSpawners { get; } // the amount of spawners that can be active at a time
-        public float intensity { get; } // the fraction of time the player should spend fighting enemies
-        public float spawnInterval { get; } // the average time between two enemies spawning (per spawner)
-        public int spawnerLifetime { get; } // the average time a spawner should be active
-        public float bonusSpawn { get; } // at what % completion should bonus spawn
+        public byte number { get; private set; }
+        public byte maxSpawners { get; private set; } // the amount of spawners that can be active at a time
+        public float intensity { get; private set; } // the fraction of time the player should spend fighting enemies
+        public float slowSpawnerInterval { get; private set; } // the average time between two enemies spawning (per spawner)
+        public int slowSpawnerLifetime { get; private set; } // the average time a spawner should be active
+        public float fastSpawnerInterval { get; private set; } // the average time between two enemies spawning (per spawner)
+        public int fastSpawnerLifetime { get; private set; } // the average time a spawner should be active
+        public float bonusSpawn { get; private set; } // at what % completion should bonus spawn
 
-        public Stage(byte number, byte spawners, float intensity, float spawnInterval, int spawnerLifetime, float bonusSpawn)
+        public Stage setNumber(byte number)
         {
             this.number = number;
-            this.maxSpawners = spawners;
+            return this;
+        }
+
+        public Stage setMaxSpawners(byte maxSpawners)
+        {
+            this.maxSpawners = maxSpawners;
+            return this;
+        }
+
+        public Stage setIntensity(float intensity)
+        {
             this.intensity = intensity;
-            this.spawnInterval = spawnInterval;
-            this.spawnerLifetime = spawnerLifetime;
+            return this;
+        }
+
+        public Stage setSlowSpawnerInterval(float slowSpawnerInterval)
+        {
+            this.slowSpawnerInterval = slowSpawnerInterval;
+            return this;
+        }
+
+        public Stage setSlowSpawnerLifetime(int slowSpawnerLifetime)
+        {
+            this.slowSpawnerLifetime = slowSpawnerLifetime;
+            return this;
+        }
+
+        public Stage setFastSpawnerInterval(float fastSpawnerInterval)
+        {
+            this.fastSpawnerInterval = fastSpawnerInterval;
+            return this;
+        }
+
+        public Stage setFastSpawnerLifetime(int fastSpawnerLifetime)
+        {
+            this.fastSpawnerLifetime = fastSpawnerLifetime;
+            return this;
+        }
+
+        public Stage setBonusSpawn(float bonusSpawn)
+        {
             this.bonusSpawn = bonusSpawn;
+            return this;
         }
     }
 }

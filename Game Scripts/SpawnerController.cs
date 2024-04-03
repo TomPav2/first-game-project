@@ -99,7 +99,11 @@ public class SpawnerController : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = false;
         if (spawnTimer != null) StopCoroutine(spawnTimer);
 
-        if (toSpawn < 4) disengage();
+        if (toSpawn < 4)
+        {
+            spawnerManager.fakeSpawnedEnemies(2);
+            disengage();
+        }
         else
         {
             toSpawn = (byte)(toSpawn / 2);
@@ -143,9 +147,10 @@ public class SpawnerController : MonoBehaviour
 
     private IEnumerator overloadTimerRoutine()
     {
+        yield return new WaitForSeconds(3);
         while (toSpawn > 0)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.3f);
             spawnEnemy(spawnerManager.getSkeleton(true));
         }
         yield return new WaitForSeconds(1);

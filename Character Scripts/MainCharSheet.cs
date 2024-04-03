@@ -65,7 +65,7 @@ public class MainCharacterSheet : MonoBehaviour
         emptyUpgrades = new List<int> { 0, 1, 2 };
     }
 
-    public void selectBonus()
+    public void applyRandomBonus()
     {
         int index = UnityEngine.Random.Range(0, emptyUpgrades.Count);
         int bonusType = emptyUpgrades[index];
@@ -117,6 +117,7 @@ public class MainCharacterSheet : MonoBehaviour
     public void damage(byte amount)
     {
         damageFX.playDamageEffect(amount);
+        easel.stopPainting();
         if (health <= amount)
         {
             // TODO death animation and screen
@@ -132,6 +133,7 @@ public class MainCharacterSheet : MonoBehaviour
 
     private void applyBonus(Enum bonusType)
     {
+        Debug.Log("Got upgrade: " +  bonusType); // TODO remove
         switch (bonusType)
         {
             case BonusHealth.Regen:
@@ -179,7 +181,7 @@ public class MainCharacterSheet : MonoBehaviour
 
             case BonusSpeed.PaintSpeed:
                 {
-                    //easel.speedUpgrade(); TODO
+                    easel.speedUpgrade();
                     break;
                 }
             case BonusSpeed.MoveSpeed:

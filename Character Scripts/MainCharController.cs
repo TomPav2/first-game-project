@@ -13,6 +13,7 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private Sprite spriteLeftBonus;
     [SerializeField] private GameObject healthBar;
     [SerializeField] private RMBAttack laserAttack;
+    [SerializeField] private MainCharacterSheet characterSheet;
 
     private Sprite activeSpriteRight;
     private Sprite activeSpriteLeft;
@@ -79,7 +80,7 @@ public class MainCharController : MonoBehaviour
         }
     }
 
-    private IEnumerator pickUpBonus()
+    private IEnumerator pickUpBonusProcess()
     {
         activeSpriteRight = spriteRightBonus;
         activeSpriteLeft = spriteLeftBonus;
@@ -96,7 +97,8 @@ public class MainCharController : MonoBehaviour
     {
         if (collision.CompareTag(Tag.bonus))
         {
-            StartCoroutine(pickUpBonus());
+            StartCoroutine(pickUpBonusProcess());
+            characterSheet.applyRandomBonus();
         }
     }
 }

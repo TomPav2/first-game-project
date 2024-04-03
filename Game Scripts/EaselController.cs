@@ -69,7 +69,7 @@ public class EaselController : MonoBehaviour
         currentlyPainting = true;
     }
 
-    private void stopPainting()
+    public void stopPainting()
     {
         if (painting != null) StopCoroutine(painting);
         sliderFill.color = inactive;
@@ -78,10 +78,10 @@ public class EaselController : MonoBehaviour
 
     private bool inArea()
     {
-        float distX = transform.position.x - mainChar.position.x;
+       /* float distX = transform.position.x - mainChar.position.x;
         if (Mathf.Abs(distX) > 7) return false;
         float distY = transform.position.y - mainChar.position.y;
-        if (Mathf.Abs(distY) > 7) return false;
+        if (Mathf.Abs(distY) > 7) return false; */// TODO uncomment
         return true;
     }
 
@@ -97,7 +97,7 @@ public class EaselController : MonoBehaviour
                 complete();
                 yield break;
             }
-            if (progress >= notifyAtValue)
+            if (progress == notifyAtValue)
             {
                 notifyAtValue = -1;
                 Debug.Log("TO spawn bonus"); // TODO notify levelmanager
