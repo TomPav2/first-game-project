@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
+using static SceneLoader;
 
 public class MainCharController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private GameObject healthBar;
     [SerializeField] private RMBAttack laserAttack;
     [SerializeField] private MainCharacterSheet characterSheet;
+    [SerializeField] private TutorialController tutorial;
 
     private Sprite activeSpriteRight;
     private Sprite activeSpriteLeft;
@@ -24,6 +26,8 @@ public class MainCharController : MonoBehaviour
     private float speedY = 0;
     private float speedUpgrade = 1;
 
+    private bool lockedControls = false;
+
     private void Awake()
     {
         activeSpriteRight = spriteRight;
@@ -32,6 +36,8 @@ public class MainCharController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (lockedControls) return;
+
         if (Input.GetKey(KeyCode.W) ^ Input.GetKey(KeyCode.S))
         {
             speedY = 1;
@@ -49,7 +55,8 @@ public class MainCharController : MonoBehaviour
         if (speedX > 0 || speedY > 0)
         {
             body.velocity = speed * speedUpgrade * Time.deltaTime * new Vector2(dirRight ? speedX : -speedX, dirUp ? speedY : -speedY);
-        } else
+        }
+        else
         {
             body.velocity = Vector2.zero;
         }
@@ -58,6 +65,11 @@ public class MainCharController : MonoBehaviour
     public void setSpeedUpgrade(float speedUpgrade)
     {
         this.speedUpgrade = speedUpgrade;
+    }
+
+    public void enableMovement(bool enable)
+    {
+        lockedControls = !enable;
     }
 
     private void turnRight()
@@ -99,6 +111,10 @@ public class MainCharController : MonoBehaviour
         {
             StartCoroutine(pickUpBonusProcess());
             characterSheet.applyRandomBonus();
+        }
+        else if (collision.gameObject.CompareTag(Tag.raven) && inTutorial)
+        {
+            tutorial.nextStep();
         }
     }
 }

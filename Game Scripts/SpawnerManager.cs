@@ -39,18 +39,19 @@ public class SpawnerManager : MonoBehaviour
     // ------------ enemy lifecycle ------------
     public SkellyController getSkeleton(bool overloaded)
     {
-        SkellyController skelly = null;
+        SkellyController enemy = null;
         int freeEnemyCount = availableEnemies.Count;
         if (freeEnemyCount > 0)
         {
-            skelly = availableEnemies[freeEnemyCount - 1];
+            enemy = availableEnemies[freeEnemyCount - 1];
+            enemy.enabled = true;
             availableEnemies.RemoveAt(freeEnemyCount - 1);
         }
-        else skelly = makeNewSkeleton();
-        livingEnemies.Add(skelly);
+        else enemy = makeNewSkeleton();
+        livingEnemies.Add(enemy);
         enemiesSpawned++;
         if (overloaded) enemiesSpawned++;
-        return skelly;
+        return enemy;
     }
 
     public void removeFromLiving(SkellyController enemy)
@@ -61,6 +62,7 @@ public class SpawnerManager : MonoBehaviour
     public void makeAvailable(SkellyController enemy)
     {
         availableEnemies.Add(enemy);
+        enemy.enabled = false;
     }
 
     // this is not to punish player for destroying the portal at certain times

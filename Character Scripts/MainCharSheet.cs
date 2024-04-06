@@ -11,6 +11,7 @@ public class MainCharacterSheet : MonoBehaviour
     [SerializeField] private DamageFX damageFX;
     [SerializeField] private EaselController easel;
     [SerializeField] private MainCharController charController;
+    [SerializeField] private LevelManager levelManager;
 
     // attacks
     [SerializeField] private RMBAttack laserAttack;
@@ -38,12 +39,6 @@ public class MainCharacterSheet : MonoBehaviour
     {
         init();
     }
-
-    public void test()
-    {
-        //TODO remove
-    }
-
     public void init()
     {
         laserAttack.resetAttack();
@@ -134,6 +129,7 @@ public class MainCharacterSheet : MonoBehaviour
     private void applyBonus(Enum bonusType)
     {
         Debug.Log("Got upgrade: " +  bonusType); // TODO remove
+        levelManager.hideBonusItem();
         switch (bonusType)
         {
             case BonusHealth.Regen:

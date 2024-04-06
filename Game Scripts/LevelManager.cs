@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Transform mainCharTransform;
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private EaselController easel;
+    [SerializeField] private GameObject bonusItem;
 
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
@@ -43,9 +44,12 @@ public class LevelManager : MonoBehaviour
 
     // If the enemy is in central area, give it a random spot to walk to
     // Otherwise find the highest priority target in line of sight (0 is highest)
-    public Vector2 getWaypoint(Transform from, bool inCentralArea)
+    // pos: the position the enemy will move toward
+    // doNotWait: enemy will request a new target immediately after reaching it
+        // (this is to prevent enemies from piling up when entering the central area)
+    public (Vector2 pos, bool doNotWait) getWaypoint(Transform from, bool inCentralArea)
     {
-        if (inCentralArea) return centralArea.getRandom();
+        if (inCentralArea) return (centralArea.getRandom(), false);
 
         Waypoint? bestTarget = null;
         foreach (Waypoint waypoint in waypoints)
@@ -67,14 +71,13 @@ public class LevelManager : MonoBehaviour
                     bestTarget = waypoint;
                 }
             }
-            if (bestTarget.HasValue && bestTarget.Value.priority == 0) return bestTarget.Value.getFuzzyPosition();
         }
         if (bestTarget.HasValue)
-            return bestTarget.Value.getFuzzyPosition();
+            return (bestTarget.Value.getFuzzyPosition(), true);
         else
         {
             Debug.LogError("Enemy can't see any waypoints from this position: " + from.position);
-            return Vector2.zero;
+            return (Vector2.zero, false);
         }
     }
 
@@ -109,6 +112,21 @@ public class LevelManager : MonoBehaviour
 
     public Vector2 getCharPos()
     { return mainCharTransform.position; }
+
+    // ------------ bonus item ------------
+    public void hideBonusItem()
+    {
+        bonusItem.GetComponent<SpriteRenderer>().enabled = false;
+        bonusItem.GetComponent<CircleCollider2D>().enabled = false;
+    }
+
+    public void showBonusItem()
+    {
+        Area randomArea = areas[Random.Range(0,areas.Count)];
+        bonusItem.transform.position = randomArea.getRandom();
+        bonusItem.GetComponent<SpriteRenderer>().enabled = true;
+        bonusItem.GetComponent<CircleCollider2D>().enabled = true;
+    }
 
     // ------------ stage management ------------
     public void addScore(DamageType type)
@@ -156,7 +174,8 @@ public class LevelManager : MonoBehaviour
         score = 0;
         spawnerManager.endStage();
         Debug.Log("Score " + totalScore);
-        // TODO disable bonus, show level end, add upgrade points
+        hideBonusItem();
+        // TODO show level end, add upgrade points
 
         setupNextStage();
     }
@@ -187,7 +206,7 @@ public class LevelManager : MonoBehaviour
         areas.Add(new Area(144, -80, 168, -60));
     }
 
-    private struct Waypoint
+    public struct Waypoint
     {
         public readonly Vector2 position { get; }
         public readonly byte priority { get; }

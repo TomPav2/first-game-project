@@ -11,8 +11,8 @@ public class SpawnerController : MonoBehaviour
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private float spawnRange;
-    private ParticleSystem.EmissionModule emission;
-    private ParticleSystem.MainModule particlesMain;
+    protected ParticleSystem.EmissionModule emission;
+    protected ParticleSystem.MainModule particlesMain;
 
     private readonly byte overloadLimit = 200;
     private byte overloadMeter = 0;
@@ -21,7 +21,7 @@ public class SpawnerController : MonoBehaviour
     private int enemyHealth = Difficulty.baseHealth;
     private Coroutine spawnTimer;
 
-    private double particleSpeed = 5;
+    protected double particleSpeed = 5;
 
     private float spawnerYOffset = 2.5f;
 
@@ -31,21 +31,7 @@ public class SpawnerController : MonoBehaviour
         particlesMain = particles.main;
     }
 
-    // TODO remove
-    /*private void FixedUpdate()
-    {
-        Vector2 center = new Vector2(transform.position.x, transform.position.y - spawnerYOffset);
-        Vector2 topLeft = new Vector2(center.x - spawnRange, center.y + spawnRange);
-        Vector2 topRight = new Vector2(center.x + spawnRange, center.y + spawnRange);
-        Vector2 botLeft = new Vector2(center.x - spawnRange, center.y - spawnRange);
-        Vector2 botRight = new Vector2(center.x + spawnRange, center.y - spawnRange);
-        Debug.DrawLine(center, topLeft);
-        Debug.DrawLine(center, topRight);
-        Debug.DrawLine(center, botLeft);
-        Debug.DrawLine(center, botRight);
-    }*/
-
-    public bool engage(int avgTime, float avgInterval, int health)
+    public virtual bool engage(int avgTime, float avgInterval, int health)
     {
         if (GetComponent<SpriteRenderer>().enabled) return false;
 
@@ -94,7 +80,7 @@ public class SpawnerController : MonoBehaviour
         }
     }
 
-    private void overload()
+    protected virtual void overload()
     {
         GetComponent<CapsuleCollider2D>().enabled = false;
         if (spawnTimer != null) StopCoroutine(spawnTimer);
@@ -111,7 +97,7 @@ public class SpawnerController : MonoBehaviour
         }
     }
 
-    private void disengage()
+    protected void disengage()
     {
         GetComponent<CapsuleCollider2D>().enabled = false;
         animator.SetTrigger("destroyAnim"); // calls hide
@@ -123,7 +109,7 @@ public class SpawnerController : MonoBehaviour
         animator.enabled = false;
         particles.Stop();
         GetComponent<SpriteRenderer>().enabled = false;
-        spawnerManager.stoppedSpawning();
+        if (spawnerManager != null) spawnerManager.stoppedSpawning();
     }
 
     private void spawnEnemy(SkellyController enemy)

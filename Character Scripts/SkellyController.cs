@@ -8,21 +8,23 @@ using Random = UnityEngine.Random;
 public class SkellyController : MonoBehaviour
 {
     // pointers
-    [SerializeField] private SliderController healthBar;
-    [SerializeField] private Rigidbody2D body;
+    [SerializeField] protected SliderController healthBar;
+    [SerializeField] protected Rigidbody2D body;
+    [SerializeField] protected Sprite defaultSprite;
     [SerializeField] private Animator animator;
-    [SerializeField] private Sprite defaultSprite;
+    protected MainCharacterSheet mainChar;
     private LevelManager manager;
     private SpawnerManager spawner;
-    private MainCharacterSheet mainChar;
     private RavenController raven;
     //private CrowController crow;
 
     // movement
-    private Vector2 target;
+    protected Vector2 target;
     private bool isInFinalArea = false;
+    private bool noIdlingOnTarget = true;
 
     private float distanceTolerance = 0.2f;
+    private float lastDistance = 10000f;
     private byte currentSpeed = 0;
 
     private readonly byte fast = 10;
@@ -66,7 +68,7 @@ public class SkellyController : MonoBehaviour
         currentProcess = StartCoroutine(performSpawn());
     }
 
-    private void die(DamageType damageType)
+    protected virtual void die(DamageType damageType)
     {
         StopAllCoroutines();
         manager.addScore(damageType);
@@ -75,7 +77,7 @@ public class SkellyController : MonoBehaviour
         deathFirstStage();
     }
 
-    private IEnumerator performSpawn()
+    protected virtual IEnumerator performSpawn()
     {
         switchState(EnemyState.Spawning);
         GetComponent<SpriteRenderer>().enabled = true;
@@ -98,7 +100,7 @@ public class SkellyController : MonoBehaviour
     }
 
     // disables collision and starts death animation
-    private void deathFirstStage()
+    protected virtual void deathFirstStage()
     {
         switchState(EnemyState.Dying);
         GetComponent<CapsuleCollider2D>().enabled = false;
@@ -116,7 +118,7 @@ public class SkellyController : MonoBehaviour
     }
 
 
-    private IEnumerator deathFadeProcess()
+    protected virtual IEnumerator deathFadeProcess()
     {
         float alpha = 1f;
         while (alpha > 0f)
@@ -138,8 +140,10 @@ public class SkellyController : MonoBehaviour
             return;
         }
 
+        float distanceToTarget = Vector2.Distance(transform.position, target);
+
         // if target is reached...
-        if (Vector2.Distance(transform.position, target) <= distanceTolerance)
+        if (distanceToTarget <= distanceTolerance)
         {
             if (state == EnemyState.InertiaRun)
             {
@@ -149,7 +153,7 @@ public class SkellyController : MonoBehaviour
             else if (state == EnemyState.Walking)
             {
                 // if state was walking and not in target area, get a new target
-                if (isInFinalArea)
+                if (isInFinalArea && !noIdlingOnTarget)
                 {
                     switchState(EnemyState.Idle);
                     currentProcess = StartCoroutine(idleTimer());
@@ -158,11 +162,17 @@ public class SkellyController : MonoBehaviour
             }
         }
 
+        if (state == EnemyState.Walking)
+        {
+            if (distanceToTarget > lastDistance) targetWaypoint(); // this is needed because some enemies would block each other
+            else lastDistance = distanceToTarget;
+        }
+
         Vector2 motion = Vector2.MoveTowards(transform.position, target, Time.deltaTime * currentSpeed);
         body.MovePosition(motion);
     }
 
-    private void rotate()
+    protected void rotate()
     {
         Vector2 motion = Vector2.MoveTowards(transform.position, target, 1);
         GetComponent<SpriteRenderer>().flipX = ((transform.position.x - motion.x) > 0);
@@ -188,7 +198,7 @@ public class SkellyController : MonoBehaviour
     }
 
     // ---------------- STATE HANDLING ----------------
-    private void switchState(EnemyState state)
+    protected void switchState(EnemyState state)
     {
         if (this.state == state) return;
         this.state = state;
@@ -254,7 +264,7 @@ public class SkellyController : MonoBehaviour
 
     // ---------------- TARGETTING ----------------
 
-    private IEnumerator navigator()
+    protected IEnumerator navigator()
     {
         while (true)
         {
@@ -293,7 +303,7 @@ public class SkellyController : MonoBehaviour
         }
     }
 
-    private void updateTarget()
+    protected virtual void updateTarget()
     {
         if (manager.charLoS(transform.position))
         {
@@ -315,7 +325,10 @@ public class SkellyController : MonoBehaviour
 
     private void targetWaypoint()
     {
-        target = manager.getWaypoint(transform, isInFinalArea);
+        var result = manager.getWaypoint(transform, isInFinalArea);
+        target = result.pos;
+        noIdlingOnTarget = result.doNotWait;
+        lastDistance = 10000f;
         switchState(EnemyState.Walking);
         rotate();
     }
@@ -329,7 +342,7 @@ public class SkellyController : MonoBehaviour
     }
 
     // ---------------- COMBAT ----------------
-    public void damage(byte amount, DamageType type)
+    public virtual void damage(byte amount, DamageType type)
     {
         if (amount == 0) return;
         if (amount < health) health -= amount;
