@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
+using static SceneLoader;
 
 public class LevelManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private EaselController easel;
     [SerializeField] private GameObject bonusItem;
+    [SerializeField] private TextHudController hudController;
 
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
@@ -24,6 +26,7 @@ public class LevelManager : MonoBehaviour
     private void Awake()
     {
         Application.targetFrameRate = 60;
+        Time.timeScale = 1;
         // instantiate waypoints as structs rather than accessing them as gameobjects
         for (int i = 0; i < waypointContainer.transform.childCount; i++)
         {
@@ -37,7 +40,58 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
+        isPaused = false;
+        lockControls = false;
         setupNextStage();
+    }
+
+    // ------------ game control ------------
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused) resume();
+            else pause();
+        }
+    }
+
+    private void pause()
+    {
+        isPaused = true;
+        Time.timeScale = 0;
+        hudController.pauseMenu(true);
+    }
+
+    public void resume()
+    {
+        hudController.pauseMenu(false);
+        Time.timeScale = 1;
+        isPaused = false;
+    }
+
+    public void restart()
+    {
+        load(Scene.GameScene);
+    }
+
+    public void exit()
+    {
+        load(Scene.MenuScene);
+    }
+
+    public void playerDied()
+    {
+        spawnerManager.endStage();
+        hudController.endGameMenu(CauseOfLoss.Damage, totalScore);
+        lockControls = true;
+    }
+
+    public void tooManyEnemies()
+    {
+        spawnerManager.endStage();
+        hudController.endGameMenu(CauseOfLoss.Overrun, totalScore);
+        lockControls = true;
     }
 
     // ------------ navigation ------------
@@ -46,7 +100,7 @@ public class LevelManager : MonoBehaviour
     // Otherwise find the highest priority target in line of sight (0 is highest)
     // pos: the position the enemy will move toward
     // doNotWait: enemy will request a new target immediately after reaching it
-        // (this is to prevent enemies from piling up when entering the central area)
+    // (this is to prevent enemies from piling up when entering the central area)
     public (Vector2 pos, bool doNotWait) getWaypoint(Transform from, bool inCentralArea)
     {
         if (inCentralArea) return (centralArea.getRandom(), false);
@@ -125,7 +179,8 @@ public class LevelManager : MonoBehaviour
         Area randomArea = areas[Random.Range(0,areas.Count)];
         bonusItem.transform.position = randomArea.getRandom();
         bonusItem.GetComponent<SpriteRenderer>().enabled = true;
-        bonusItem.GetComponent<CircleCollider2D>().enabled = true;
+        bonusItem.GetComponent<BoxCollider2D>().enabled = true;
+        hudController.popUp("Bonus item spawned", "Find it before finishing the level");
     }
 
     // ------------ stage management ------------

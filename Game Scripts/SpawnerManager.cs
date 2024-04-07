@@ -30,15 +30,15 @@ public class SpawnerManager : MonoBehaviour
         }
     }
 
-    public void testSpawn() // TODO remove
-    {
-        Vector2 spawnPos = new Vector2(-107, 87);
-        getSkeleton(false).spawn(spawnPos, 100);
-    }
-
     // ------------ enemy lifecycle ------------
     public SkellyController getSkeleton(bool overloaded)
     {
+        if (livingEnemies.Count == (Difficulty.maxEnemies - 1))
+        {
+            manager.tooManyEnemies(); // this ends the game and calls to disable all spawning
+            return null; // not a good idea to spawn another enemy at this time
+        }
+
         SkellyController enemy = null;
         int freeEnemyCount = availableEnemies.Count;
         if (freeEnemyCount > 0)
@@ -95,6 +95,7 @@ public class SpawnerManager : MonoBehaviour
 
     public void endStage()
     {
+        if (spawnerRoutine != null)  StopCoroutine(spawnerRoutine);
         foreach (SpawnerController spawner in spawners)
         {
             spawner.stopSpawning();

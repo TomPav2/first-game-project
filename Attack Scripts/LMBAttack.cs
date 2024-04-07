@@ -2,6 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
+using static SceneLoader;
 
 public class LMBAttack : MonoBehaviour
 {
@@ -42,11 +43,6 @@ public class LMBAttack : MonoBehaviour
             Color color = Color.white.WithAlpha(alpha);
             GetComponent<SpriteRenderer>().color = color;
         }
-    }
-
-    public void end()
-    {
-        StopAllCoroutines();
     }
 
     public byte Hit(bool needDamage)
@@ -105,7 +101,7 @@ public class LMBAttack : MonoBehaviour
     {
         while (true)
         {
-            if (Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+            if (!isPaused && !lockControls && Input.GetMouseButton(0) && !Input.GetMouseButton(1))
             {
                 startAttack();
                 yield return new WaitForSeconds(1);

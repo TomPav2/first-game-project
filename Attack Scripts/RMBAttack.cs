@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
+using static SceneLoader;
 
 public class RMBAttack : MonoBehaviour
 
@@ -43,16 +44,16 @@ public class RMBAttack : MonoBehaviour
 
     private void Update()
     {
-        // on RMB down, select and activate the battery with lower charge
-        if (Input.GetMouseButtonDown(1))
+        // on RMB down, select and activate the battery with lower charge, unless paused
+        if (!isPaused && !lockControls && Input.GetMouseButtonDown(1))
         {
             usedBattery = selectBattery(true);
             usedBattery.inUse = true;
             enableVisuals(true);
         }
 
-        // on RMB up, release the used battery
-        if (Input.GetMouseButtonUp(1))
+        // on RMB up, release the used battery, or when game is paused
+        if ((Input.GetMouseButtonUp(1) || isPaused) && usedBattery != null)
         {
             usedBattery.inUse = false;
             StartCoroutine(chargeRoutine(usedBattery));

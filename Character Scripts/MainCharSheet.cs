@@ -12,6 +12,7 @@ public class MainCharacterSheet : MonoBehaviour
     [SerializeField] private EaselController easel;
     [SerializeField] private MainCharController charController;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private CharExplosionController explosion;
 
     // attacks
     [SerializeField] private RMBAttack laserAttack;
@@ -21,43 +22,20 @@ public class MainCharacterSheet : MonoBehaviour
     private GameObject currentAttack;
 
     // health stats
-    private byte maxHealth;
-
+    private byte maxHealth = 12;
     private byte health;
     private readonly int regenInterval = 30;
-    private bool lifesteal;
-    private Coroutine regenerator;
+    private bool lifesteal = false;
 
     // active bonuses
-    private BonusHealth activeHealth;
-
-    private BonusAttack activeAttack;
-    private BonusSpeed activeSpeed;
-    private List<int> emptyUpgrades;
+    private Bonus.Health activeHealth;
+    private Bonus.Attack activeAttack;
+    private Bonus.Speed activeSpeed;
+    private List<int> emptyUpgrades = new List<int> { 0, 1, 2 };
 
     private void Start()
     {
-        init();
-    }
-    public void init()
-    {
-        laserAttack.resetAttack();
-        if (currentAttack != null && currentAttack != attackBasic)
-        {
-            currentAttack.SetActive(false);
-        }
-        currentAttack = attackBasic;
-        currentAttack.SetActive(true);
-        maxHealth = 12;
-        health = 12;
-        healthBar.resetController();
-        lifesteal = false;
-        if (regenerator != null) StopCoroutine(regenerator);
-        activeHealth = BonusHealth.None;
-        activeAttack = BonusAttack.None;
-        activeSpeed = BonusSpeed.None;
-        charController.setSpeedUpgrade(1);
-        emptyUpgrades = new List<int> { 0, 1, 2 };
+        health = maxHealth;
     }
 
     public void applyRandomBonus()
@@ -71,22 +49,22 @@ public class MainCharacterSheet : MonoBehaviour
         {
             case 0:
                 {
-                    bonusValues = Enum.GetValues(typeof(BonusHealth));
-                    activeHealth = (BonusHealth)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    bonusValues = Enum.GetValues(typeof(Bonus.Health));
+                    activeHealth = (Bonus.Health)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
                     applyBonus(activeHealth);
                     break;
                 }
             case 1:
                 {
-                    bonusValues = Enum.GetValues(typeof(BonusAttack));
-                    activeAttack = (BonusAttack)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    bonusValues = Enum.GetValues(typeof(Bonus.Attack));
+                    activeAttack = (Bonus.Attack)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
                     applyBonus(activeAttack);
                     break;
                 }
             case 2:
                 {
-                    bonusValues = Enum.GetValues(typeof(BonusSpeed));
-                    activeSpeed = (BonusSpeed)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
+                    bonusValues = Enum.GetValues(typeof(Bonus.Speed));
+                    activeSpeed = (Bonus.Speed)bonusValues.GetValue(UnityEngine.Random.Range(1, bonusValues.Length));
                     applyBonus(activeSpeed);
                     break;
                 }
@@ -109,40 +87,45 @@ public class MainCharacterSheet : MonoBehaviour
         healthBar.displayHp(health);
     }
 
+    public void testDamage()
+    {
+        // TODO remove
+        damage(4);
+    }
     public void damage(byte amount)
     {
         damageFX.playDamageEffect(amount);
         easel.stopPainting();
         if (health <= amount)
         {
-            // TODO death animation and screen
+            explosion.explode();
+            levelManager.playerDied();
             health = 0;
         }
         else
         {
             health -= amount;
-            if (activeHealth == BonusHealth.Maxhealth) laserAttack.addCharge(100);
+            if (activeHealth == Bonus.Health.Maxhealth) laserAttack.addCharge(100);
         }
         healthBar.displayHp(health);
     }
-
     private void applyBonus(Enum bonusType)
     {
         Debug.Log("Got upgrade: " +  bonusType); // TODO remove
         levelManager.hideBonusItem();
         switch (bonusType)
         {
-            case BonusHealth.Regen:
+            case Bonus.Health.Regen:
                 {
-                    regenerator = StartCoroutine(regenRoutine());
+                    StartCoroutine(regenRoutine());
                     break;
                 }
-            case BonusHealth.Lifesteal:
+            case Bonus.Health.Lifesteal:
                 {
                     lifesteal = true;
                     break;
                 }
-            case BonusHealth.Maxhealth:
+            case Bonus.Health.Maxhealth:
                 {
                     maxHealth = 16;
                     healthBar.unlockBonus();
@@ -150,37 +133,37 @@ public class MainCharacterSheet : MonoBehaviour
                     break;
                 }
 
-            case BonusAttack.FastAttack:
+            case Bonus.Attack.FastAttack:
                 {
                     currentAttack.SetActive(false);
                     currentAttack = attackFast;
                     currentAttack.SetActive(true);
                     break;
                 }
-            case BonusAttack.StrongAttack:
+            case Bonus.Attack.StrongAttack:
                 {
                     currentAttack.SetActive(false);
                     currentAttack = attackStrong;
                     currentAttack.SetActive(true);
                     break;
                 }
-            case BonusAttack.FastBeam:
+            case Bonus.Attack.FastBeam:
                 {
                     laserAttack.unlockSpeed();
                     break;
                 }
-            case BonusAttack.DoubleBeam:
+            case Bonus.Attack.DoubleBeam:
                 {
                     laserAttack.unlockDouble();
                     break;
                 }
 
-            case BonusSpeed.PaintSpeed:
+            case Bonus.Speed.PaintSpeed:
                 {
                     easel.speedUpgrade();
                     break;
                 }
-            case BonusSpeed.MoveSpeed:
+            case Bonus.Speed.MoveSpeed:
                 {
                     charController.setSpeedUpgrade(1.2f);
                     break;
@@ -191,32 +174,67 @@ public class MainCharacterSheet : MonoBehaviour
 
     private IEnumerator regenRoutine()
     {
-        yield return new WaitForSeconds(regenInterval);
-        heal(1);
-        yield break;
+        while (true)
+        {
+            yield return new WaitForSeconds(regenInterval);
+            heal(1);
+        }
     }
 
-    private enum BonusHealth
+    private static class Bonus
     {
-        None,
-        Regen,
-        Lifesteal,
-        Maxhealth
-    }
+        public enum Health
+        {
+            None,
+            Regen,
+            Lifesteal,
+            Maxhealth
+        }
 
-    private enum BonusAttack
-    {
-        None,
-        FastAttack,
-        StrongAttack,
-        DoubleBeam,
-        FastBeam
-    }
+        public enum Attack
+        {
+            None,
+            FastAttack,
+            StrongAttack,
+            DoubleBeam,
+            FastBeam
+        }
 
-    private enum BonusSpeed
-    {
-        None,
-        MoveSpeed,
-        PaintSpeed
+        public enum Speed
+        {
+            None,
+            MoveSpeed,
+            PaintSpeed
+        }
+
+        private static readonly Dictionary<Enum, String> names = new Dictionary<Enum, string>()
+        {
+            {Health.Regen, "Regeneration"},
+            {Health.Lifesteal, "Lifesteal"},
+            {Health.Maxhealth, "Tank"},
+            {Attack.FastAttack, "Fast Attack"},
+            {Attack.StrongAttack, "Strong Attack"},
+            {Attack.DoubleBeam, "Double Beam Charge"},
+            {Attack.FastBeam, "Faster Beam Charge"},
+            {Speed.MoveSpeed, "Faster Movement"},
+            {Speed.PaintSpeed, "Faster Painting"}
+        };
+
+        private static readonly Dictionary<Enum, String> descriptions = new Dictionary<Enum, string>()
+        {
+            {Health.Regen, "Regenerate health over time"},
+            {Health.Lifesteal, "Gain health by killing"},
+            {Health.Maxhealth, "Taking damage recharges beam"},
+            {Attack.FastAttack, "Main attack shoots faster"},
+            {Attack.StrongAttack, "Main attack is larger and hits harder"},
+            {Attack.DoubleBeam, "Beam has two charge meters"},
+            {Attack.FastBeam, "Beam recharges faster"},
+            {Speed.MoveSpeed, "You move faster"},
+            {Speed.PaintSpeed, "You paint faster"}
+        };
+
+        public static String getBonusName(Enum bonus) { return names[bonus]; }
+
+        public static String getBonusDesc(Enum bonus) { return descriptions[bonus]; }
     }
-}
+ }

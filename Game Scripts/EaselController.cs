@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using static SceneLoader;
 
 public class EaselController : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class EaselController : MonoBehaviour
 
     private void Update()
     {
+        if (isPaused) return;
         if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
         {
             startPainting();

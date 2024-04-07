@@ -114,6 +114,8 @@ public class SpawnerController : MonoBehaviour
 
     private void spawnEnemy(SkellyController enemy)
     {
+        if (enemy == null) return; // this is to prevent unpredictable behaviour, more explanation in SpawnerManager.getSkeleton()
+
         float spawnX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
         float spawnY = Random.Range(transform.position.y - spawnRange, transform.position.y + spawnRange) - spawnerYOffset;
         Vector2 spawnPos = new Vector2(spawnX, spawnY);

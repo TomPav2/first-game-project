@@ -67,7 +67,7 @@ public class TutorialController : MonoBehaviour
         if (!inTutorial) gameObject.SetActive(false);
 
         steps.Add(() => showMessage(messages[0], true));
-        steps.Add(() => enablePlayerControls(true));
+        steps.Add(() => enablePlayerControls());
         steps.Add(() => showMessage(messages[1], false)); // On trigger enter
         steps.Add(() => showMessage(messages[2], true));
         steps.Add(() => showMessage(messages[3], true));
@@ -109,7 +109,7 @@ public class TutorialController : MonoBehaviour
             enemy.init(mainChar, null, null, null);
         }
 
-        enablePlayerControls(false);
+        lockControls = true;
         rmbAttack.SetActive(false);
         mainCharTransform.position = tutorialSpawnPlayer;
         blockage.SetActive(true);
@@ -119,7 +119,7 @@ public class TutorialController : MonoBehaviour
 
     private void Update()
     {
-        if (waitingForInput && Input.GetKeyDown(KeyCode.Space))
+        if (!isPaused && waitingForInput && Input.GetKeyDown(KeyCode.Space))
         {
             waitingForInput = false;
             if (waitForEvent) hideMessage();
@@ -155,10 +155,10 @@ public class TutorialController : MonoBehaviour
         if (waitingForEnemies == 0) nextStep();
     }
 
-    private void enablePlayerControls(bool enable)
+    private void enablePlayerControls()
     {
-        mainCharController.enableMovement(enable);
-        if(enable) nextStep();
+        lockControls = false;
+        nextStep();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

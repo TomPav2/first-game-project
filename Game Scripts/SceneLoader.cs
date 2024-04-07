@@ -4,7 +4,9 @@ using UnityEngine.SceneManagement;
 public static class SceneLoader
 {
 
-    public static bool inTutorial = true;
+    public static bool inTutorial = false;
+    public static bool isPaused = false;
+    public static bool lockControls = false;
 
     public enum Scene
     {

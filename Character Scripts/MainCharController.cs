@@ -26,8 +26,6 @@ public class MainCharController : MonoBehaviour
     private float speedY = 0;
     private float speedUpgrade = 1;
 
-    private bool lockedControls = false;
-
     private void Awake()
     {
         activeSpriteRight = spriteRight;
@@ -36,7 +34,11 @@ public class MainCharController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (lockedControls) return;
+        if (lockControls)
+        {
+            body.velocity = Vector2.zero;
+            return;
+        }
 
         if (Input.GetKey(KeyCode.W) ^ Input.GetKey(KeyCode.S))
         {
@@ -65,11 +67,6 @@ public class MainCharController : MonoBehaviour
     public void setSpeedUpgrade(float speedUpgrade)
     {
         this.speedUpgrade = speedUpgrade;
-    }
-
-    public void enableMovement(bool enable)
-    {
-        lockedControls = !enable;
     }
 
     private void turnRight()
