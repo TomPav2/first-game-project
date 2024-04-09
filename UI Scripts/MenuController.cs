@@ -1,9 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using static SceneLoader;
 
 public class MenuController : MonoBehaviour
 {
+    private bool tutorial = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -17,6 +18,12 @@ public class MenuController : MonoBehaviour
     }
 
     public void buttonEasy() {
+        inTutorial = tutorial;
         SceneLoader.load(SceneLoader.Scene.GameScene);
+    }
+
+    public void toggleTutorial()
+    {
+        tutorial = !tutorial;
     }
 }

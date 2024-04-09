@@ -20,6 +20,10 @@ public class TextHudController : MonoBehaviour
         mainText.popUpText(main);
         subText.popUpText(desc);
     }
+        public void popUp(string main)
+    {
+        mainText.popUpText(main);
+    }
 
     public void pauseMenu(bool show)
     {

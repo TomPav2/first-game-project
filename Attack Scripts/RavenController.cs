@@ -8,9 +8,9 @@ public class RavenController : MonoBehaviour
     private HashSet<SkellyController> skeletonsInArea = new HashSet<SkellyController>();
 
     private bool upgraded = false;
-    private float emptyCooldown = 5f;
-    private byte fixedCooldown = 2;
-    private byte fixedCooldownUpgraded = 1;
+    private readonly float emptyCooldown = 5f;
+    private readonly byte fixedCooldown = 2;
+    private readonly byte fixedCooldownUpgraded = 1;
 
     public void summon()
     {

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharExplosionController : MonoBehaviour
@@ -17,6 +15,7 @@ public class CharExplosionController : MonoBehaviour
         GetComponent<Animator>().enabled = true;
     }
 
+    // called by animator
     private void hideCharacter()
     {
         character.GetComponent<SpriteRenderer>().enabled = false;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class MainCharacterSheet : MonoBehaviour
@@ -13,6 +12,7 @@ public class MainCharacterSheet : MonoBehaviour
     [SerializeField] private MainCharController charController;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private CharExplosionController explosion;
+    [SerializeField] private TextHudController hudController;
 
     // attacks
     [SerializeField] private RMBAttack laserAttack;
@@ -31,10 +31,11 @@ public class MainCharacterSheet : MonoBehaviour
     private Bonus.Health activeHealth;
     private Bonus.Attack activeAttack;
     private Bonus.Speed activeSpeed;
-    private List<int> emptyUpgrades = new List<int> { 0, 1, 2 };
+    private readonly List<int> emptyUpgrades = new List<int> { 0, 1, 2 };
 
     private void Start()
     {
+        currentAttack = attackBasic;
         health = maxHealth;
     }
 
@@ -111,7 +112,7 @@ public class MainCharacterSheet : MonoBehaviour
     }
     private void applyBonus(Enum bonusType)
     {
-        Debug.Log("Got upgrade: " +  bonusType); // TODO remove
+        hudController.popUp(Bonus.getBonusName(bonusType), Bonus.getBonusDesc(bonusType));
         levelManager.hideBonusItem();
         switch (bonusType)
         {

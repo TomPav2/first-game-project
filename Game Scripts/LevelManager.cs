@@ -14,6 +14,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private EaselController easel;
     [SerializeField] private GameObject bonusItem;
     [SerializeField] private TextHudController hudController;
+    [SerializeField] private MainCharacterSheet mainCharacter;
 
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
@@ -41,8 +42,7 @@ public class LevelManager : MonoBehaviour
     private void Start()
     {
         isPaused = false;
-        lockControls = false;
-        setupNextStage();
+        if (!inTutorial) setupNextStage();
     }
 
     // ------------ game control ------------
@@ -171,7 +171,7 @@ public class LevelManager : MonoBehaviour
     public void hideBonusItem()
     {
         bonusItem.GetComponent<SpriteRenderer>().enabled = false;
-        bonusItem.GetComponent<CircleCollider2D>().enabled = false;
+        bonusItem.GetComponent<BoxCollider2D>().enabled = false;
     }
 
     public void showBonusItem()
@@ -213,34 +213,54 @@ public class LevelManager : MonoBehaviour
         spawnerManager.startStage(stages[0]);
     }
 
-    private void setupNextStage()
+    public void setupNextStage()
     {
-        if (stages.Count == 0)
-        {
-            Debug.Log("OUT OF STAGES");
-        } else // TODO replace with final stage
+        lockControls = false;
         easel.setUp(stages[0].bonusSpawn);
     }
 
     public void finishStage()
     {
-        totalScore += stages[0].number * (1000 + score);
-        stages.RemoveAt(0);
-        score = 0;
-        spawnerManager.endStage();
-        Debug.Log("Score " + totalScore);
-        hideBonusItem();
-        // TODO show level end, add upgrade points
+        if (stages.Count > 1)
+        {
+            totalScore += stages[0].number * (1000 + score);
+            score = 0;
+            spawnerManager.endStage();
+            hideBonusItem();
+            hudController.popUp("Painting complete!");
+            stages.RemoveAt(0);
+            mainCharacter.heal(4);
+            // TODO add upgrade point
+            setupNextStage();
+        }
+        else victoryScreen();
+    }
 
-        setupNextStage();
+    public void victoryScreen()
+    {
+        //isPaused = true;
+        hudController.popUp("You win", totalScore.ToString()); // TODO actual endgame screen
+        easel.gameObject.SetActive(false); // TODO temporary
     }
 
     // ------------ game data ------------
     private void initStages()
     {
-        Stage stage1 = new Stage().setNumber(1).setMaxSpawners(1).setIntensity(0.5f).setSlowSpawnerInterval(3)
+        Stage stage1 = new Stage().setNumber(1).setMaxSpawners(1).setIntensity(0.5f).setSlowSpawnerInterval(4)
             .setSlowSpawnerLifetime(150).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(50).setBonusSpawn(0.75f);
         stages.Add(stage1);
+
+        Stage stage2 = new Stage().setNumber(2).setMaxSpawners(1).setIntensity(0.7f).setSlowSpawnerInterval(3.5f)
+            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(0.8f).setFastSpawnerLifetime(40).setBonusSpawn(0.5f);
+        stages.Add(stage2);
+
+        Stage stage3 = new Stage().setNumber(3).setMaxSpawners(2).setIntensity(0.85f).setSlowSpawnerInterval(3)
+            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(2.0f).setFastSpawnerLifetime(90).setBonusSpawn(0.25f);
+        stages.Add(stage3);
+
+        Stage stage4 = new Stage().setNumber(4).setMaxSpawners(3).setIntensity(1.0f).setSlowSpawnerInterval(4)
+            .setSlowSpawnerLifetime(300).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(60).setBonusSpawn(0.0f);
+        stages.Add(stage4);
     }
 
     private void initAreas()

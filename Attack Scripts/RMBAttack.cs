@@ -156,7 +156,8 @@ public class RMBAttack : MonoBehaviour
 
     public void addCharge(ushort amount)
     {
-        selectBattery(false).forceCharge(amount);
+        ushort remainder = selectBattery(false).forceCharge(amount);
+        if (remainder > 0 && bonusBattery != null) selectBattery(false).forceCharge(remainder);
     }
 
     private Battery selectBattery(bool selectHigherCharge)
@@ -228,15 +229,20 @@ public class RMBAttack : MonoBehaviour
             return true;
         }
 
-        public void forceCharge(ushort amount)
+        public ushort forceCharge(ushort amount)
         {
-            charge += amount;
+            if (charge == chargeLimit) return amount;
+
             if (charge > chargeLimit)
             {
                 charge = chargeLimit;
                 indicator.fade();
+                indicator.updateValue(chargeLimit, charge);
+                return (ushort)(charge - chargeLimit);
             }
+
             indicator.updateValue(chargeLimit, charge);
+            return 0;
         }
     }
 }

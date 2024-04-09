@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using static SceneLoader;
 using static GameValues;
-using UnityEngine.Tilemaps;
 
 public class TutorialController : MonoBehaviour
 {
@@ -18,7 +17,7 @@ public class TutorialController : MonoBehaviour
     [SerializeField] private GameObject rmbAttack;
     [SerializeField] private SpawnerTutorial spawner;
     [SerializeField] private ThrowItem throwObject;
-    [SerializeField] private EaselController easel;
+    [SerializeField] private LevelManager levelManager;
 
     private bool waitingForInput = false;
     private bool waitForEvent = false; // when this is true, hitting space won't trigger next tutorial step
@@ -26,8 +25,8 @@ public class TutorialController : MonoBehaviour
 
     private readonly Vector2 tutorialSpawnPlayer = new Vector2(-96, 33);
 
-    private List<SkellyTutorial> tutorialEnemies = new List<SkellyTutorial>();
-    private List<Action> steps = new List<Action>();
+    private readonly List<SkellyTutorial> tutorialEnemies = new List<SkellyTutorial>();
+    private readonly List<Action> steps = new List<Action>();
 
     private static List<String> messages = new List<string> {
         "Welcome to the tutorial! You are about to learn the controls and basic mechanics of this game. Escape pauses the game and opens the menu.",
@@ -113,7 +112,6 @@ public class TutorialController : MonoBehaviour
         rmbAttack.SetActive(false);
         mainCharTransform.position = tutorialSpawnPlayer;
         blockage.SetActive(true);
-        easel.enabled = false;
         nextStep();
     }
 
@@ -243,8 +241,8 @@ public class TutorialController : MonoBehaviour
         hideMessage();
         rmbAttack.GetComponent<RMBAttack>().addCharge(1000);
         mainChar.heal(12);
-        easel.enabled = true;
         inTutorial = false;
+        levelManager.setupNextStage();
         this.gameObject.SetActive(false);
     }
 }

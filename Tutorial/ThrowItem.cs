@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,11 +25,13 @@ public class ThrowItem : MonoBehaviour
         GetComponent<Animator>().enabled = true;
     }
 
+    // called by animator
     private void hitPortal()
     {
         tutorial.spawnEnemies(3);
     }
 
+    // called by animator
     private void finishThis()
     {
         gameObject.SetActive(false);

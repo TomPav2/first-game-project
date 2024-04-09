@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor.SceneManagement;
+using System.Linq;
 using UnityEngine;
 using static GameValues;
 
@@ -73,9 +71,10 @@ public class SpawnerManager : MonoBehaviour
 
     private void destroyAllEnemies()
     {
-        foreach (SkellyController enemy in livingEnemies)
+        List<SkellyController> enemiesToKill = livingEnemies.ToList();
+        foreach (SkellyController enemy in enemiesToKill)
         {
-            enemy.damageMax(DamageType.None);
+            enemy.obliterate();
         }
     }
 
@@ -95,7 +94,7 @@ public class SpawnerManager : MonoBehaviour
 
     public void endStage()
     {
-        if (spawnerRoutine != null)  StopCoroutine(spawnerRoutine);
+        if (spawnerRoutine != null) StopCoroutine(spawnerRoutine);
         foreach (SpawnerController spawner in spawners)
         {
             spawner.stopSpawning();

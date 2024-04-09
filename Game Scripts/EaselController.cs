@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using static SceneLoader;
+using static GameValues;
 
 public class EaselController : MonoBehaviour
 {
@@ -13,16 +14,22 @@ public class EaselController : MonoBehaviour
     private readonly Color active = new Color(0.4f, 0.4f, 1);
     private readonly Color inactive = new Color(0.4f, 0.4f, 0.4f);
 
-    private short target = 1200;
+    private short target;
     private short progress = 0;
     private short notifyAtValue = -1;
     private bool currentlyPainting = false;
+    private bool readyToPaint = false;
     private Coroutine painting;
+
+    private void Awake()
+    {
+        target = Difficulty.paintingTarget;
+    }
 
     private void Update()
     {
         if (isPaused) return;
-        if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+        if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1) && readyToPaint)
         {
             startPainting();
         }
@@ -42,20 +49,21 @@ public class EaselController : MonoBehaviour
         progress = 0;
         notifyAtValue = (short)(Mathf.Round(target * notifyAt));
         progressSlider.updateValue(target, 0);
+        readyToPaint = true;
     }
 
     public void speedUpgrade()
     {
         if (progress > 0) progress = (short)(progress * 2 / 3);
         if (notifyAtValue > 0) notifyAtValue = (short)(notifyAtValue * 2 / 3);
-        target = 800;
+        target = (short)(target * 2 / 3);
     }
 
     private void complete()
     {
         stopPainting();
+        readyToPaint = false;
         levelManager.finishStage();
-        Debug.Log("DONE"); // TODO remove
     }
 
     private void startPainting()

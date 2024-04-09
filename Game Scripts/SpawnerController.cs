@@ -73,11 +73,7 @@ public class SpawnerController : MonoBehaviour
 
     public void stopSpawning()
     {
-        if (toSpawn > 0)
-        {
-            toSpawn = 0;
-            disengage();
-        }
+        toSpawn = 0;
     }
 
     protected virtual void overload()
@@ -125,7 +121,7 @@ public class SpawnerController : MonoBehaviour
 
     private float setEnemiesToSpawn(int avgTime, float avgInterval)
     {
-        int spawnTime = Random.Range(avgTime - 30, avgTime + 30);
+        int spawnTime = Random.Range(avgTime - 15, avgTime + 15);
         float interval = Random.Range(avgInterval - 0.5f, avgInterval + 0.5f);
         interval = (float) Math.Round(interval, 1);
         toSpawn = (byte) math.round(spawnTime / interval);
@@ -138,22 +134,22 @@ public class SpawnerController : MonoBehaviour
         yield return new WaitForSeconds(3);
         while (toSpawn > 0)
         {
-            yield return new WaitForSeconds(0.3f);
             spawnEnemy(spawnerManager.getSkeleton(true));
+            yield return new WaitForSeconds(0.3f);
         }
-        yield return new WaitForSeconds(1);
         disengage();
         yield break;
     }
 
     private IEnumerator spawnTimerRoutine(float interval)
     {
+        yield return new WaitForSeconds(interval);
         while (toSpawn > 0)
         {
-            yield return new WaitForSeconds(interval);
+            Debug.Log(toSpawn);
             spawnEnemy(spawnerManager.getSkeleton(false));
+            yield return new WaitForSeconds(interval);
         }
-        yield return new WaitForSeconds(1);
         disengage();
         yield break;
     }

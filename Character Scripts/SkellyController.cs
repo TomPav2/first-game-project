@@ -68,6 +68,21 @@ public class SkellyController : MonoBehaviour
         currentProcess = StartCoroutine(performSpawn());
     }
 
+    public void obliterate()
+    {
+        if (state == EnemyState.Spawning)
+        {
+            StopAllCoroutines();
+            deathSecondStage();
+        } else if (state == EnemyState.Dead || state == EnemyState.Dying)
+        {
+            return;
+        } else
+        {
+            damageMax(DamageType.None);
+        }
+    }
+
     protected virtual void die(DamageType damageType)
     {
         StopAllCoroutines();
