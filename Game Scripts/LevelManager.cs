@@ -65,9 +65,11 @@ public class LevelManager : MonoBehaviour
 
     public void resume()
     {
-        hudController.pauseMenu(false);
-        Time.timeScale = 1;
-        isPaused = false;
+        if (hudController.pauseMenu(false))
+        {
+            Time.timeScale = 1;
+            isPaused = false;
+        }
     }
 
     public void restart()
@@ -227,9 +229,10 @@ public class LevelManager : MonoBehaviour
             score = 0;
             spawnerManager.endStage();
             hideBonusItem();
-            hudController.popUp("Painting complete!");
+            hudController.popUp("Painting complete!", "Rest and start the next one when you§re ready");
             stages.RemoveAt(0);
             mainCharacter.heal(4);
+            mainCharacter.rechargeLaser();
             // TODO add upgrade point
             setupNextStage();
         }
@@ -239,7 +242,7 @@ public class LevelManager : MonoBehaviour
     public void victoryScreen()
     {
         //isPaused = true;
-        hudController.popUp("You win", totalScore.ToString()); // TODO actual endgame screen
+        hudController.popUp("You win", "Score:" + totalScore.ToString()); // TODO actual endgame screen
         easel.gameObject.SetActive(false); // TODO temporary
     }
 

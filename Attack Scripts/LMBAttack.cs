@@ -40,7 +40,7 @@ public class LMBAttack : MonoBehaviour
         {
             alpha -= fadeAmount;
             if (alpha < 0f) alpha = 0f;
-            Color color = Color.white.WithAlpha(alpha);
+            Color color = new Color(1, 1, 1, alpha); // TODO replace with animation
             GetComponent<SpriteRenderer>().color = color;
         }
     }

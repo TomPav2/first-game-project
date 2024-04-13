@@ -19,7 +19,6 @@ public class EaselController : MonoBehaviour
     private short notifyAtValue = -1;
     private bool currentlyPainting = false;
     private bool readyToPaint = false;
-    private Coroutine painting;
 
     private void Awake()
     {
@@ -29,7 +28,7 @@ public class EaselController : MonoBehaviour
     private void Update()
     {
         if (isPaused) return;
-        if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1) && readyToPaint)
+        if (Input.GetKeyDown(KeyCode.Space) && inArea() && !Input.GetMouseButton(0) && !Input.GetMouseButton(1) && readyToPaint && !currentlyPainting)
         {
             startPainting();
         }
@@ -74,13 +73,12 @@ public class EaselController : MonoBehaviour
             levelManager.startStage();
         }
         sliderFill.color = active;
-        painting = StartCoroutine(paintRoutine());
+        StartCoroutine(paintRoutine());
         currentlyPainting = true;
     }
 
     public void stopPainting()
     {
-        if (painting != null) StopCoroutine(painting);
         sliderFill.color = inactive;
         currentlyPainting = false;
     }
@@ -97,7 +95,7 @@ public class EaselController : MonoBehaviour
     private IEnumerator paintRoutine()
     {
         yield return new WaitForSeconds(1);
-        while (true)
+        while (currentlyPainting)
         {
             progress++;
             progressSlider.updateValue(target, progress);

@@ -25,6 +25,11 @@ public static class GameValues
         public static readonly short paintingTarget = 1200;
     }
 
+    public static class Settings
+    {
+        public static bool altFont = false;
+    }
+
     public enum EnemyState
     {
         None,

@@ -14,10 +14,13 @@ public class RMBAttack : MonoBehaviour
     [SerializeField] private LineRenderer laserFork;
     [SerializeField] private ParticleSystem laserParticles;
 
+    private static readonly byte damageAmount = 2;
+    private static readonly byte drainAmount = 2;
+
     private static readonly ushort chargeLimit = 1000;
-    private readonly float widthMin = 0.5f;
-    private readonly float widthMax = 1f;
-    private readonly float widthChange = 0.08f;
+    private static readonly float widthMin = 0.5f;
+    private static readonly float widthMax = 1f;
+    private static readonly float widthChange = 0.08f;
 
     private float chargeDelay = 0.5f;
     private float chargeInterval = 0.1f;
@@ -96,12 +99,12 @@ public class RMBAttack : MonoBehaviour
                 if (hit.collider.CompareTag(Tag.enemy))
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
-                    enemyController.damage(1, DamageType.RMB);
+                    enemyController.damage(damageAmount, DamageType.RMB);
                 }
                 else if (hit.collider.CompareTag(Tag.spawner))
                 {
                     SpawnerController spawner = hit.collider.GetComponent<SpawnerController>();
-                    spawner.damage(1);
+                    spawner.damage(damageAmount);
                 }
             }
             else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects (without starting recharging)
@@ -206,10 +209,10 @@ public class RMBAttack : MonoBehaviour
 
         public bool drain()
         {
-            if (charge == 0) return false;
+            if (charge < drainAmount) return false;
             else
             {
-                charge--;
+                charge -= drainAmount;
                 indicator.updateValue(chargeLimit, charge);
                 return true;
             }

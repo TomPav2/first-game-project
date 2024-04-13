@@ -101,7 +101,7 @@ public class SkellyController : MonoBehaviour
         while (alpha < 1f)
         {
             alpha += 0.1f;
-            GetComponent<SpriteRenderer>().color = Color.white.WithAlpha(alpha);
+            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
             yield return new WaitForSeconds(0.1f);
         }
 
@@ -132,14 +132,13 @@ public class SkellyController : MonoBehaviour
         currentProcess = StartCoroutine(deathFadeProcess());
     }
 
-
     protected virtual IEnumerator deathFadeProcess()
     {
         float alpha = 1f;
         while (alpha > 0f)
         {
             alpha -= 0.2f;
-            GetComponent<SpriteRenderer>().color = Color.white.WithAlpha(alpha);
+            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
             yield return new WaitForSeconds(0.1f);
         }
         GetComponent<SpriteRenderer>().sprite = defaultSprite;

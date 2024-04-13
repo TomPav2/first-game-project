@@ -146,7 +146,6 @@ public class SpawnerController : MonoBehaviour
         yield return new WaitForSeconds(interval);
         while (toSpawn > 0)
         {
-            Debug.Log(toSpawn);
             spawnEnemy(spawnerManager.getSkeleton(false));
             yield return new WaitForSeconds(interval);
         }

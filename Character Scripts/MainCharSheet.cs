@@ -110,6 +110,12 @@ public class MainCharacterSheet : MonoBehaviour
         }
         healthBar.displayHp(health);
     }
+
+    public void rechargeLaser()
+    {
+        laserAttack.addCharge(2000);
+    }
+
     private void applyBonus(Enum bonusType)
     {
         hudController.popUp(Bonus.getBonusName(bonusType), Bonus.getBonusDesc(bonusType));

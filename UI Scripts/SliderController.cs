@@ -49,8 +49,12 @@ public class SliderController : MonoBehaviour
 
     private void updateVisibility()
     {
-        fill.color = fill.color.WithAlpha(alpha);
-        background.color = background.color.WithAlpha(alpha);
+        Color fillColor = fill.color;
+        fillColor.a = alpha;
+        fill.color = fillColor;
+        Color bgColor = background.color;
+        bgColor.a = alpha;
+        background.color = bgColor;
     }
 
     private IEnumerator fadeRoutine()
