@@ -119,7 +119,7 @@ public class TutorialController : MonoBehaviour
         foreach (SkellyTutorial enemy in GetComponentsInChildren<SkellyTutorial>(false))
         {
             tutorialEnemies.Add(enemy);
-            enemy.init(mainChar, null, null, null);
+            enemy.init(mainChar, null, null, null, null);
         }
 
         // setup starting player controls

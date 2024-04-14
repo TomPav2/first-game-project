@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static GameValues;
@@ -8,15 +9,28 @@ public class TextHudController : MonoBehaviour
     [SerializeField] private Image backdrop;
     [SerializeField] private UIElementController mainText;
     [SerializeField] private UIElementController subText;
-    [SerializeField] private UIElementController scoreText;
+    [SerializeField] private UIElementController thirdText;
     [SerializeField] private GameObject pauseButtons;
     [SerializeField] private GameObject endButtons;
     [SerializeField] private GameObject settingsButtons;
+    [SerializeField] private GameObject upgradeButtons;
+    [SerializeField] private TextMeshProUGUI buttonRaven;
+    [SerializeField] private TextMeshProUGUI buttonCrow;
+    [SerializeField] private RavenController raven;
+    [SerializeField] private CrowController crow;
+    [SerializeField] private LevelManager levelManager;
 
     private static readonly Vector2 smallTextSize = new Vector2(800, 50);
     private static readonly Vector2 largeTextSize = new Vector2(1600, 50);
 
     private bool inSettings = false;
+
+    public void popUp(string main, string desc, string tertiary)
+    {
+        if (main != null) mainText.popUpText(main);
+        if (desc != null) subText.popUpText(desc);
+        if (tertiary != null) thirdText.popUpText(tertiary);
+    }
 
     public void popUp(string main, string desc)
     {
@@ -52,6 +66,43 @@ public class TextHudController : MonoBehaviour
         return true;
     }
 
+    public void showUpgradeScreen()
+    {
+        lockControls = true;
+        backdrop.enabled = true;
+        mainText.showText("Painting complete!");
+        subText.showText("You found some magical seed...");
+        thirdText.showText("Choose a bird to summon or upgrade: ");
+        upgradeButtons.SetActive(true);
+    }
+
+    public void dismissUpgradeScreen()
+    {
+        lockControls = false;
+        backdrop.enabled = false;
+        mainText.hideText();
+        subText.hideText();
+        thirdText.hideText();
+        upgradeButtons.SetActive(false);
+        levelManager.setupNextStage();
+    }
+
+    public void pickRaven()
+    {
+        if (!raven.isUpgraded()) buttonRaven.text = "Upgrade Raven";
+        else buttonRaven.enabled = false;
+        raven.summon();
+        dismissUpgradeScreen();
+    }
+
+    public void pickCrow()
+    {
+        if (!crow.isUpgraded()) buttonCrow.text = "Upgrade Crow";
+        else buttonCrow.enabled = false;
+        crow.summon();
+        dismissUpgradeScreen();
+    }
+
     public void goToSettings(bool entering)
     { inSettings = entering; }
 
@@ -73,7 +124,7 @@ public class TextHudController : MonoBehaviour
         {
             case CauseOfLoss.Damage:
                 mainText.showText("You died");
-                scoreText.showText(scoreToShow);
+                thirdText.showText(scoreToShow);
                 break;
         }
     }

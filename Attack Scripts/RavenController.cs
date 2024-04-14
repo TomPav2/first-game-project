@@ -5,6 +5,11 @@ using static GameValues;
 
 public class RavenController : MonoBehaviour
 {
+    [SerializeField] private Sprite spriteDefault;
+    [SerializeField] private Sprite spriteAttacking;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private LineRenderer laserLine;
+
     private HashSet<SkellyController> skeletonsInArea = new HashSet<SkellyController>();
 
     private bool upgraded = false;
@@ -14,14 +19,20 @@ public class RavenController : MonoBehaviour
 
     public void summon()
     {
-        GetComponent<SpriteRenderer>().enabled = true;
-        StartCoroutine(attackProcess());
+        if (spriteRenderer.enabled) upgraded = true;
+        else
+        {
+            spriteRenderer.enabled = true;
+            StartCoroutine(attackProcess());
+        }
     }
 
     public void upgrade()
     {
         upgraded = true;
     }
+
+    public bool isUpgraded() { return upgraded; }
 
     public void register(SkellyController enemy)
     {
@@ -43,13 +54,33 @@ public class RavenController : MonoBehaviour
             {
                 weakestEnemy = enemy;
                 lowestHp = enemy.health;
-            } else if (enemy.health < lowestHp)
+            }
+            else if (enemy.health < lowestHp)
             {
                 weakestEnemy = enemy;
                 lowestHp = enemy.health;
             }
         }
         return weakestEnemy;
+    }
+
+    private IEnumerator attackVisual(Vector3 enemyPos)
+    {
+        spriteRenderer.sprite = spriteAttacking;
+        laserLine.startWidth = 0.5f;
+        laserLine.endWidth = 0.5f;
+        Vector3 targetPosition = new Vector3(enemyPos.x, enemyPos.y + 2, 0);
+        laserLine.SetPosition(1, targetPosition);
+        laserLine.enabled = true;
+        while (laserLine.startWidth > 0)
+        {
+            yield return new WaitForSeconds(0.1f);
+            laserLine.startWidth -= 0.1f;
+            laserLine.endWidth -= 0.1f;
+        }
+        laserLine.enabled = false;
+        spriteRenderer.sprite = spriteDefault;
+        yield break;
     }
 
     private int calculateCooldown(int damage)
@@ -64,10 +95,12 @@ public class RavenController : MonoBehaviour
         {
             if (skeletonsInArea.Count > 0)
             {
-                int damageDealt = selectWeakestEnemy().damageMax(DamageType.Raven);
-                // TODO add laser
+                SkellyController enemy = selectWeakestEnemy();
+                int damageDealt = enemy.damageMax(DamageType.Raven);
+                StartCoroutine(attackVisual(enemy.transform.position));
                 yield return new WaitForSeconds(calculateCooldown(damageDealt));
-            } else
+            }
+            else
             {
                 yield return new WaitForSeconds(emptyCooldown);
             }

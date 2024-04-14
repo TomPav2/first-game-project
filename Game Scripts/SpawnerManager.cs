@@ -11,6 +11,8 @@ public class SpawnerManager : MonoBehaviour
     [SerializeField] private LevelManager manager;
     [SerializeField] private GameObject skellyPrefab;
     [SerializeField] private RavenController raven;
+    [SerializeField] private CrowController crow;
+    [SerializeField] private TextHudController hud;
 
     private List<SkellyController> availableEnemies = new List<SkellyController>(); // pool of enemies to reuse
     private List<SkellyController> livingEnemies = new List<SkellyController>(); // keep track of enemies to kill at end of level
@@ -82,7 +84,7 @@ public class SpawnerManager : MonoBehaviour
     {
         GameObject newEnemy = Instantiate(skellyPrefab);
         SkellyController newController = newEnemy.GetComponent<SkellyController>();
-        newController.init(mainCharReference, manager, this, raven);
+        newController.init(mainCharReference, manager, this, raven, crow);
         return newController;
     }
 
@@ -117,13 +119,18 @@ public class SpawnerManager : MonoBehaviour
 
         bool success = false;
         byte attmepts = 5;
+        int spawnerId = 0;
         while (!success && attmepts > 0)
         {
-            int spawnerId = UnityEngine.Random.Range(0, spawners.Count);
+            spawnerId = UnityEngine.Random.Range(0, spawners.Count);
             success = spawners[spawnerId].engage(avgTime, avgInterval, enemyHealth);
             attmepts -= 1;
         }
-        if (success) activeSpawners++;
+        if (success)
+        {
+            activeSpawners++;
+            hud.popUp(null, null, "You can hear " + ( fast ? "a lot of" : "some" ) + " clacking from the " + spawners[spawnerId].getLocationDescription() );
+        }
     }
 
     private IEnumerator mainSpawningProcess(LevelManager.Stage stage)
@@ -141,12 +148,11 @@ public class SpawnerManager : MonoBehaviour
             if (currentInterval == 0) delegateSpawning(stage, enemyHealth);
             else
             {
-                Debug.Log("Time blocked currently: " + enemiesSpawned * Difficulty.baseHealth / Difficulty.estimatedDPS);
                 if (activeSpawners < stage.maxSpawners)
                 {
                     int timeBlocked = enemiesSpawned * Difficulty.baseHealth / Difficulty.estimatedDPS;
                     float timeBlockedProportion = timeBlocked / (float)(currentInterval * Difficulty.interval);
-                    Debug.Log("Intensity: " + Math.Round(timeBlockedProportion, 3) + " / " + stage.intensity);
+                    //Debug.Log("Intensity: " + Math.Round(timeBlockedProportion, 3) + " / " + stage.intensity);
                     if (timeBlockedProportion < stage.intensity) delegateSpawning(stage, enemyHealth);
                 }
             }

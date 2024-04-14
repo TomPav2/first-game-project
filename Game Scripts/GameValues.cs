@@ -25,6 +25,12 @@ public static class GameValues
         public static readonly short paintingTarget = 1200;
     }
 
+    public static class Trigger
+    {
+        public static readonly String fadeIn = "fadeIn";
+        public static readonly String fadeOut = "fadeOut";
+    }
+
     public static class Settings
     {
         public static bool altFont = false;

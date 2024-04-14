@@ -11,6 +11,7 @@ public class SpawnerController : MonoBehaviour
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private float spawnRange;
+    [SerializeField] private String posDescription;
     protected ParticleSystem.EmissionModule emission;
     protected ParticleSystem.MainModule particlesMain;
 
@@ -74,6 +75,11 @@ public class SpawnerController : MonoBehaviour
     public void stopSpawning()
     {
         toSpawn = 0;
+    }
+
+    public String getLocationDescription()
+    {
+        return posDescription;
     }
 
     protected virtual void overload()

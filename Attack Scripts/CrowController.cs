@@ -3,22 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
 
-public class CrowController : MonoBehaviour
+public class CrowController : MonoBehaviour, IFading
 {
-    [SerializeField] private GameObject damageEffect;
+    [SerializeField] private Sprite defaultSprite;
+    [SerializeField] private Sprite attackSprite;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
+    [SerializeField] private GameObject areaOfEffect;
+    [SerializeField] private Animator damageEffect;
 
-    private HashSet<SkellyController> skeletonsInArea = new HashSet<SkellyController>();
+    private readonly List<SkellyController> skeletonsInArea = new List<SkellyController>();
+    private static readonly Vector3 upgradedScale = new Vector3(60, 60, 0);
 
-    //private bool upgraded = false; TODO
+    private bool readyToAttack = true;
+    private bool upgraded = false;
 
-    public void register(SkellyController enemy)
+    public void summon()
+    {
+        if (spriteRenderer.enabled) upgrade();
+        else
+        {
+            spriteRenderer.enabled = true;
+            areaOfEffect.SetActive(true);
+        }
+    }
+
+    private void upgrade() {
+        upgraded = true;
+        areaOfEffect.transform.localScale = upgradedScale;
+    }
+
+    public bool isUpgraded() { return upgraded; }
+
+    public bool register(SkellyController enemy)
     {
         skeletonsInArea.Add(enemy);
-        if (!damageEffect.activeInHierarchy)
-        {
-            damageEffect.SetActive(true);
-            StartCoroutine(attackProcess());
-        }
+        if (readyToAttack) startFadeIn();
+        return upgraded;
     }
 
     public void deregister(SkellyController enemy)
@@ -26,18 +47,48 @@ public class CrowController : MonoBehaviour
         skeletonsInArea.Remove(enemy);
     }
 
+    private void startFadeIn()
+    {
+        if (!readyToAttack) return; // in case this is triggered twice in one frame
+        readyToAttack = false;
+        spriteRenderer.sprite = attackSprite;
+        damageEffect.SetTrigger(Trigger.fadeIn);
+    }
+
+    public void afterFadeIn()
+    {
+        animator.enabled = true;
+        StartCoroutine(attackProcess());
+    }
+
+    private void startFadeOut()
+    {
+        animator.enabled = false;
+        spriteRenderer.sprite = defaultSprite;
+        damageEffect.SetTrigger(Trigger.fadeOut);
+    }
+
+    public void afterFadeOut()
+    {
+        readyToAttack = true;
+        if (skeletonsInArea.Count > 0) startFadeIn();
+    }
+
     private IEnumerator attackProcess()
     {
         while (true)
         {
+            // break condition
             if (skeletonsInArea.Count < 1)
             {
-                damageEffect.SetActive(false);
+                startFadeOut();
                 yield break;
             }
-            foreach (SkellyController enemy in skeletonsInArea)
+
+            // damage all enemies in area
+            for (int i = skeletonsInArea.Count - 1; i >= 0; i--)
             {
-                enemy.damage(1, DamageType.Crow);
+                skeletonsInArea[i].damage(1, DamageType.Crow);
             }
             yield return new WaitForSeconds(1);
         }

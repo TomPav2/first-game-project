@@ -3,26 +3,55 @@ using UnityEngine;
 using UnityEngine.UI;
 using static SceneLoader;
 using static GameValues;
+using System.Collections.Generic;
 
-public class EaselController : MonoBehaviour
+public class EaselController : MonoBehaviour, IFading
 {
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private SliderController progressSlider;
     [SerializeField] private Image sliderFill;
     [SerializeField] private Transform mainChar;
+    [SerializeField] private FadeController brush;
+
+    [SerializeField] private SpriteRenderer art1;
+    [SerializeField] private SpriteRenderer art2;
+    [SerializeField] private SpriteRenderer art3;
+    [SerializeField] private SpriteRenderer art4;
+
+    [SerializeField] private GameObject painting1;
+    [SerializeField] private GameObject painting2;
+    [SerializeField] private GameObject painting3;
+    [SerializeField] private GameObject painting4;
+
+    private readonly List<SpriteRenderer> art = new List<SpriteRenderer>();
+    private readonly List<GameObject> painting = new List<GameObject>();
 
     private readonly Color active = new Color(0.4f, 0.4f, 1);
     private readonly Color inactive = new Color(0.4f, 0.4f, 0.4f);
 
-    private short target;
+    private float target;
     private short progress = 0;
     private short notifyAtValue = -1;
     private bool currentlyPainting = false;
     private bool readyToPaint = false;
+    private byte index = 0;
+
+    private SpriteRenderer currentArt;
+    private GameObject currentPainting;
 
     private void Awake()
     {
         target = Difficulty.paintingTarget;
+
+        art.Add(art1);
+        art.Add(art2);
+        art.Add(art3);
+        art.Add(art4);
+
+        painting.Add(painting1);
+        painting.Add(painting2);
+        painting.Add(painting3);
+        painting.Add(painting4);
     }
 
     private void Update()
@@ -38,7 +67,7 @@ public class EaselController : MonoBehaviour
                 Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) ||
                 Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
             {
-                stopPainting();
+                currentlyPainting = false;
             }
         }
     }
@@ -48,6 +77,11 @@ public class EaselController : MonoBehaviour
         progress = 0;
         notifyAtValue = (short)(Mathf.Round(target * notifyAt));
         progressSlider.updateValue(target, 0);
+
+        currentArt = art[index];
+        currentPainting = painting[index];
+        index++;
+
         readyToPaint = true;
     }
 
@@ -61,7 +95,9 @@ public class EaselController : MonoBehaviour
     private void complete()
     {
         stopPainting();
-        readyToPaint = false;
+        currentlyPainting = false;
+        currentArt.gameObject.SetActive(false);
+        currentPainting.SetActive(true);
         levelManager.finishStage();
     }
 
@@ -73,14 +109,25 @@ public class EaselController : MonoBehaviour
             levelManager.startStage();
         }
         sliderFill.color = active;
-        StartCoroutine(paintRoutine());
+        readyToPaint = false;
         currentlyPainting = true;
+        brush.startFadeIn();
+    }
+
+    void IFading.afterFadeIn()
+    {
+        StartCoroutine(paintRoutine());
     }
 
     public void stopPainting()
     {
         sliderFill.color = inactive;
-        currentlyPainting = false;
+        brush.startFadeOut();
+    }
+
+    void IFading.afterFadeOut()
+    {
+        readyToPaint = true;
     }
 
     private bool inArea()
@@ -94,11 +141,11 @@ public class EaselController : MonoBehaviour
 
     private IEnumerator paintRoutine()
     {
-        yield return new WaitForSeconds(1);
         while (currentlyPainting)
         {
             progress++;
             progressSlider.updateValue(target, progress);
+
             if (progress >= target)
             {
                 complete();
@@ -109,7 +156,9 @@ public class EaselController : MonoBehaviour
                 notifyAtValue = -1;
                 levelManager.showBonusItem();
             }
+            currentArt.color = new Color(1, 1, 1, (progress / target));
             yield return new WaitForSeconds(0.1f);
         }
+        stopPainting();
     }
 }

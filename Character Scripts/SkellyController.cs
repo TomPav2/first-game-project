@@ -16,6 +16,7 @@ public class SkellyController : MonoBehaviour
     private LevelManager manager;
     private SpawnerManager spawner;
     private RavenController raven;
+    private CrowController crow;
     //private CrowController crow;
 
     // movement
@@ -29,6 +30,8 @@ public class SkellyController : MonoBehaviour
 
     private readonly byte fast = 10;
     private readonly byte slow = 6;
+
+    private bool slowed = false;
 
     // combat
     private int maxHealth;
@@ -52,12 +55,13 @@ public class SkellyController : MonoBehaviour
         GetComponent<CapsuleCollider2D>().enabled = false;
     }
 
-    public void init(MainCharacterSheet character, LevelManager levelManager, SpawnerManager spawnerManager, RavenController ravenController)
+    public void init(MainCharacterSheet character, LevelManager levelManager, SpawnerManager spawnerManager, RavenController ravenController, CrowController crowController)
     {
         manager = levelManager;
         mainChar = character;
         spawner = spawnerManager;
         raven = ravenController;
+        crow = crowController;
     }
 
     public void spawn(Vector2 pos, int hp)
@@ -88,6 +92,8 @@ public class SkellyController : MonoBehaviour
         StopAllCoroutines();
         manager.addScore(damageType);
         if (raven != null) raven.deregister(this);
+        if (crow != null) crow.deregister(this);
+        slowed = false;
 
         deathFirstStage();
     }
@@ -182,7 +188,9 @@ public class SkellyController : MonoBehaviour
             else lastDistance = distanceToTarget;
         }
 
-        Vector2 motion = Vector2.MoveTowards(transform.position, target, Time.deltaTime * currentSpeed);
+        Vector2 motion = slowed
+            ? Vector2.MoveTowards(transform.position, target, Time.deltaTime * currentSpeed * 0.8f)
+            : Vector2.MoveTowards(transform.position, target, Time.deltaTime * currentSpeed);
         body.MovePosition(motion);
     }
 
@@ -397,6 +405,10 @@ public class SkellyController : MonoBehaviour
             isInFinalArea = true;
             raven.register(this);
         }
+        else if (collision.gameObject.CompareTag(Tag.crow))
+        {
+            slowed = crow.register(this);
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -405,6 +417,11 @@ public class SkellyController : MonoBehaviour
         {
             isInFinalArea = false;
             raven.deregister(this);
+        }
+        else if (collision.CompareTag(Tag.crow))
+        {
+            crow.deregister(this);
+            slowed = false;
         }
     }
 }

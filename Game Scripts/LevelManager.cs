@@ -229,12 +229,10 @@ public class LevelManager : MonoBehaviour
             score = 0;
             spawnerManager.endStage();
             hideBonusItem();
-            hudController.popUp("Painting complete!", "Rest and start the next one when you§re ready");
             stages.RemoveAt(0);
             mainCharacter.heal(4);
             mainCharacter.rechargeLaser();
-            // TODO add upgrade point
-            setupNextStage();
+            hudController.showUpgradeScreen();
         }
         else victoryScreen();
     }
