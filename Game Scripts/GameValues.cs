@@ -4,31 +4,33 @@ public static class GameValues
 {
     public static class Tag
     {
-        public static readonly String wall = "Wall";
-        public static readonly String player = "Player";
-        public static readonly String attackLMB = "LMB Attack";
-        public static readonly String enemy = "Enemy";
-        public static readonly String spawner = "Spawner";
-        public static readonly String crow = "Crow";
-        public static readonly String raven = "Raven";
-        public static readonly String bonus = "Bonus";
+        public static readonly String WALL = "Wall";
+        public static readonly String PLAYER = "Player";
+        public static readonly String ATTACK_LMB = "LMB Attack";
+        public static readonly String ENEMY = "Enemy";
+        public static readonly String SPAWNER = "Spawner";
+        public static readonly String CROW = "Crow";
+        public static readonly String RAVEN = "Raven";
+        public static readonly String BONUS = "Bonus";
     }
 
     public static class Difficulty
     {
-        public static readonly byte estimatedDPS = 35;
-        public static readonly byte baseHealth = 100;
-        public static readonly byte interval = 15;
-        public static readonly byte raiseHealthInterval = 8; // raise every two minutes
-        public static readonly byte raiseHealthGracePeriod = 16; // don't raise for the first four minutes
-        public static readonly byte maxEnemies = 200;
-        public static readonly short paintingTarget = 1200;
+        public static readonly byte ESTIMATED_DPS = 35;
+        public static readonly byte BASE_HEALTH = 100;
+        public static readonly byte INTERVAL = 15;
+        public static readonly byte RAISE_HEALTH_INTERVAL = 8; // raise every two minutes
+        public static readonly byte RAISE_HEALTH_GRACE_PERIOD = 16; // don't raise for the first four minutes
+        public static readonly byte MAX_ENEMIES = 200;
+        public static readonly short PAINTING_TARGET = 1200;
     }
 
     public static class Trigger
     {
-        public static readonly String fadeIn = "fadeIn";
-        public static readonly String fadeOut = "fadeOut";
+        public static readonly String FADE_IN = "fadeIn";
+        public static readonly String FADE_OUT = "fadeOut";
+        public static readonly String FADE_TEXT = "textFade";
+        public static readonly String ANIMATION_STOP = "stopAnimation";
     }
 
     public static class Settings

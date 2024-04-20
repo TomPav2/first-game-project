@@ -12,10 +12,11 @@ public class RavenController : MonoBehaviour
 
     private HashSet<SkellyController> skeletonsInArea = new HashSet<SkellyController>();
 
+    private static readonly float COOLDOWN_NO_TARGET = 5f;
+    private static readonly byte COOLDOWN_FIXED = 2;
+    private static readonly byte COOLDOWN_FIXED_UPGRADED = 1;
+
     private bool upgraded = false;
-    private readonly float emptyCooldown = 5f;
-    private readonly byte fixedCooldown = 2;
-    private readonly byte fixedCooldownUpgraded = 1;
 
     public void summon()
     {
@@ -86,7 +87,7 @@ public class RavenController : MonoBehaviour
     private int calculateCooldown(int damage)
     {
         int damageDealt = upgraded ? damage - 5 : damage;
-        return ((damageDealt / 10) + (upgraded ? fixedCooldownUpgraded : fixedCooldown));
+        return ((damageDealt / 10) + (upgraded ? COOLDOWN_FIXED_UPGRADED : COOLDOWN_FIXED));
     }
 
     private IEnumerator attackProcess()
@@ -102,7 +103,7 @@ public class RavenController : MonoBehaviour
             }
             else
             {
-                yield return new WaitForSeconds(emptyCooldown);
+                yield return new WaitForSeconds(COOLDOWN_NO_TARGET);
             }
         }
     }

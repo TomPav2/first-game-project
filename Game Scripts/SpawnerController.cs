@@ -15,15 +15,17 @@ public class SpawnerController : MonoBehaviour
     protected ParticleSystem.EmissionModule emission;
     protected ParticleSystem.MainModule particlesMain;
 
-    private readonly byte overloadLimit = 200;
+    // overload values
+    private readonly byte OVERLOAD_LIMIT = 200;
     private byte overloadMeter = 0;
 
+    // spawning
     private byte toSpawn = 0;
-    private int enemyHealth = Difficulty.baseHealth;
+    private int enemyHealth = Difficulty.BASE_HEALTH;
     private Coroutine spawnTimer;
 
+    // visual
     protected double particleSpeed = 5;
-
     private float spawnerYOffset = 2.5f;
 
     private void Awake()
@@ -56,10 +58,10 @@ public class SpawnerController : MonoBehaviour
             emission.rateOverTimeMultiplier = 1;
             particlesMain.startSpeed = (ParticleSystem.MinMaxCurve)particleSpeed;
         }
-        if (overloadMeter < overloadLimit)
+        if (overloadMeter < OVERLOAD_LIMIT)
         {
             overloadMeter += amount;
-            if (overloadMeter % (overloadLimit/10) == 0)
+            if (overloadMeter % (OVERLOAD_LIMIT/10) == 0)
             {
                 emission.rateOverTimeMultiplier += 1;
                 particleSpeed += 0.5;

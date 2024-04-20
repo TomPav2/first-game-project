@@ -26,8 +26,8 @@ public class EaselController : MonoBehaviour, IFading
     private readonly List<SpriteRenderer> art = new List<SpriteRenderer>();
     private readonly List<GameObject> painting = new List<GameObject>();
 
-    private readonly Color active = new Color(0.4f, 0.4f, 1);
-    private readonly Color inactive = new Color(0.4f, 0.4f, 0.4f);
+    private readonly Color ACTIVE_COLOR = new Color(0.4f, 0.4f, 1);
+    private readonly Color INACTIVE_COLOR = new Color(0.4f, 0.4f, 0.4f);
 
     private float target;
     private short progress = 0;
@@ -41,7 +41,7 @@ public class EaselController : MonoBehaviour, IFading
 
     private void Awake()
     {
-        target = Difficulty.paintingTarget;
+        target = Difficulty.PAINTING_TARGET;
 
         art.Add(art1);
         art.Add(art2);
@@ -108,7 +108,7 @@ public class EaselController : MonoBehaviour, IFading
             progress++;
             levelManager.startStage();
         }
-        sliderFill.color = active;
+        sliderFill.color = ACTIVE_COLOR;
         readyToPaint = false;
         currentlyPainting = true;
         brush.startFadeIn();
@@ -121,7 +121,7 @@ public class EaselController : MonoBehaviour, IFading
 
     public void stopPainting()
     {
-        sliderFill.color = inactive;
+        sliderFill.color = INACTIVE_COLOR;
         brush.startFadeOut();
     }
 

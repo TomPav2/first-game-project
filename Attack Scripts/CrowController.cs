@@ -13,7 +13,7 @@ public class CrowController : MonoBehaviour, IFading
     [SerializeField] private Animator damageEffect;
 
     private readonly List<SkellyController> skeletonsInArea = new List<SkellyController>();
-    private static readonly Vector3 upgradedScale = new Vector3(60, 60, 0);
+    private static readonly Vector3 UPGRADED_SCALE = new Vector3(60, 60, 0);
 
     private bool readyToAttack = true;
     private bool upgraded = false;
@@ -30,7 +30,7 @@ public class CrowController : MonoBehaviour, IFading
 
     private void upgrade() {
         upgraded = true;
-        areaOfEffect.transform.localScale = upgradedScale;
+        areaOfEffect.transform.localScale = UPGRADED_SCALE;
     }
 
     public bool isUpgraded() { return upgraded; }
@@ -52,7 +52,7 @@ public class CrowController : MonoBehaviour, IFading
         if (!readyToAttack) return; // in case this is triggered twice in one frame
         readyToAttack = false;
         spriteRenderer.sprite = attackSprite;
-        damageEffect.SetTrigger(Trigger.fadeIn);
+        damageEffect.SetTrigger(Trigger.FADE_IN);
     }
 
     public void afterFadeIn()
@@ -65,7 +65,7 @@ public class CrowController : MonoBehaviour, IFading
     {
         animator.enabled = false;
         spriteRenderer.sprite = defaultSprite;
-        damageEffect.SetTrigger(Trigger.fadeOut);
+        damageEffect.SetTrigger(Trigger.FADE_OUT);
     }
 
     public void afterFadeOut()

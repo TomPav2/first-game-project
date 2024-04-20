@@ -104,12 +104,12 @@ public class MainCharController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag(Tag.bonus))
+        if (collision.CompareTag(Tag.BONUS))
         {
             StartCoroutine(pickUpBonusProcess());
             characterSheet.applyRandomBonus();
         }
-        else if (collision.gameObject.CompareTag(Tag.raven) && inTutorial)
+        else if (collision.gameObject.CompareTag(Tag.RAVEN) && inTutorial)
         {
             tutorial.nextStep();
         }

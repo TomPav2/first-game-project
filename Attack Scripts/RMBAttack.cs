@@ -14,13 +14,13 @@ public class RMBAttack : MonoBehaviour
     [SerializeField] private LineRenderer laserFork;
     [SerializeField] private ParticleSystem laserParticles;
 
-    private static readonly byte damageAmount = 2;
-    private static readonly byte drainAmount = 2;
+    private static readonly byte DAMAGE_AMOUNT = 2;
+    private static readonly byte DRAIN_AMOUNT = 2;
 
-    private static readonly ushort chargeLimit = 1000;
-    private static readonly float widthMin = 0.5f;
-    private static readonly float widthMax = 1f;
-    private static readonly float widthChange = 0.08f;
+    private static readonly ushort CHARGE_LIMIT= 1000;
+    private static readonly float WIDTH_MIN = 0.5f;
+    private static readonly float WIDTH_MAX = 1f;
+    private static readonly float WIDTH_INTERVAL = 0.08f;
 
     private float chargeDelay = 0.5f;
     private float chargeInterval = 0.1f;
@@ -34,11 +34,11 @@ public class RMBAttack : MonoBehaviour
     private bool laserIncreasing = false;
     private bool isOffset = false; // true when character is facing left
 
-    private readonly Vector3 offsetX = new Vector3(-0.7f, 0, 0);
-    private readonly Vector3 forkOffsetRight1 = new Vector3(-1.65f, -0.25f, 0);
-    private readonly Vector3 forkOffsetRight2 = new Vector3(1.55f, -0.25f, 0);
-    private readonly Vector3 forkOffsetLeft1 = new Vector3(-1.35f, -0.25f, 0);
-    private readonly Vector3 forkOffsetLeft2 = new Vector3(1.65f, -0.25f, 0);
+    private static readonly Vector3 OFFSET_X = new Vector3(-0.7f, 0, 0);
+    private static readonly Vector3 FORK_OFFSET_RIGHT_1 = new Vector3(-1.65f, -0.25f, 0);
+    private static readonly Vector3 FORK_OFFSET_RIGHT_2 = new Vector3(1.55f, -0.25f, 0);
+    private static readonly Vector3 FORK_OFFSET_LEFT_1 = new Vector3(-1.35f, -0.25f, 0);
+    private static readonly Vector3 FORK_OFFSET_LEFT_2 = new Vector3(1.65f, -0.25f, 0);
 
     private void Start()
     {
@@ -85,26 +85,26 @@ public class RMBAttack : MonoBehaviour
                 laserParticles.transform.right = laserParticles.transform.position - transform.position;
 
                 // set positions for the fork
-                laserFork.SetPosition(0, transform.position + (isOffset ? forkOffsetLeft1 : forkOffsetRight1));
+                laserFork.SetPosition(0, transform.position + (isOffset ? FORK_OFFSET_LEFT_1 : FORK_OFFSET_RIGHT_1));
                 laserFork.SetPosition(1, transform.position);
-                laserFork.SetPosition(2, transform.position + (isOffset ? forkOffsetLeft2 : forkOffsetRight2));
+                laserFork.SetPosition(2, transform.position + (isOffset ? FORK_OFFSET_LEFT_2 : FORK_OFFSET_RIGHT_2));
 
                 // change laser intensity so that it doesn't look like a solid line
-                laserLine.startWidth = laserIncreasing ? laserLine.startWidth + widthChange : laserLine.startWidth - widthChange;
-                laserLine.endWidth = laserIncreasing ? laserLine.endWidth + widthChange : laserLine.endWidth - widthChange;
-                if (laserLine.startWidth >= widthMax) laserIncreasing = false;
-                else if (laserLine.startWidth <= widthMin) laserIncreasing = true;
+                laserLine.startWidth = laserIncreasing ? laserLine.startWidth + WIDTH_INTERVAL : laserLine.startWidth - WIDTH_INTERVAL;
+                laserLine.endWidth = laserIncreasing ? laserLine.endWidth + WIDTH_INTERVAL : laserLine.endWidth - WIDTH_INTERVAL;
+                if (laserLine.startWidth >= WIDTH_MAX) laserIncreasing = false;
+                else if (laserLine.startWidth <= WIDTH_MIN) laserIncreasing = true;
 
                 // deal damage
-                if (hit.collider.CompareTag(Tag.enemy))
+                if (hit.collider.CompareTag(Tag.ENEMY))
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
-                    enemyController.damage(damageAmount, DamageType.RMB);
+                    enemyController.damage(DAMAGE_AMOUNT, DamageType.RMB);
                 }
-                else if (hit.collider.CompareTag(Tag.spawner))
+                else if (hit.collider.CompareTag(Tag.SPAWNER))
                 {
                     SpawnerController spawner = hit.collider.GetComponent<SpawnerController>();
-                    spawner.damage(damageAmount);
+                    spawner.damage(DAMAGE_AMOUNT);
                 }
             }
             else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects (without starting recharging)
@@ -121,13 +121,13 @@ public class RMBAttack : MonoBehaviour
             if (!isOffset)
             {
                 isOffset = true;
-                transform.position += offsetX;
+                transform.position += OFFSET_X;
             }
         }
         else if (isOffset)
         {
             isOffset = false;
-            transform.position -= offsetX;
+            transform.position -= OFFSET_X;
         }
     }
 
@@ -141,8 +141,8 @@ public class RMBAttack : MonoBehaviour
         mainBattery = new Battery(mainIndicator);
         bonusBattery = null;
         laserIncreasing = false;
-        laserLine.startWidth = widthMax;
-        laserLine.endWidth = widthMax;
+        laserLine.startWidth = WIDTH_MAX;
+        laserLine.endWidth = WIDTH_MAX;
     }
 
     public void unlockDouble()
@@ -204,16 +204,20 @@ public class RMBAttack : MonoBehaviour
         public Battery(SliderController indicator)
         {
             this.indicator = indicator;
-            this.charge = chargeLimit;
+            this.charge = CHARGE_LIMIT;
         }
 
         public bool drain()
         {
-            if (charge < drainAmount) return false;
+            if (charge < DRAIN_AMOUNT)
+            {
+                indicator.updateValue(CHARGE_LIMIT, 0);
+                return false;
+            }
             else
             {
-                charge -= drainAmount;
-                indicator.updateValue(chargeLimit, charge);
+                charge -= DRAIN_AMOUNT;
+                indicator.updateValue(CHARGE_LIMIT, charge);
                 return true;
             }
         }
@@ -222,10 +226,10 @@ public class RMBAttack : MonoBehaviour
         {
             if (inUse) { return false; }
             charge += amount;
-            indicator.updateValue(chargeLimit, charge);
-            if (charge > chargeLimit)
+            indicator.updateValue(CHARGE_LIMIT, charge);
+            if (charge > CHARGE_LIMIT)
             {
-                charge = chargeLimit;
+                charge = CHARGE_LIMIT;
                 indicator.fade();
                 return false;
             }
@@ -234,17 +238,17 @@ public class RMBAttack : MonoBehaviour
 
         public ushort forceCharge(ushort amount)
         {
-            if (charge == chargeLimit) return amount;
+            if (charge == CHARGE_LIMIT) return amount;
 
-            if (charge > chargeLimit)
+            if (charge > CHARGE_LIMIT)
             {
-                charge = chargeLimit;
+                charge = CHARGE_LIMIT;
                 indicator.fade();
-                indicator.updateValue(chargeLimit, charge);
-                return (ushort)(charge - chargeLimit);
+                indicator.updateValue(CHARGE_LIMIT, charge);
+                return (ushort)(charge - CHARGE_LIMIT);
             }
 
-            indicator.updateValue(chargeLimit, charge);
+            indicator.updateValue(CHARGE_LIMIT, charge);
             return 0;
         }
     }

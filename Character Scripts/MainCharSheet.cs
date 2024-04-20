@@ -22,9 +22,9 @@ public class MainCharacterSheet : MonoBehaviour
     private GameObject currentAttack;
 
     // health stats
+    private static readonly int REGEN_INTERVAL = 30;
     private byte maxHealth = 12;
     private byte health;
-    private readonly int regenInterval = 30;
     private bool lifesteal = false;
 
     // active bonuses
@@ -183,7 +183,7 @@ public class MainCharacterSheet : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(regenInterval);
+            yield return new WaitForSeconds(REGEN_INTERVAL);
             heal(1);
         }
     }

@@ -132,7 +132,7 @@ public class LMBAttack : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == Tag.wall)
+        if (collision.gameObject.tag == Tag.WALL)
         {
             Hit(false);
         }

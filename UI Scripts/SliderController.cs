@@ -11,7 +11,7 @@ public class SliderController : MonoBehaviour
 
     private Coroutine fading;
     private float alpha = 0f;
-    private readonly float fadeAmount = 1f / 60f;
+    private static readonly float FADE_AMOUNT = 1f / 60f;
 
     private void Start()
     {
@@ -61,7 +61,7 @@ public class SliderController : MonoBehaviour
     {
         while (alpha > 0)
         {
-            alpha -= fadeAmount;
+            alpha -= FADE_AMOUNT;
             if (alpha < 0) alpha = 0;
             updateVisibility();
             yield return null;

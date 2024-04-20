@@ -24,7 +24,7 @@ public class SkellyTutorial : SkellyController
         ignoredType = ignoredDamage;
         this.tutorial = tutorial;
 
-        spawn(spawnPoint, Difficulty.baseHealth);
+        spawn(spawnPoint, Difficulty.BASE_HEALTH);
     }
     protected override IEnumerator performSpawn()
     {

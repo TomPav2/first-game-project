@@ -36,7 +36,7 @@ public class TutorialController : MonoBehaviour
     private bool waitForEvent = false; // when this is true, hitting space won't trigger next tutorial step
     private byte waitingForEnemies = 0;
 
-    private readonly Vector2 tutorialSpawnPlayer = new Vector2(-96, 33);
+    private static readonly Vector2 TUTORIAL_START_LOCATION = new Vector2(-96, 33);
 
     private readonly List<SkellyTutorial> tutorialEnemies = new List<SkellyTutorial>();
     private readonly List<Action> steps = new List<Action>();
@@ -125,7 +125,7 @@ public class TutorialController : MonoBehaviour
         // setup starting player controls
         lockControls = true;
         rmbAttack.SetActive(false);
-        mainCharTransform.position = tutorialSpawnPlayer;
+        mainCharTransform.position = TUTORIAL_START_LOCATION;
 
         // text settings
         panelSizeOriginal = textPanel.GetComponent<RectTransform>().sizeDelta;
@@ -215,7 +215,7 @@ public class TutorialController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag(Tag.player))
+        if (collision.CompareTag(Tag.PLAYER))
         {
             GetComponent<BoxCollider2D>().enabled = false;
             waitForEvent = false;

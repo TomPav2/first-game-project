@@ -13,13 +13,11 @@ public class FadeController : MonoBehaviour
 
     private void Awake()
     {
-        scriptToNotify = objectToNotify.GetComponent<IFading>();
+        if (objectToNotify != null) scriptToNotify = objectToNotify.GetComponent<IFading>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        if (spriteRenderer == null) Debug.LogWarning("No sprite renderer for fading object");
-
-        spriteRenderer.enabled = !startTransparent;
+        if (spriteRenderer != null) spriteRenderer.enabled = !startTransparent;
     }
 
     private void enableRenderer()
@@ -29,7 +27,7 @@ public class FadeController : MonoBehaviour
 
     public void startFadeIn()
     {
-        animator.SetTrigger(Trigger.fadeIn);
+        animator.SetTrigger(Trigger.FADE_IN);
     }
 
     private void finishFadeIn()
@@ -39,7 +37,7 @@ public class FadeController : MonoBehaviour
 
     public void startFadeOut()
     {
-        animator.SetTrigger(Trigger.fadeOut);
+        animator.SetTrigger(Trigger.FADE_OUT);
     }
 
     private void finishFadeOut()

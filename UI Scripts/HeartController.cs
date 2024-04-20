@@ -5,14 +5,12 @@ public class HeartController : MonoBehaviour
 {
     // hearts displayed on screen
     [SerializeField] private SpriteRenderer hp1;
-
     [SerializeField] private SpriteRenderer hp2;
     [SerializeField] private SpriteRenderer hp3;
     [SerializeField] private SpriteRenderer hp4;
 
     // heart sprites
     [SerializeField] private Sprite heart0;
-
     [SerializeField] private Sprite heart1;
     [SerializeField] private Sprite heart2;
     [SerializeField] private Sprite heart3;
@@ -20,7 +18,6 @@ public class HeartController : MonoBehaviour
 
     // background hearts for flash effect
     [SerializeField] private SpriteRenderer hp1Flash;
-
     [SerializeField] private SpriteRenderer hp2Flash;
     [SerializeField] private SpriteRenderer hp3Flash;
     [SerializeField] private SpriteRenderer hp4Flash;

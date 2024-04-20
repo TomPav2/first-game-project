@@ -20,8 +20,8 @@ public class TextHudController : MonoBehaviour
     [SerializeField] private CrowController crow;
     [SerializeField] private LevelManager levelManager;
 
-    private static readonly Vector2 smallTextSize = new Vector2(800, 50);
-    private static readonly Vector2 largeTextSize = new Vector2(1600, 50);
+    private static readonly Vector2 SMALL_TEXT_SIZE = new Vector2(800, 50);
+    private static readonly Vector2 LARGE_TEXT_SIZE = new Vector2(1600, 50);
 
     private bool inSettings = false;
 

@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject bonusItem;
     [SerializeField] private TextHudController hudController;
     [SerializeField] private MainCharacterSheet mainCharacter;
+    [SerializeField] private TransitionController transitionController;
 
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
@@ -74,12 +75,12 @@ public class LevelManager : MonoBehaviour
 
     public void restart()
     {
-        load(Scene.GameScene);
+        transitionController.transitionToScene(Scene.GameScene);
     }
 
     public void exit()
     {
-        load(Scene.MenuScene);
+        transitionController.transitionToScene(Scene.MenuScene);
     }
 
     public void playerDied()
@@ -150,7 +151,7 @@ public class LevelManager : MonoBehaviour
         bool foundTarget = false;
         foreach (RaycastHit2D hit in hits)
         {
-            if (hit.collider.CompareTag(Tag.wall)) return false;
+            if (hit.collider.CompareTag(Tag.WALL)) return false;
             if (hit.collider.transform == enemy) foundTarget = true;
         }
         return foundTarget;
@@ -162,7 +163,7 @@ public class LevelManager : MonoBehaviour
         Vector2 direction = charPos - from;
         if (Vector2.Distance(from, charPos) > 80) return false;
         RaycastHit2D hit = Physics2D.Raycast(from, direction, 80f, trackPlayerLayers);
-        if (hit.collider != null && hit.collider.CompareTag(Tag.player)) return true;
+        if (hit.collider != null && hit.collider.CompareTag(Tag.PLAYER)) return true;
         return false;
     }
 

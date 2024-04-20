@@ -33,7 +33,7 @@ public class SpawnerManager : MonoBehaviour
     // ------------ enemy lifecycle ------------
     public SkellyController getSkeleton(bool overloaded)
     {
-        if (livingEnemies.Count == (Difficulty.maxEnemies - 1))
+        if (livingEnemies.Count == (Difficulty.MAX_ENEMIES - 1))
         {
             manager.tooManyEnemies(); // this ends the game and calls to disable all spawning
             return null; // not a good idea to spawn another enemy at this time
@@ -136,12 +136,12 @@ public class SpawnerManager : MonoBehaviour
     private IEnumerator mainSpawningProcess(LevelManager.Stage stage)
     {
         int currentInterval = 0;
-        int enemyHealth = Difficulty.baseHealth;
+        int enemyHealth = Difficulty.BASE_HEALTH;
 
         while (true)
         {
             // start raising enemy health after grace period
-            if ((currentInterval >= Difficulty.raiseHealthGracePeriod) && (currentInterval % Difficulty.raiseHealthInterval == 0))
+            if ((currentInterval >= Difficulty.RAISE_HEALTH_GRACE_PERIOD) && (currentInterval % Difficulty.RAISE_HEALTH_INTERVAL == 0))
                 enemyHealth += enemyHealth / 10;
 
             // if time taken by combat is below treshold, and a spawner is available, start a spawner
@@ -150,8 +150,8 @@ public class SpawnerManager : MonoBehaviour
             {
                 if (activeSpawners < stage.maxSpawners)
                 {
-                    int timeBlocked = enemiesSpawned * Difficulty.baseHealth / Difficulty.estimatedDPS;
-                    float timeBlockedProportion = timeBlocked / (float)(currentInterval * Difficulty.interval);
+                    int timeBlocked = enemiesSpawned * Difficulty.BASE_HEALTH / Difficulty.ESTIMATED_DPS;
+                    float timeBlockedProportion = timeBlocked / (float)(currentInterval * Difficulty.INTERVAL);
                     //Debug.Log("Intensity: " + Math.Round(timeBlockedProportion, 3) + " / " + stage.intensity);
                     if (timeBlockedProportion < stage.intensity) delegateSpawning(stage, enemyHealth);
                 }
@@ -159,7 +159,7 @@ public class SpawnerManager : MonoBehaviour
 
             // increase interval counter and wait for next
             currentInterval++;
-            yield return new WaitForSeconds(Difficulty.interval);
+            yield return new WaitForSeconds(Difficulty.INTERVAL);
         }
     }
 }

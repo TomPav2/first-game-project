@@ -28,8 +28,8 @@ public class SkellyController : MonoBehaviour
     private float lastDistance = 10000f;
     private byte currentSpeed = 0;
 
-    private readonly byte fast = 10;
-    private readonly byte slow = 6;
+    private static readonly byte SPEED_FAST = 10;
+    private static readonly byte SPEED_SLOW = 6;
 
     private bool slowed = false;
 
@@ -237,18 +237,18 @@ public class SkellyController : MonoBehaviour
                 break;
 
             case EnemyState.Walking:
-                currentSpeed = slow;
+                currentSpeed = SPEED_SLOW;
                 animator.SetTrigger(Trigger.walk);
                 break;
 
             case EnemyState.Following:
-                currentSpeed = fast;
+                currentSpeed = SPEED_FAST;
                 if (currentProcess != null) StopCoroutine(currentProcess);
                 animator.SetTrigger(Trigger.run);
                 break;
 
             case EnemyState.InertiaRun:
-                currentSpeed = fast;
+                currentSpeed = SPEED_FAST;
                 currentProcess = StartCoroutine(inertiaRun());
                 break;
 
@@ -386,7 +386,7 @@ public class SkellyController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == Tag.player)
+        if (collision.gameObject.tag == Tag.PLAYER)
         {
             mainChar.damage(1);
             die(DamageType.Contact);
@@ -395,17 +395,17 @@ public class SkellyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag(Tag.attackLMB))
+        if (collision.gameObject.CompareTag(Tag.ATTACK_LMB))
         {
             LMBAttack projectile = collision.GetComponent<LMBAttack>();
             damage(projectile.Hit(true), DamageType.LMB);
         }
-        else if (collision.gameObject.CompareTag(Tag.raven))
+        else if (collision.gameObject.CompareTag(Tag.RAVEN))
         {
             isInFinalArea = true;
             raven.register(this);
         }
-        else if (collision.gameObject.CompareTag(Tag.crow))
+        else if (collision.gameObject.CompareTag(Tag.CROW))
         {
             slowed = crow.register(this);
         }
@@ -413,12 +413,12 @@ public class SkellyController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag(Tag.raven))
+        if (collision.CompareTag(Tag.RAVEN))
         {
             isInFinalArea = false;
             raven.deregister(this);
         }
-        else if (collision.CompareTag(Tag.crow))
+        else if (collision.CompareTag(Tag.CROW))
         {
             crow.deregister(this);
             slowed = false;
