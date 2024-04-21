@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,6 +31,11 @@ public class TextHudController : MonoBehaviour
         if (main != null) mainText.popUpText(main);
         if (desc != null) subText.popUpText(desc);
         if (tertiary != null) thirdText.popUpText(tertiary);
+    }
+
+    public void popUp(string main, string desc, string tertiary, float delay)
+    {
+        StartCoroutine(popupWithDelay(main, desc, tertiary, delay));
     }
 
     public void popUp(string main, string desc)
@@ -127,5 +133,12 @@ public class TextHudController : MonoBehaviour
                 thirdText.showText(scoreToShow);
                 break;
         }
+    }
+
+    private IEnumerator popupWithDelay(string main, string desc, string tertiary, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        popUp(main, desc, tertiary);
+        yield break;
     }
 }

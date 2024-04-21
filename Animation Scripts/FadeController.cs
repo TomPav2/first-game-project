@@ -6,7 +6,6 @@ public class FadeController : MonoBehaviour
     [SerializeField] private GameObject objectToNotify;
     [SerializeField] private bool startTransparent = false;
 
-
     private IFading scriptToNotify;
     private SpriteRenderer spriteRenderer;
     private Animator animator;
@@ -27,6 +26,7 @@ public class FadeController : MonoBehaviour
 
     public void startFadeIn()
     {
+        animator.ResetTrigger(Trigger.FADE_OUT);
         animator.SetTrigger(Trigger.FADE_IN);
     }
 

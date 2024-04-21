@@ -8,7 +8,7 @@ using static GameValues;
 public class SpawnerManager : MonoBehaviour
 {
     [SerializeField] private MainCharacterSheet mainCharReference;
-    [SerializeField] private LevelManager manager;
+    [SerializeField] private Level1Manager manager;
     [SerializeField] private GameObject skellyPrefab;
     [SerializeField] private RavenController raven;
     [SerializeField] private CrowController crow;
@@ -89,7 +89,7 @@ public class SpawnerManager : MonoBehaviour
     }
 
     // ------------ spawning ------------
-    public void startStage(LevelManager.Stage stage)
+    public void startStage(Level1Manager.Stage stage)
     {
         spawnerRoutine = StartCoroutine(mainSpawningProcess(stage));
     }
@@ -111,7 +111,7 @@ public class SpawnerManager : MonoBehaviour
     }
 
     // this is a bad way of getting a random available element, but I like the idea of the player getting a break by chance
-    private void delegateSpawning(LevelManager.Stage stage, int enemyHealth)
+    private void delegateSpawning(Level1Manager.Stage stage, int enemyHealth)
     {
         bool fast = UnityEngine.Random.Range(0, 2) == 0;
         int avgTime = fast ? stage.fastSpawnerLifetime : stage.slowSpawnerLifetime;
@@ -129,11 +129,11 @@ public class SpawnerManager : MonoBehaviour
         if (success)
         {
             activeSpawners++;
-            hud.popUp(null, null, "You can hear " + ( fast ? "a lot of" : "some" ) + " clacking from the " + spawners[spawnerId].getLocationDescription() );
+            hud.popUp(null, null, "You can hear " + ( fast ? "a lot of" : "some" ) + " clacking from the " + spawners[spawnerId].getLocationDescription(), 5 );
         }
     }
 
-    private IEnumerator mainSpawningProcess(LevelManager.Stage stage)
+    private IEnumerator mainSpawningProcess(Level1Manager.Stage stage)
     {
         int currentInterval = 0;
         int enemyHealth = Difficulty.BASE_HEALTH;

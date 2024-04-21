@@ -245,6 +245,8 @@ public class RMBAttack : MonoBehaviour
         {
             if (charge == CHARGE_LIMIT) return amount;
 
+            charge += amount;
+
             if (charge > CHARGE_LIMIT)
             {
                 charge = CHARGE_LIMIT;

@@ -32,7 +32,6 @@ public class AccidentController : MonoBehaviour
         onScreen = true;
         buttonImage.enabled = true;
         button.enabled = true;
-        button.interactable = false;
 
         animator.SetTrigger(Trigger.FADE_IN);
     }
@@ -51,7 +50,6 @@ public class AccidentController : MonoBehaviour
 
     private void afterFadeIn()
     {
-        button.interactable = true;
         manager.accidentAppeared();
     }
 

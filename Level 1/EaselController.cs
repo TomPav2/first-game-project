@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class EaselController : MonoBehaviour, IFading
 {
-    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private Level1Manager levelManager;
     [SerializeField] private SliderController progressSlider;
     [SerializeField] private Image sliderFill;
     [SerializeField] private Transform mainChar;
@@ -185,7 +185,7 @@ public class EaselController : MonoBehaviour, IFading
             }
             if (progress >= notifyAtValue)
             {
-                notifyAtValue = -1;
+                notifyAtValue = (short)(target + 10);
                 levelManager.showBonusItem();
             }
             currentArt.color = new Color(1, 1, 1, (progress / target));

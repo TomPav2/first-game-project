@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static SceneLoader;
 
 public class AccidentManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class AccidentManager : MonoBehaviour
 
     private void Awake()
     {
+        //if (levelDifficulty != LevelDifficulty.Easy) gameObject.SetActive(false); //TODO inactive for debugging
         foreach (AccidentController accident in GetComponentsInChildren<AccidentController>(true))
         {
             readyAccidents.Add(accident);
