@@ -12,6 +12,7 @@ public class EaselController : MonoBehaviour, IFading
     [SerializeField] private Image sliderFill;
     [SerializeField] private Transform mainChar;
     [SerializeField] private FadeController brush;
+    [SerializeField] private AccidentManager accidents;
 
     [SerializeField] private SpriteRenderer art1;
     [SerializeField] private SpriteRenderer art2;
@@ -26,15 +27,19 @@ public class EaselController : MonoBehaviour, IFading
     private readonly List<SpriteRenderer> art = new List<SpriteRenderer>();
     private readonly List<GameObject> painting = new List<GameObject>();
 
-    private readonly Color ACTIVE_COLOR = new Color(0.4f, 0.4f, 1);
-    private readonly Color INACTIVE_COLOR = new Color(0.4f, 0.4f, 0.4f);
+    private readonly Color COLOR_NORMAL = new Color(0.4f, 0.4f, 1f);
+    private readonly Color COLOR_INACTIVE = new Color(0.4f, 0.4f, 0.4f);
+    private readonly Color COLOR_FAST = new Color(0.4f, 1f, 0.4f);
+    private readonly Color COLOR_SLOW = new Color(1f, 0.4f, 0.4f);
 
     private float target;
-    private short progress = 0;
+    private float progress = 0;
     private short notifyAtValue = -1;
-    private bool currentlyPainting = false;
     private bool readyToPaint = false;
     private byte index = 0;
+
+    private float paintSpeed = 1;
+    private int bonusProgress = 0;
 
     private SpriteRenderer currentArt;
     private GameObject currentPainting;
@@ -63,7 +68,7 @@ public class EaselController : MonoBehaviour, IFading
         }
         if (currentlyPainting)
         {
-            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) ||
+            if (Input.GetMouseButtonDown(1) ||
                 Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) ||
                 Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
             {
@@ -77,6 +82,8 @@ public class EaselController : MonoBehaviour, IFading
         progress = 0;
         notifyAtValue = (short)(Mathf.Round(target * notifyAt));
         progressSlider.updateValue(target, 0);
+        paintSpeed = 1;
+        bonusProgress = 0;
 
         currentArt = art[index];
         currentPainting = painting[index];
@@ -87,9 +94,25 @@ public class EaselController : MonoBehaviour, IFading
 
     public void speedUpgrade()
     {
-        if (progress > 0) progress = (short)(progress * 2 / 3);
+        if (progress > 0) progress = (progress * 2 / 3);
         if (notifyAtValue > 0) notifyAtValue = (short)(notifyAtValue * 2 / 3);
         target = (short)(target * 2 / 3);
+    }
+
+    // accident control
+    public void setSlow(int amount, bool clearedMistake)
+    {
+        if (clearedMistake) bonusProgress += 10;
+        if (amount == 0)
+        {
+            paintSpeed = 1;
+            sliderFill.color = COLOR_FAST;
+        }
+        else
+        {
+            paintSpeed = 1 - (0.2f * amount);
+            sliderFill.color = COLOR_SLOW;
+        }
     }
 
     private void complete()
@@ -108,7 +131,7 @@ public class EaselController : MonoBehaviour, IFading
             progress++;
             levelManager.startStage();
         }
-        sliderFill.color = ACTIVE_COLOR;
+        sliderFill.color = (bonusProgress > 0) ? COLOR_FAST : COLOR_NORMAL;
         readyToPaint = false;
         currentlyPainting = true;
         brush.startFadeIn();
@@ -117,11 +140,13 @@ public class EaselController : MonoBehaviour, IFading
     void IFading.afterFadeIn()
     {
         StartCoroutine(paintRoutine());
+        accidents.startAccidents();
     }
 
     public void stopPainting()
     {
-        sliderFill.color = INACTIVE_COLOR;
+        accidents.stopAccidents();
+        sliderFill.color = COLOR_INACTIVE;
         brush.startFadeOut();
     }
 
@@ -143,7 +168,14 @@ public class EaselController : MonoBehaviour, IFading
     {
         while (currentlyPainting)
         {
-            progress++;
+            if (bonusProgress > 0)
+            {
+                bonusProgress--;
+                if (bonusProgress == 0) sliderFill.color = (paintSpeed == 1f) ? COLOR_NORMAL : COLOR_SLOW;
+                progress += paintSpeed * 2;
+            }
+            else progress += paintSpeed;
+
             progressSlider.updateValue(target, progress);
 
             if (progress >= target)
@@ -151,7 +183,7 @@ public class EaselController : MonoBehaviour, IFading
                 complete();
                 yield break;
             }
-            if (progress == notifyAtValue)
+            if (progress >= notifyAtValue)
             {
                 notifyAtValue = -1;
                 levelManager.showBonusItem();

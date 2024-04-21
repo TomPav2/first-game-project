@@ -101,7 +101,7 @@ public class LMBAttack : MonoBehaviour
     {
         while (true)
         {
-            if (!isPaused && !lockControls && Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+            if (!isPaused && !lockControls && !currentlyPainting && Input.GetMouseButton(0) && !Input.GetMouseButton(1))
             {
                 startAttack();
                 yield return new WaitForSeconds(1);

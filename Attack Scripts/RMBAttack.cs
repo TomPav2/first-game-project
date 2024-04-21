@@ -17,6 +17,9 @@ public class RMBAttack : MonoBehaviour
     private static readonly byte DAMAGE_AMOUNT = 2;
     private static readonly byte DRAIN_AMOUNT = 2;
 
+    private static readonly byte DAMAGE_BOOSTED = 3;
+    private static readonly byte BOOST_TRESHOLD = 100;
+
     private static readonly ushort CHARGE_LIMIT= 1000;
     private static readonly float WIDTH_MIN = 0.5f;
     private static readonly float WIDTH_MAX = 1f;
@@ -99,12 +102,12 @@ public class RMBAttack : MonoBehaviour
                 if (hit.collider.CompareTag(Tag.ENEMY))
                 {
                     SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
-                    enemyController.damage(DAMAGE_AMOUNT, DamageType.RMB);
+                    enemyController.damage(usedBattery.isCritical() ? DAMAGE_BOOSTED : DAMAGE_AMOUNT, DamageType.RMB);
                 }
                 else if (hit.collider.CompareTag(Tag.SPAWNER))
                 {
                     SpawnerController spawner = hit.collider.GetComponent<SpawnerController>();
-                    spawner.damage(DAMAGE_AMOUNT);
+                    spawner.damage(usedBattery.isCritical() ? DAMAGE_BOOSTED : DAMAGE_AMOUNT);
                 }
             }
             else if (visualsEnabled) // if battery ran empty but user is still holding down the mouse button, disable laser effects (without starting recharging)
@@ -221,6 +224,8 @@ public class RMBAttack : MonoBehaviour
                 return true;
             }
         }
+
+        public bool isCritical() { return charge < BOOST_TRESHOLD;}
 
         public bool chargeTillFull(byte amount)
         {

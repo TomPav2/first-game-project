@@ -19,7 +19,6 @@ public class TutorialController : MonoBehaviour
     [SerializeField] private ThrowItem throwObject;
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private RectTransform continuePrompt;
-
     [SerializeField] private TMP_FontAsset fontRegular;
     [SerializeField] private TMP_FontAsset fontAlternative;
 
@@ -67,10 +66,12 @@ public class TutorialController : MonoBehaviour
         "When you overload a portal, it will quickly dump as many enemies as it can before it collapses. Better get out of the way.",
         // Spawn three enemies, wait for them to die
         "Why go through all this trouble? Because some of the skeletons will be lost to the void, giving you more free time.",
+        "In short, if you can run or fight through the enemies to reach the portal, you should.",
         "That's it for the combat tutorial. Make your way to the main chamber - down the corridor and take the first turn.",
         // On trigger enter
         "In the centre of this chamber is an easel. Your goal is to paint four paintings. This will naturally attract the art-hating skeletons.",
         "They are real snobs, I tell you.",
+        "You will inevitably make mistakes when painting. Clear them by simply clicking. They will slow you down until you do so.",
         "When you're next to the easel, press spacebar to start painting. That's all you need to know to start. Good luck!"
     };
 
@@ -105,11 +106,13 @@ public class TutorialController : MonoBehaviour
         steps.Add(() => spawnEnemies(0.6f));
         steps.Add(() => hidePortal()); // Portal disappears when all enemies are dead
         steps.Add(() => showMessage(messages[17], true));
+        steps.Add(() => showMessage(messages[18], true));
         steps.Add(() => hideBlockage());
-        steps.Add(() => showMessage(messages[18], false)); // Wait for player to enter central area
-        steps.Add(() => showMessage(messages[19], true));
+        steps.Add(() => showMessage(messages[19], false)); // Wait for player to enter central area
         steps.Add(() => showMessage(messages[20], true));
         steps.Add(() => showMessage(messages[21], true));
+        steps.Add(() => showMessage(messages[22], true));
+        steps.Add(() => showMessage(messages[23], true));
         steps.Add(() => finishTutorial());
     }
 
