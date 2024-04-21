@@ -36,7 +36,6 @@ public class MainCharController : MonoBehaviour
     {
         if (lockControls)
         {
-            body.velocity = Vector2.zero;
             return;
         }
 
@@ -56,11 +55,9 @@ public class MainCharController : MonoBehaviour
 
         if (speedX > 0 || speedY > 0)
         {
-            body.velocity = speed * speedUpgrade * Time.deltaTime * new Vector2(dirRight ? speedX : -speedX, dirUp ? speedY : -speedY);
-        }
-        else
-        {
-            body.velocity = Vector2.zero;
+            float moveX = ( (dirRight ? speedX : -speedX) * speed * speedUpgrade * Time.deltaTime ) + body.position.x;
+            float moveY = ( ( dirUp   ? speedY : -speedY) * speed * speedUpgrade * Time.deltaTime ) + body.position.y;
+            body.MovePosition(new Vector3(moveX, moveY, 0));
         }
     }
 
