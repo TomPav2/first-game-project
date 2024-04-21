@@ -16,6 +16,7 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private RMBAttack laserAttack;
     [SerializeField] private MainCharacterSheet characterSheet;
     [SerializeField] private TutorialController tutorial;
+    [SerializeField] private LevelManager levelManager;
 
     private Sprite activeSpriteRight;
     private Sprite activeSpriteLeft;
@@ -110,5 +111,8 @@ public class MainCharController : MonoBehaviour
         {
             tutorial.nextStep();
         }
+        else if (collision.CompareTag(Tag.PENTAGRAM)){
+            levelManager.showWinScreen();
+        }        
     }
 }

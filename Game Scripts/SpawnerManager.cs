@@ -103,6 +103,7 @@ public class SpawnerManager : MonoBehaviour
         }
         destroyAllEnemies();
         enemiesSpawned = 0;
+        hud.stopQueuedText();
     }
 
     public void stoppedSpawning()

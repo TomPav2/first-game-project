@@ -12,11 +12,12 @@ public static class GameValues
         public static readonly String CROW = "Crow";
         public static readonly String RAVEN = "Raven";
         public static readonly String BONUS = "Bonus";
+        public static readonly String PENTAGRAM = "Pentagram";
     }
 
     public static class Difficulty
     {
-        public static readonly byte ESTIMATED_DPS = 35;
+        public static readonly byte ESTIMATED_DPS = 45;
         public static readonly byte BASE_HEALTH = 100;
         public static readonly byte INTERVAL = 15;
         public static readonly byte RAISE_HEALTH_INTERVAL = 8; // raise every two minutes

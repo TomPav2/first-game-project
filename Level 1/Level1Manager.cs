@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 using static GameValues;
 using static SceneLoader;
 
@@ -12,6 +10,7 @@ public class Level1Manager : LevelManager
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private EaselController easel;
     [SerializeField] private GameObject bonusItem;
+    [SerializeField] private GameObject pentagram;
 
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
@@ -25,6 +24,9 @@ public class Level1Manager : LevelManager
     {
         Application.targetFrameRate = 60;
         Time.timeScale = 1;
+
+        if (levelDifficulty != LevelDifficulty.Easy) return;
+
         // instantiate waypoints as structs rather than accessing them as gameobjects
         for (int i = 0; i < waypointContainer.transform.childCount; i++)
         {
@@ -46,7 +48,7 @@ public class Level1Manager : LevelManager
 
     public override void endScreen(CauseOfLoss cause)
     {
-        hudController.endGameMenu(cause, score);
+        hudController.lostGameMenu(cause, score);
     }
 
     public override void playerDied()
@@ -167,14 +169,19 @@ public class Level1Manager : LevelManager
             mainCharacter.rechargeLaser();
             hudController.showUpgradeScreen();
         }
-        else victoryScreen();
+        else ending();
     }
 
-    public void victoryScreen()
+    public void ending()
     {
-        //isPaused = true;
-        hudController.popUp("You win", "Score:" + totalScore.ToString()); // TODO actual endgame screen
-        easel.gameObject.SetActive(false); // TODO temporary
+        hudController.popUp("Final painting complete!", "Stand in the pentagram when you're ready", null); // TODO actual endgame screen
+        easel.gameObject.SetActive(false);
+        pentagram.SetActive(true);
+    }
+
+    public override void showWinScreen()
+    {
+        hudController.wonGameMenu("Score: " + totalScore.ToString());
     }
 
     // ------------ game data ------------

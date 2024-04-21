@@ -106,4 +106,6 @@ public abstract class LevelManager : MonoBehaviour
     public abstract void endScreen(CauseOfLoss cause);
 
     public abstract void setupNextStage();
+
+    public abstract void showWinScreen();
 }

@@ -112,27 +112,46 @@ public class TextHudController : MonoBehaviour
     public void goToSettings(bool entering)
     { inSettings = entering; }
 
-    public void endGameMenu(CauseOfLoss cause, int score)
+    public void wonGameMenu(string result)
     {
+        showEndMenu("You won", null, result);
+    }
+
+    public void stopQueuedText()
+    {
+        StopAllCoroutines();
+    }
+
+    public void lostGameMenu(CauseOfLoss cause, int score)
+    {
+        string title = "";
+        string subtitle = "";
+        switch (cause)
+        {
+            case CauseOfLoss.Damage:
+                title = "You died";
+                break;
+            case CauseOfLoss.Overrun:
+                title = "Too many enemies";
+                subtitle = "They piled up and destroyed your art";
+                break;
+        }
+
         string scoreToShow;
         if (inTutorial) scoreToShow = "TODO";
         else if (score == 0) scoreToShow = "You must complete at least one level for score to count.";
         else scoreToShow = "Score: " + score;
 
-        showEndGameMenu(cause, scoreToShow);
+        showEndMenu(title, subtitle, scoreToShow);
     }
 
-    private void showEndGameMenu(CauseOfLoss cause, string scoreToShow)
+    private void showEndMenu(string title, string subtitle, string scoreToShow)
     {
         backdrop.enabled = true;
+        mainText.showText(title);
+        subText.showText(subtitle);
+        thirdText.showText(scoreToShow);
         endButtons.SetActive(true);
-        switch (cause)
-        {
-            case CauseOfLoss.Damage:
-                mainText.showText("You died");
-                thirdText.showText(scoreToShow);
-                break;
-        }
     }
 
     private IEnumerator popupWithDelay(string main, string desc, string tertiary, float delay)
