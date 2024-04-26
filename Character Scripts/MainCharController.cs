@@ -16,7 +16,8 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private RMBAttack laserAttack;
     [SerializeField] private MainCharacterSheet characterSheet;
     [SerializeField] private TutorialController tutorial;
-    [SerializeField] private LevelManager levelManager;
+
+    private LevelManager levelManager;
 
     private Sprite activeSpriteRight;
     private Sprite activeSpriteLeft;
@@ -62,6 +63,11 @@ public class MainCharController : MonoBehaviour
         }
     }
 
+    public void init(LevelManager manager)
+    {
+        this.levelManager = manager;
+    }
+
     public void setSpeedUpgrade(float speedUpgrade)
     {
         this.speedUpgrade = speedUpgrade;
@@ -105,7 +111,8 @@ public class MainCharController : MonoBehaviour
         if (collision.CompareTag(Tag.BONUS))
         {
             StartCoroutine(pickUpBonusProcess());
-            characterSheet.applyRandomBonus();
+            if (levelDifficulty == LevelDifficulty.Easy) characterSheet.applyRandomBonus();
+            else if (levelDifficulty == LevelDifficulty.Hard) characterSheet.applyRMBBonus();
         }
         else if (collision.gameObject.CompareTag(Tag.RAVEN) && inTutorial)
         {

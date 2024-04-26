@@ -7,51 +7,16 @@ using static SceneLoader;
 public abstract class LevelManager : MonoBehaviour
 {
     [SerializeField] private Transform mainCharTransform;
-    [SerializeField] private TransitionController transitionController;
     [SerializeField] private LayerMask pathfindingLayers; // need to see enemies to find waypoints
     [SerializeField] private LayerMask trackPlayerLayers; // see player, not enemies
 
     [SerializeField] protected MainCharacterSheet mainCharacter;
     [SerializeField] protected TextHudController hudController;
+    [SerializeField] protected GameObject bonusItem;
 
 
     // ------------ game control ------------
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (isPaused) resume();
-            else pause();
-        }
-    }
-
-    private void pause()
-    {
-        isPaused = true;
-        Time.timeScale = 0;
-        hudController.pauseMenu(true);
-    }
-
-    public void resume()
-    {
-        if (hudController.pauseMenu(false))
-        {
-            Time.timeScale = 1;
-            isPaused = false;
-        }
-    }
-
-    public void restart()
-    {
-        transitionController.transitionToScene(Scene.GameScene);
-    }
-
-    public void exit()
-    {
-        transitionController.transitionToScene(Scene.MenuScene);
-    }
-
-    public virtual void playerDied()
+   public virtual void playerDied()
     {
         gameLost(CauseOfLoss.Damage);
     }
@@ -97,12 +62,17 @@ public abstract class LevelManager : MonoBehaviour
     public Vector2 getCharPos()
     { return mainCharTransform.position; }
 
+    public void hideBonusItem()
+    {
+        bonusItem.SetActive(false);
+    }
+
     // ------------ STAGE MANAGEMENT ------------
     public abstract void addScore(DamageType type);
 
 
     // --------- LEVEL SPECIFIC --------
-    public abstract void hideBonusItem();
+    
     public abstract void endScreen(CauseOfLoss cause);
 
     public abstract void setupNextStage();

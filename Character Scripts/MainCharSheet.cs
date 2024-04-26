@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GameValues;
+using static SceneLoader;
 
 public class MainCharacterSheet : MonoBehaviour
 {
@@ -10,7 +12,6 @@ public class MainCharacterSheet : MonoBehaviour
     [SerializeField] private DamageFX damageFX;
     [SerializeField] private EaselController easel;
     [SerializeField] private MainCharController charController;
-    [SerializeField] private LevelManager levelManager;
     [SerializeField] private CharExplosionController explosion;
     [SerializeField] private TextHudController hudController;
 
@@ -32,6 +33,9 @@ public class MainCharacterSheet : MonoBehaviour
     private Bonus.Attack activeAttack;
     private Bonus.Speed activeSpeed;
     private readonly List<int> emptyUpgrades = new List<int> { 0, 1, 2 };
+
+
+    private LevelManager levelManager;
 
     private void Start()
     {
@@ -72,6 +76,21 @@ public class MainCharacterSheet : MonoBehaviour
         }
     }
 
+    public void init(LevelManager manager)
+    {
+        this.levelManager = manager;
+    }
+
+    public void applyLMBBonus()
+    {
+        applyBonus(flipACoin() ? Bonus.Attack.FastAttack : Bonus.Attack.StrongAttack);
+    }
+
+    public void applyRMBBonus()
+    {
+        applyBonus(flipACoin() ? Bonus.Attack.DoubleBeam : Bonus.Attack.FastBeam);
+    }
+
     public void offerLife()
     {
         if (lifesteal)
@@ -88,15 +107,10 @@ public class MainCharacterSheet : MonoBehaviour
         healthBar.displayHp(health);
     }
 
-    public void testDamage()
-    {
-        // TODO remove
-        damage(4);
-    }
     public void damage(byte amount)
     {
         damageFX.playDamageEffect(amount);
-        easel.stopPainting();
+        if (levelDifficulty == LevelDifficulty.Easy) easel.stopPainting();
         if (health <= amount)
         {
             explosion.explode();
@@ -118,7 +132,7 @@ public class MainCharacterSheet : MonoBehaviour
 
     private void applyBonus(Enum bonusType)
     {
-        hudController.popUp(Bonus.getBonusName(bonusType), Bonus.getBonusDesc(bonusType));
+        hudController.popUp(Bonus.getBonusName(bonusType), Bonus.getBonusDesc(bonusType), null);
         levelManager.hideBonusItem();
         switch (bonusType)
         {

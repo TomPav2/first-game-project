@@ -38,7 +38,6 @@ public class TransitionController : MonoBehaviour
     // called by animation
     private void afterSecondTransition()
     {
-        Debug.Log(gameObject.GetComponent<RectTransform>().localScale);
         SceneLoader.load(targetScene);
     }
 }

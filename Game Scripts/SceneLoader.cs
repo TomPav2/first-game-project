@@ -7,7 +7,8 @@ public static class SceneLoader
     public static bool isPaused = false;
     public static bool lockControls = false;
     public static bool currentlyPainting = false;
-    public static LevelDifficulty levelDifficulty = LevelDifficulty.None;
+    public static bool inMinigame = false;
+    public static LevelDifficulty levelDifficulty = LevelDifficulty.Hard; //TODO temporary for development
 
     public enum Scene
     {

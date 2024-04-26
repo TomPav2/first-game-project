@@ -9,7 +9,6 @@ public class Level1Manager : LevelManager
     [SerializeField] private GameObject waypointContainer;
     [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private EaselController easel;
-    [SerializeField] private GameObject bonusItem;
     [SerializeField] private GameObject pentagram;
 
     private List<Area> areas = new List<Area>();
@@ -22,10 +21,9 @@ public class Level1Manager : LevelManager
 
     private void Awake()
     {
+        if (levelDifficulty != LevelDifficulty.Easy) gameObject.SetActive(false);
         Application.targetFrameRate = 60;
         Time.timeScale = 1;
-
-        if (levelDifficulty != LevelDifficulty.Easy) return;
 
         // instantiate waypoints as structs rather than accessing them as gameobjects
         for (int i = 0; i < waypointContainer.transform.childCount; i++)
@@ -105,19 +103,13 @@ public class Level1Manager : LevelManager
     }
 
     // ------------ bonus item ------------
-    public override void hideBonusItem()
-    {
-        bonusItem.GetComponent<SpriteRenderer>().enabled = false;
-        bonusItem.GetComponent<BoxCollider2D>().enabled = false;
-    }
 
     public void showBonusItem()
     {
         Area randomArea = areas[Random.Range(0, areas.Count)];
         bonusItem.transform.position = randomArea.getRandom();
-        bonusItem.GetComponent<SpriteRenderer>().enabled = true;
-        bonusItem.GetComponent<BoxCollider2D>().enabled = true;
-        hudController.popUp("Bonus item spawned", "Find it before finishing the level");
+        bonusItem.SetActive(true);
+        hudController.popUp("Bonus item spawned", "Find it before finishing the level", null);
     }
 
     // ------------ stage management ------------

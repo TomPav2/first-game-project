@@ -28,25 +28,14 @@ public class TextHudController : MonoBehaviour
 
     public void popUp(string main, string desc, string tertiary)
     {
-        if (main != null) mainText.popUpText(main);
-        if (desc != null) subText.popUpText(desc);
-        if (tertiary != null) thirdText.popUpText(tertiary);
+        mainText.popUpText(main);
+        subText.popUpText(desc);
+        thirdText.popUpText(tertiary);
     }
 
     public void popUp(string main, string desc, string tertiary, float delay)
     {
         StartCoroutine(popupWithDelay(main, desc, tertiary, delay));
-    }
-
-    public void popUp(string main, string desc)
-    {
-        mainText.popUpText(main);
-        subText.popUpText(desc);
-    }
-
-    public void popUp(string main)
-    {
-        mainText.popUpText(main);
     }
 
     public bool pauseMenu(bool show)
@@ -62,6 +51,8 @@ public class TextHudController : MonoBehaviour
         if (show)
         {
             mainText.showText("Paused");
+            subText.showText("");
+            thirdText.showText("");
             pauseButtons.SetActive(true);
         }
         else
@@ -114,7 +105,7 @@ public class TextHudController : MonoBehaviour
 
     public void wonGameMenu(string result)
     {
-        showEndMenu("You won", null, result);
+        showEndMenu("You won", "", result);
     }
 
     public void stopQueuedText()
@@ -130,6 +121,7 @@ public class TextHudController : MonoBehaviour
         {
             case CauseOfLoss.Damage:
                 title = "You died";
+                subtitle = "";
                 break;
             case CauseOfLoss.Overrun:
                 title = "Too many enemies";

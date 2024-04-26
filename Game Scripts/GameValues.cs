@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 public static class GameValues
 {
@@ -67,5 +68,10 @@ public static class GameValues
         None,
         Damage,
         Overrun
+    }
+
+    public static bool flipACoin()
+    {
+        return UnityEngine.Random.Range(0, 2) == 0;
     }
 }
