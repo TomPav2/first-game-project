@@ -171,7 +171,7 @@ public class Level1Manager : LevelManager
         pentagram.SetActive(true);
     }
 
-    public override void showWinScreen()
+    public override void enteredPentagram()
     {
         hudController.wonGameMenu("Score: " + totalScore.ToString());
     }

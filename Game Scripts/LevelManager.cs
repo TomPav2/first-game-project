@@ -77,5 +77,5 @@ public abstract class LevelManager : MonoBehaviour
 
     public abstract void setupNextStage();
 
-    public abstract void showWinScreen();
+    public abstract void enteredPentagram();
 }

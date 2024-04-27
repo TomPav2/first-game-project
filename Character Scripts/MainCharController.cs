@@ -38,6 +38,8 @@ public class MainCharController : MonoBehaviour
     {
         if (lockControls)
         {
+            if (speedX > 0) speedX = 0;
+            if (speedY > 0) speedY = 0;
             return;
         }
 
@@ -119,7 +121,7 @@ public class MainCharController : MonoBehaviour
             tutorial.nextStep();
         }
         else if (collision.CompareTag(Tag.PENTAGRAM)){
-            levelManager.showWinScreen();
+            levelManager.enteredPentagram();
         }        
     }
 }

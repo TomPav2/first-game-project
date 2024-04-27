@@ -33,6 +33,7 @@ public static class GameValues
         public static readonly String FADE_OUT = "fadeOut";
         public static readonly String FADE_TEXT = "textFade";
         public static readonly String ANIMATION_STOP = "stopAnimation";
+        public static readonly String ANIMATION_START = "startAnimation";
     }
 
     public static class Settings

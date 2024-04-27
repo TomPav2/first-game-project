@@ -7,6 +7,7 @@ using static GameValues;
 public class Level2Manager : LevelManager
 {
     [SerializeField] private GameObject aCHeart;
+    [SerializeField] private RitualController ritual;
 
     private bool playerHasHeart = false;
 
@@ -21,6 +22,16 @@ public class Level2Manager : LevelManager
     {
         playerHasHeart = true;
         aCHeart.SetActive(true);
+    }
+
+    public override void enteredPentagram()
+    {
+        if (playerHasHeart)
+        {
+            playerHasHeart = false;
+            aCHeart.SetActive(false);
+            ritual.submitHeart();
+        }
     }
 
     public override void addScore(DamageType type)
@@ -42,10 +53,5 @@ public class Level2Manager : LevelManager
     public override void setupNextStage()
     {
         // not in hard mode
-    }
-
-    public override void showWinScreen()
-    {
-        throw new System.NotImplementedException();
     }
 }
