@@ -124,4 +124,12 @@ public class MainCharController : MonoBehaviour
             levelManager.enteredPentagram();
         }        
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag(Tag.BARRIER))
+        {
+            levelManager.restrictedAccess();
+        }
+    }
 }

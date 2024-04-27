@@ -14,6 +14,7 @@ public static class GameValues
         public static readonly String RAVEN = "Raven";
         public static readonly String BONUS = "Bonus";
         public static readonly String PENTAGRAM = "Pentagram";
+        public static readonly String BARRIER = "Barrier";
     }
 
     public static class Difficulty
@@ -32,8 +33,8 @@ public static class GameValues
         public static readonly String FADE_IN = "fadeIn";
         public static readonly String FADE_OUT = "fadeOut";
         public static readonly String FADE_TEXT = "textFade";
-        public static readonly String ANIMATION_STOP = "stopAnimation";
         public static readonly String ANIMATION_START = "startAnimation";
+        public static readonly String ANIMATION_STOP = "stopAnimation";
     }
 
     public static class Settings
@@ -41,7 +42,7 @@ public static class GameValues
         public static bool altFont = false;
     }
 
-    public enum EnemyState
+public enum EnemyState
     {
         None,
         Dead,

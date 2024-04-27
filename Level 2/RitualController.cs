@@ -73,6 +73,7 @@ public class RitualController : MonoBehaviour
         {
             hudController.popUp("", "Please keep your hands and feet inside the pentagram at all times!", "");
             lockControls = true;
+            GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
             transition.transformWorld();
         } else
         {
@@ -83,8 +84,9 @@ public class RitualController : MonoBehaviour
     public void secondPhaseDone()
     {
         lockControls = false;
+        GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_STOP);
         Destroy(mainArea);
-        //bossArea.enable
+        bossArea.SetActive(true);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

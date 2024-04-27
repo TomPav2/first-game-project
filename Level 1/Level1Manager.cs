@@ -328,4 +328,11 @@ public class Level1Manager : LevelManager
             return this;
         }
     }
+
+
+
+    public override void restrictedAccess()
+    {
+        // none in easy level
+    }
 }

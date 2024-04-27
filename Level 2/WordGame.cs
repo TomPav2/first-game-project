@@ -15,6 +15,7 @@ public class WordGame : MonoBehaviour
     [SerializeField] private WordGameSensor sensor;
     [SerializeField] private Level2Manager levelManager;
     [SerializeField] private GameObject prompt;
+    [SerializeField] private GameObject barrier;
 
     private static readonly short OFFSET_X = -180;
     private static readonly short OFFSET_Y = -300;
@@ -168,7 +169,7 @@ public class WordGame : MonoBehaviour
     private IEnumerator endThis()
     {
         yield return new WaitForSeconds(3);
-        levelManager.givePlayerHeart();
+        levelManager.givePlayerHeart(barrier);
         hudController.popUp("You got a heart!", "It's quite heavy...", "Hand it in before continuing.");
         GameObject.Destroy(gameObject);
         yield break;

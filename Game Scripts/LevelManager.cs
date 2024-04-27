@@ -78,4 +78,6 @@ public abstract class LevelManager : MonoBehaviour
     public abstract void setupNextStage();
 
     public abstract void enteredPentagram();
+
+    public abstract void restrictedAccess();
 }
