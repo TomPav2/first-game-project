@@ -21,6 +21,7 @@ public static class GameValues
     {
         public static readonly byte ESTIMATED_DPS = 45;
         public static readonly byte BASE_HEALTH = 100;
+        public static readonly short BOSS_ENEMY_HEALTH = 500;
         public static readonly byte INTERVAL = 15;
         public static readonly byte RAISE_HEALTH_INTERVAL = 8; // raise every two minutes
         public static readonly byte RAISE_HEALTH_GRACE_PERIOD = 16; // don't raise for the first four minutes
@@ -35,6 +36,10 @@ public static class GameValues
         public static readonly String FADE_TEXT = "textFade";
         public static readonly String ANIMATION_START = "startAnimation";
         public static readonly String ANIMATION_STOP = "stopAnimation";
+        public static readonly String WALK = "walk";
+        public static readonly String STAND = "stand";
+        public static readonly String DIE = "die";
+        public static readonly String TURN_RIGHT = "turnRight";
     }
 
     public static class Settings

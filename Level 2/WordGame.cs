@@ -146,7 +146,7 @@ public class WordGame : MonoBehaviour
     private string getRandomWord()
     {
         //if (wordArray == null) possibleWords = wordList.text.ToUpper().Split(',');
-        //return possibleWords[UnityEngine.Random.Range(0, possibleWords.Count() - 1)]; // TODO temporary
+        //return possibleWords[UnityEngine.Random.Range(0, possibleWords.Count())]; // TODO temporary
 
         return "APPLE";
     }

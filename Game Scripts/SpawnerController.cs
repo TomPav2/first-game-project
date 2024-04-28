@@ -133,7 +133,7 @@ public class SpawnerController : MonoBehaviour
         float interval = Random.Range(avgInterval - 0.5f, avgInterval + 0.5f);
         interval = (float) Math.Round(interval, 1);
         toSpawn = (byte) math.round(spawnTime / interval);
-        float minutes = spawnTime / 60f; Debug.Log("Spawning " + toSpawn + " enemies for " + minutes + " minutes every " + interval + " seconds.");
+        float minutes = spawnTime / 60f; //Debug.Log("Spawning " + toSpawn + " enemies for " + minutes + " minutes every " + interval + " seconds.");
         return interval;
     }
 

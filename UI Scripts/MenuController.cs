@@ -30,8 +30,6 @@ public class MenuController : MonoBehaviour
         Time.timeScale = 1;
         checkboxTutorial.SetIsOnWithoutNotify(inTutorial);
         StartCoroutine(disableAnimations());
-        Debug.Log(fadeControllers.Count);
-
     }
     void Update()
     {
@@ -48,6 +46,7 @@ public class MenuController : MonoBehaviour
 
     public void buttonEasy() {
         inTutorial = tutorial;
+        levelDifficulty = LevelDifficulty.Easy;
         StartCoroutine(fadeAndLoad());
     }
 
@@ -67,7 +66,7 @@ public class MenuController : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        SceneLoader.load(SceneLoader.Scene.GameScene);
+        load(Scene.GameScene);
         yield break;
     }
 

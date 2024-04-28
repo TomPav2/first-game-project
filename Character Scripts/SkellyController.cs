@@ -5,7 +5,7 @@ using UnityEngine;
 using static GameValues;
 using Random = UnityEngine.Random;
 
-public class SkellyController : MonoBehaviour
+public class SkellyController : EnemyBase
 {
     // pointers
     [SerializeField] protected SliderController healthBar;
@@ -27,6 +27,7 @@ public class SkellyController : MonoBehaviour
     private float distanceTolerance = 0.2f;
     private float lastDistance = 10000f;
     private byte currentSpeed = 0;
+    private byte distanceCountdown = 10;
 
     private static readonly byte SPEED_FAST = 10;
     private static readonly byte SPEED_SLOW = 6;
@@ -160,7 +161,7 @@ public class SkellyController : MonoBehaviour
             return;
         }
 
-        float distanceToTarget = Vector2.Distance(transform.position, target);
+        float distanceToTarget = getDistanceToTarget();
 
         // if target is reached...
         if (distanceToTarget <= distanceTolerance)
@@ -196,8 +197,23 @@ public class SkellyController : MonoBehaviour
 
     protected void rotate()
     {
-        Vector2 motion = Vector2.MoveTowards(transform.position, target, 1);
-        GetComponent<SpriteRenderer>().flipX = ((transform.position.x - motion.x) > 0);
+        // TODO check this works
+        //Vector2 motion = Vector2.MoveTowards(transform.position, target, 1);
+        //GetComponent<SpriteRenderer>().flipX = ((transform.position.x - motion.x) > 0);
+        GetComponent<SpriteRenderer>().flipX = ((transform.position.x - target.x) > 0);
+    }
+
+    // for efficiency, distance doesn't need to be checked every frame
+    private float getDistanceToTarget()
+    {
+        if (state == EnemyState.Following) return 0;
+        if (distanceCountdown == 0)
+        {
+            distanceCountdown = 10;
+            return Vector2.Distance(transform.position, target);
+        }
+        distanceCountdown--;
+        return 10;
     }
 
     private IEnumerator inertiaRun()
@@ -364,7 +380,7 @@ public class SkellyController : MonoBehaviour
     }
 
     // ---------------- COMBAT ----------------
-    public virtual void damage(byte amount, DamageType type)
+    public override void damage(byte amount, DamageType type)
     {
         if (amount == 0) return;
         if (amount < health) health -= amount;

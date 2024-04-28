@@ -16,7 +16,7 @@ public class ThrowItem : MonoBehaviour
         {
             sprite1 , sprite2 , sprite3 , sprite4 , sprite5
         };
-        GetComponent<SpriteRenderer>().sprite = sprites[Random.Range(0, sprites.Count - 1)];
+        GetComponent<SpriteRenderer>().sprite = sprites[Random.Range(0, sprites.Count)];
     }
 
     public void throwThing()

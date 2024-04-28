@@ -50,7 +50,7 @@ public class AccidentManager : MonoBehaviour
 
     private void showAccident()
     {
-        int index = Random.Range(0, readyAccidents.Count - 1);
+        int index = Random.Range(0, readyAccidents.Count);
         AccidentController accident = readyAccidents[index];
         onScreenAccidents.Add(accident);
         readyAccidents.RemoveAt(index);

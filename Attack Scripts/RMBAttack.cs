@@ -101,7 +101,7 @@ public class RMBAttack : MonoBehaviour
                 // deal damage
                 if (hit.collider.CompareTag(Tag.ENEMY))
                 {
-                    SkellyController enemyController = hit.collider.GetComponent<SkellyController>();
+                    EnemyBase enemyController = hit.collider.GetComponent<EnemyBase>();
                     enemyController.damage(usedBattery.isCritical() ? DAMAGE_BOOSTED : DAMAGE_AMOUNT, DamageType.RMB);
                 }
                 else if (hit.collider.CompareTag(Tag.SPAWNER))
