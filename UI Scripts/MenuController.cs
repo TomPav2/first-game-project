@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class MenuController : MonoBehaviour
 {

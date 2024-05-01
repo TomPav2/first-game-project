@@ -54,12 +54,12 @@ public class RavenController : MonoBehaviour
             if (weakestEnemy == null)
             {
                 weakestEnemy = enemy;
-                lowestHp = enemy.health;
+                lowestHp = enemy.Health;
             }
-            else if (enemy.health < lowestHp)
+            else if (enemy.Health < lowestHp)
             {
                 weakestEnemy = enemy;
-                lowestHp = enemy.health;
+                lowestHp = enemy.Health;
             }
         }
         return weakestEnemy;
@@ -86,6 +86,7 @@ public class RavenController : MonoBehaviour
 
     private int calculateCooldown(int damage)
     {
+        if (damage < 10) return ( upgraded ? COOLDOWN_FIXED_UPGRADED : COOLDOWN_FIXED) ;
         int damageDealt = upgraded ? damage - 5 : damage;
         return ((damageDealt / 10) + (upgraded ? COOLDOWN_FIXED_UPGRADED : COOLDOWN_FIXED));
     }

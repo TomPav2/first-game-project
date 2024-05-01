@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public static class GameValues
 {
@@ -37,7 +36,8 @@ public static class GameValues
         public static readonly String ANIMATION_START = "startAnimation";
         public static readonly String ANIMATION_STOP = "stopAnimation";
         public static readonly String WALK = "walk";
-        public static readonly String STAND = "stand";
+        public static readonly String RUN = "run";
+        public static readonly String IDLE = "idle";
         public static readonly String DIE = "die";
         public static readonly String TURN_RIGHT = "turnRight";
     }

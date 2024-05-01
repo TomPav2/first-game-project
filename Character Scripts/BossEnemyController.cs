@@ -1,18 +1,17 @@
 using System.Collections;
-using UnityEditor;
 using UnityEngine;
 using static GameValues;
+using static ScenePersistence;
 
 public class BossEnemyController : EnemyBase
 {
     // pointers
-    [SerializeField] private ArenaController arena;
+    [SerializeField] private BattleArenaController arena;
     [SerializeField] private SliderController healthBar;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private Spell primarySpell;
     [SerializeField] private Spell secondarySpell;
     [SerializeField] private GameObject introEffect;
-    [SerializeField] private GameObject placeholder;
 
     private Animator animator;
     private Rigidbody2D body;
@@ -20,6 +19,7 @@ public class BossEnemyController : EnemyBase
     private short maxHealth = Difficulty.BOSS_ENEMY_HEALTH;
     private short health = Difficulty.BOSS_ENEMY_HEALTH;
     private int mana = 50;
+    private bool hasAltSpell = true;
 
     // movement
     private Vector2 target;
@@ -34,6 +34,8 @@ public class BossEnemyController : EnemyBase
         animator = GetComponent<Animator>();
         body = GetComponent<Rigidbody2D>();
     }
+
+    public short getHealth() { return health; }
 
     // ---------------- MOVEMENT ----------------
     private void FixedUpdate()
@@ -74,6 +76,8 @@ public class BossEnemyController : EnemyBase
     public void showOffEffect()
     {
         introEffect.SetActive(true);
+        Animator introAnim = introEffect.GetComponent<Animator>();
+        if (introAnim != null) introAnim.SetTrigger(Trigger.ANIMATION_START);
     }
 
     public void beginFight()
@@ -88,19 +92,19 @@ public class BossEnemyController : EnemyBase
         switchState(State.Death);
         GetComponent<Rigidbody2D>().simulated = false;
         GetComponent<CapsuleCollider2D>().enabled = false;
+        GetComponentInParent<FightController>().registerTakedown();
     }
 
     // called by animation
     private void stopParticles()
     {
-        if (particles != null) particles.Stop(); // TODO condition only for development
+        particles.Stop();
         healthBar.fade();
     }
 
     // called by animation
     private void deathAnimationFinished()
     {
-        arena.enemyDied(this);
         Destroy(gameObject);
     }
 
@@ -110,7 +114,7 @@ public class BossEnemyController : EnemyBase
         switch (state)
         {
             case State.Waiting:
-                animator.SetTrigger(Trigger.STAND);
+                animator.SetTrigger(Trigger.IDLE);
                 break;
 
             case State.Walking:
@@ -118,7 +122,7 @@ public class BossEnemyController : EnemyBase
                 break;
 
             case State.Casting:
-                animator.SetTrigger(Trigger.STAND);
+                animator.SetTrigger(Trigger.IDLE);
                 break;
 
             case State.Death:
@@ -137,6 +141,11 @@ public class BossEnemyController : EnemyBase
 
     // ---------------- COMBAT OFFENSIFE ----------------
 
+    public void unlockAltSpell()
+    {
+        hasAltSpell = secondarySpell != null;
+    }
+
     private void attemptCast(Spell spell)
     {
         if (state != State.Casting && spell != null && spell.manacost <= mana)
@@ -152,8 +161,7 @@ public class BossEnemyController : EnemyBase
         switchState(State.Casting);
 
         yield return new WaitForSeconds(1);
-        //spell.cast(particles.transform.position); // TODO development only
-        spell.cast(particles == null ? placeholder.transform.position : particles.transform.position);
+        spell.cast(particles.transform.position);
         yield return new WaitForSeconds(1);
 
         switchState(startingState);
@@ -166,9 +174,17 @@ public class BossEnemyController : EnemyBase
 
         while (state != State.Death)
         {
-            if (primarySpell.channeled) mana += (5 - primarySpell.channel());
-            else mana += 5;
-            attemptCast(primarySpell);
+            if (primarySpell.channeled)
+            {
+                mana += (5 - primarySpell.channel());
+                attemptCast(secondarySpell);
+            }
+            else
+            {
+                mana += 5;
+                if (hasAltSpell) attemptCast(flipACoin() ? primarySpell : secondarySpell);
+                else attemptCast(primarySpell);
+            }
 
             yield return new WaitForSeconds(1);
         }
@@ -187,6 +203,13 @@ public class BossEnemyController : EnemyBase
             health = 0;
             die();
         }
+        healthBar.updateValue(maxHealth, health);
+    }
+
+    public override void heal(byte amount)
+    {
+        health += amount;
+        if (health > maxHealth) health = maxHealth;
         healthBar.updateValue(maxHealth, health);
     }
 

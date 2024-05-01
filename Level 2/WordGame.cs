@@ -3,7 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class WordGame : MonoBehaviour
 {

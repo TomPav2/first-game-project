@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static SceneLoader;
+using static ScenePersistence;
 using static GameValues;
 
 public class Level2Manager : LevelManager
@@ -61,11 +61,6 @@ public class Level2Manager : LevelManager
         if (openBarrier != null) openBarrier.SetActive(false);
     }
 
-    public override void addScore(DamageType type)
-    {
-        // no score on hard mode
-    }
-
     public override void endScreen(CauseOfLoss cause)
     {
         throw new System.NotImplementedException(); // display time
@@ -77,7 +72,17 @@ public class Level2Manager : LevelManager
         return (Vector2.zero, false);
     }
 
+    public override void addScore(DamageType type)
+    {
+        // no score on hard mode
+    }
+
     public override void setupNextStage()
+    {
+        // not in hard mode
+    }
+
+    public override void tooManyEnemies()
     {
         // not in hard mode
     }

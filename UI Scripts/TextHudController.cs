@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class TextHudController : MonoBehaviour
 {

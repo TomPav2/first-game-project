@@ -1,9 +1,9 @@
 using Cinemachine;
 using System.Collections;
 using UnityEngine;
-using static SceneLoader;
+using static ScenePersistence;
 
-public class Fight3Controller : MonoBehaviour
+public class Fight3Controller : FightController
 {
     [SerializeField] private BattleArenaController arena;
     [SerializeField] private BossEnemyController enemy1;
@@ -17,8 +17,11 @@ public class Fight3Controller : MonoBehaviour
     [SerializeField] private GameObject mainChar;
     [SerializeField] private GameObject cameraTarget;
 
+    private static readonly Vector3 CAMERA_OFFSET = new Vector3(0, 7, 0);
+
     public void begin()
     {
+        enemiesToKill = 3;
         StartCoroutine(introRoutine());
     }
 
@@ -30,29 +33,43 @@ public class Fight3Controller : MonoBehaviour
         // first enemy
         yield return new WaitForSeconds(2);
         setCamToManual();
-        textHud.popUp("[name] the Red", "Pyromaniac", null);
+        textHud.popUp("Angar the Red", "Pyromaniac", null, 0.2f);
         enemy1.gameObject.SetActive(true);
         yield return new WaitForSeconds(2);
         enemy1.showOffEffect();
         yield return new WaitForSeconds(1);
 
+        // second enemy
+        cameraTarget.transform.position = enemy2.transform.position + CAMERA_OFFSET;
+        textHud.popUp("[name] the Green", "Heals / Curses", null, 0.2f);
+        enemy2.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2);
+        enemy2.showOffEffect();
+        yield return new WaitForSeconds(1);
+
+        // second enemy
+        cameraTarget.transform.position = enemy3.transform.position + CAMERA_OFFSET;
+        textHud.popUp("[name] the Colourblind", "Summoner", null, 0.2f);
+        enemy3.gameObject.SetActive(true);
+        yield return new WaitForSeconds(5);
 
         // end
         setCamToAuto();
-        yield return new WaitForSeconds(1);
         lockControls = false;
         yield return new WaitForSeconds(0.5f);
         enemy1.beginFight();
-        //enemy2.beginFight();
-        //enemy3.beginFight();
+        enemy2.beginFight();
+        enemy3.beginFight();
         yield break;
     }
+
+
 
     private void setCamToManual()
     {
         virtualCamera.Follow = cameraTarget.transform;
-        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_XDamping = 1;
-        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_YDamping = 1;
+        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_XDamping = 1.2f;
+        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_YDamping = 1.2f;
     }
 
     private void setCamToAuto()

@@ -1,68 +1,65 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static GameValues;
+using static ScenePersistence;
 
-public class SpawnerManager : MonoBehaviour
+public class SpawnerManager : MonoBehaviour, ISpawnerHandler
 {
     [SerializeField] private MainCharacterSheet mainCharReference;
-    [SerializeField] private Level1Manager manager;
+    [SerializeField] private LevelManager manager;
     [SerializeField] private GameObject skellyPrefab;
     [SerializeField] private RavenController raven;
     [SerializeField] private CrowController crow;
     [SerializeField] private TextHudController hud;
 
-    private List<SkellyController> availableEnemies = new List<SkellyController>(); // pool of enemies to reuse
-    private List<SkellyController> livingEnemies = new List<SkellyController>(); // keep track of enemies to kill at end of level
-    private List<SpawnerController> spawners = new List<SpawnerController>();
+    private List<GameObject> livingEnemies = new List<GameObject>(); // keep track of enemies to kill at end of level
+    private List<SpawnerController> freeSpawners = new List<SpawnerController>();
+    private List<SpawnerController> activeSpawners = new List<SpawnerController>();
 
     private Coroutine spawnerRoutine;
-    private byte activeSpawners = 0;
     private int enemiesSpawned = 0;
 
     private void Awake()
     {
         foreach (SpawnerController spawner in GetComponentsInChildren<SpawnerController>(false))
         {
-            spawners.Add(spawner);
+            freeSpawners.Add(spawner);
         }
     }
 
     // ------------ enemy lifecycle ------------
-    public SkellyController getSkeleton(bool overloaded)
+    public SkellyController getSkeleton(bool overloaded) //TODO reuse enemies
     {
-        if (livingEnemies.Count == (Difficulty.MAX_ENEMIES - 1))
+        if (livingEnemies.Count >= (Difficulty.MAX_ENEMIES - 1))
         {
             manager.tooManyEnemies(); // this ends the game and calls to disable all spawning
             return null; // not a good idea to spawn another enemy at this time
         }
 
-        SkellyController enemy = null;
-        int freeEnemyCount = availableEnemies.Count;
-        if (freeEnemyCount > 0)
-        {
-            enemy = availableEnemies[freeEnemyCount - 1];
-            enemy.enabled = true;
-            availableEnemies.RemoveAt(freeEnemyCount - 1);
+        // get or create new enemy
+        GameObject enemy = getEnemy();
+        if (enemy == null) {
+            enemy = Instantiate(skellyPrefab);
+            DontDestroyOnLoad(enemy);
+            registerPersistentEnemy(enemy);
         }
-        else enemy = makeNewSkeleton();
         livingEnemies.Add(enemy);
+
+        // add to count for difficulty calculation
         enemiesSpawned++;
         if (overloaded) enemiesSpawned++;
-        return enemy;
+
+        enemy.SetActive(true);
+        SkellyController enemyController = enemy.GetComponent<SkellyController>();
+        enemyController.init(mainCharReference, manager, this, raven, crow);
+        return enemyController;
     }
 
-    public void removeFromLiving(SkellyController enemy)
+    public void removeFromLiving(GameObject enemy)
     {
         livingEnemies.Remove(enemy);
-    }
-
-    public void makeAvailable(SkellyController enemy)
-    {
-        availableEnemies.Add(enemy);
-        enemy.enabled = false;
     }
 
     // this is not to punish player for destroying the portal at certain times
@@ -71,21 +68,13 @@ public class SpawnerManager : MonoBehaviour
         enemiesSpawned += amount;
     }
 
-    private void destroyAllEnemies()
+    private void killAllEnemies()
     {
-        List<SkellyController> enemiesToKill = livingEnemies.ToList();
-        foreach (SkellyController enemy in enemiesToKill)
+        List<GameObject> enemiesToKill = livingEnemies.ToList();
+        foreach (GameObject enemy in enemiesToKill)
         {
-            enemy.obliterate();
+            enemy.GetComponent<SkellyController>().obliterate();
         }
-    }
-
-    private SkellyController makeNewSkeleton()
-    {
-        GameObject newEnemy = Instantiate(skellyPrefab);
-        SkellyController newController = newEnemy.GetComponent<SkellyController>();
-        newController.init(mainCharReference, manager, this, raven, crow);
-        return newController;
     }
 
     // ------------ spawning ------------
@@ -97,41 +86,33 @@ public class SpawnerManager : MonoBehaviour
     public void endStage()
     {
         if (spawnerRoutine != null) StopCoroutine(spawnerRoutine);
-        foreach (SpawnerController spawner in spawners)
+        foreach (SpawnerController spawner in activeSpawners)
         {
             spawner.stopSpawning();
         }
-        destroyAllEnemies();
+        killAllEnemies();
         enemiesSpawned = 0;
         hud.stopQueuedText();
     }
 
-    public void stoppedSpawning()
+    public void stoppedSpawning(SpawnerController spawner)
     {
-        activeSpawners--;
+        freeSpawners.Add(spawner);
+        activeSpawners.Remove(spawner);
     }
 
-    // this is a bad way of getting a random available element, but I like the idea of the player getting a break by chance
     private void delegateSpawning(Level1Manager.Stage stage, int enemyHealth)
     {
-        bool fast = UnityEngine.Random.Range(0, 2) == 0;
+
+        bool fast = flipACoin();
         int avgTime = fast ? stage.fastSpawnerLifetime : stage.slowSpawnerLifetime;
         float avgInterval = fast ? stage.fastSpawnerInterval : stage.slowSpawnerInterval;
 
-        bool success = false;
-        byte attmepts = 5;
-        int spawnerId = 0;
-        while (!success && attmepts > 0)
-        {
-            spawnerId = UnityEngine.Random.Range(0, spawners.Count);
-            success = spawners[spawnerId].engage(avgTime, avgInterval, enemyHealth);
-            attmepts -= 1;
-        }
-        if (success)
-        {
-            activeSpawners++;
-            hud.popUp(null, null, "You can hear " + ( fast ? "a lot of" : "some" ) + " clacking from the " + spawners[spawnerId].getLocationDescription(), 5 );
-        }
+        SpawnerController spawner = freeSpawners[Random.Range(0, freeSpawners.Count)];
+        spawner.engage(avgTime, avgInterval, enemyHealth);
+        activeSpawners.Add(spawner);
+        freeSpawners.Remove(spawner);
+        hud.popUp(null, null, "You can hear " + (fast ? "a lot of" : "some") + " clacking from the " + spawner.getLocationDescription(), 5);
     }
 
     private IEnumerator mainSpawningProcess(Level1Manager.Stage stage)
@@ -149,7 +130,7 @@ public class SpawnerManager : MonoBehaviour
             if (currentInterval == 0) delegateSpawning(stage, enemyHealth);
             else
             {
-                if (activeSpawners < stage.maxSpawners)
+                if (activeSpawners.Count < stage.maxSpawners)
                 {
                     int timeBlocked = enemiesSpawned * Difficulty.BASE_HEALTH / Difficulty.ESTIMATED_DPS;
                     float timeBlockedProportion = timeBlocked / (float)(currentInterval * Difficulty.INTERVAL);

@@ -7,11 +7,12 @@ using Random = UnityEngine.Random;
 
 public class SpawnerController : MonoBehaviour
 {
+    // pointers
     [SerializeField] private Animator animator;
-    [SerializeField] private SpawnerManager spawnerManager;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private float spawnRange;
     [SerializeField] private String posDescription;
+    private ISpawnerHandler spawnerManager;
     protected ParticleSystem.EmissionModule emission;
     protected ParticleSystem.MainModule particlesMain;
 
@@ -32,22 +33,44 @@ public class SpawnerController : MonoBehaviour
     {
         emission = particles.emission;
         particlesMain = particles.main;
+        spawnerManager = GetComponentInParent<ISpawnerHandler>();
+    }
+
+    private void appear()
+    {
+        overloadMeter = 0;
+        animator.enabled = true;
+        GetComponent<CapsuleCollider2D>().enabled = true;
+        emission.rateOverTimeMultiplier = 0;
+        particleSpeed = 5;
+        animator.SetTrigger(Trigger.ANIMATION_START);
     }
 
     public virtual bool engage(int avgTime, float avgInterval, int health)
     {
         if (GetComponent<SpriteRenderer>().enabled) return false;
 
-        overloadMeter = 0;
-        GetComponent<SpriteRenderer>().enabled = true;
-        animator.enabled = true;
-        GetComponent<CapsuleCollider2D>().enabled = true;
-        emission.rateOverTimeMultiplier = 0;
-        particleSpeed = 5;
+        appear();
 
         enemyHealth = health;
-        spawnTimer = StartCoroutine(spawnTimerRoutine(setEnemiesToSpawn(avgTime, avgInterval)));
+        spawnTimer = StartCoroutine(spawnTimerRoutine(setEnemiesToSpawn(avgTime, avgInterval), false));
         return true;
+    }
+
+    public void spawnSpecificAmount(float interval, int health, byte enemyCount)
+    {
+        appear();
+        enemyHealth = health;
+        toSpawn = enemyCount;
+        StartCoroutine(spawnTimerRoutine(interval, false));
+    }
+
+    public void engageIndefinitely(float interval, int health)
+    {
+        appear();
+        enemyHealth = health;
+        toSpawn = 1;
+        StartCoroutine(spawnTimerRoutine(interval, true));
     }
 
     public void damage(byte amount)
@@ -61,7 +84,7 @@ public class SpawnerController : MonoBehaviour
         if (overloadMeter < OVERLOAD_LIMIT)
         {
             overloadMeter += amount;
-            if (overloadMeter % (OVERLOAD_LIMIT/10) == 0)
+            if (overloadMeter % (OVERLOAD_LIMIT / 10) == 0)
             {
                 emission.rateOverTimeMultiplier += 1;
                 particleSpeed += 0.5;
@@ -92,6 +115,7 @@ public class SpawnerController : MonoBehaviour
         if (toSpawn < 4)
         {
             spawnerManager.fakeSpawnedEnemies(2);
+            StopAllCoroutines();
             disengage();
         }
         else
@@ -110,29 +134,27 @@ public class SpawnerController : MonoBehaviour
     // called by animator
     private void hide()
     {
-        animator.enabled = false;
         particles.Stop();
         GetComponent<SpriteRenderer>().enabled = false;
-        if (spawnerManager != null) spawnerManager.stoppedSpawning();
+        spawnerManager.stoppedSpawning(this);
     }
 
     private void spawnEnemy(SkellyController enemy)
     {
-        if (enemy == null) return; // this is to prevent unpredictable behaviour, more explanation in SpawnerManager.getSkeleton()
+        if (enemy == null) return;
 
         float spawnX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
         float spawnY = Random.Range(transform.position.y - spawnRange, transform.position.y + spawnRange) - spawnerYOffset;
         Vector2 spawnPos = new Vector2(spawnX, spawnY);
         enemy.spawn(spawnPos, enemyHealth);
-        toSpawn--;
     }
 
     private float setEnemiesToSpawn(int avgTime, float avgInterval)
     {
         int spawnTime = Random.Range(avgTime - 15, avgTime + 15);
         float interval = Random.Range(avgInterval - 0.5f, avgInterval + 0.5f);
-        interval = (float) Math.Round(interval, 1);
-        toSpawn = (byte) math.round(spawnTime / interval);
+        interval = (float)Math.Round(interval, 1);
+        toSpawn = (byte)math.round(spawnTime / interval);
         float minutes = spawnTime / 60f; //Debug.Log("Spawning " + toSpawn + " enemies for " + minutes + " minutes every " + interval + " seconds.");
         return interval;
     }
@@ -149,12 +171,13 @@ public class SpawnerController : MonoBehaviour
         yield break;
     }
 
-    private IEnumerator spawnTimerRoutine(float interval)
+    private IEnumerator spawnTimerRoutine(float interval, bool forever)
     {
         yield return new WaitForSeconds(interval);
         while (toSpawn > 0)
         {
             spawnEnemy(spawnerManager.getSkeleton(false));
+            if (!forever) toSpawn--;
             yield return new WaitForSeconds(interval);
         }
         disengage();

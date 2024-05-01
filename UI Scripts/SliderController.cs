@@ -47,6 +47,13 @@ public class SliderController : MonoBehaviour
         fading = StartCoroutine(fadeRoutine());
     }
 
+    public void hide()
+    {
+        if (fading != null) StopCoroutine(fading);
+        alpha = 0f;
+        updateVisibility();
+    }
+
     private void updateVisibility()
     {
         Color fillColor = fill.color;
@@ -57,6 +64,7 @@ public class SliderController : MonoBehaviour
         background.color = bgColor;
     }
 
+    // TODO replace with animation
     private IEnumerator fadeRoutine()
     {
         while (alpha > 0)

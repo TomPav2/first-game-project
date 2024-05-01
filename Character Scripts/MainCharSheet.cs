@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class MainCharacterSheet : MonoBehaviour
 {

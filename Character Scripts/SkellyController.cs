@@ -1,11 +1,10 @@
-using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
 using Random = UnityEngine.Random;
+using static ScenePersistence;
 
-public class SkellyController : EnemyBase
+public class SkellyController : EnemyBase, IFading
 {
     // pointers
     [SerializeField] protected SliderController healthBar;
@@ -14,10 +13,9 @@ public class SkellyController : EnemyBase
     [SerializeField] private Animator animator;
     protected MainCharacterSheet mainChar;
     private LevelManager manager;
-    private SpawnerManager spawner;
+    private ISpawnerHandler handler;
     private RavenController raven;
     private CrowController crow;
-    //private CrowController crow;
 
     // movement
     protected Vector2 target;
@@ -36,41 +34,52 @@ public class SkellyController : EnemyBase
 
     // combat
     private int maxHealth;
-    public int health {  get; private set; }
+    public int Health {  get; private set; }
 
     // processing
     private EnemyState state = EnemyState.None;
-
     private Coroutine currentProcess;
 
     // ---------------- LIFECYCLE ----------------
     private void Awake()
     {
-        healthBar = GetComponentInChildren<SliderController>();
+        //healthBar = GetComponentInChildren<SliderController>(); // TODO remove if this works
         body = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        GetComponent<SpriteRenderer>().enabled = false;
         body.simulated = false;
-        animator.enabled = false;
         GetComponent<CapsuleCollider2D>().enabled = false;
     }
 
-    public void init(MainCharacterSheet character, LevelManager levelManager, SpawnerManager spawnerManager, RavenController ravenController, CrowController crowController)
+    public void init(MainCharacterSheet character, LevelManager levelManager, ISpawnerHandler handler, RavenController ravenController, CrowController crowController)
     {
         manager = levelManager;
         mainChar = character;
-        spawner = spawnerManager;
+        this.handler = handler;
         raven = ravenController;
         crow = crowController;
+
+        lastDistance = 10000f;
+        isInFinalArea = false;
     }
 
     public void spawn(Vector2 pos, int hp)
     {
         transform.position = pos;
         maxHealth = hp;
-        health = hp;
-        currentProcess = StartCoroutine(performSpawn());
+        Health = hp;
+        healthBar.hide();
+
+        switchState(EnemyState.Spawning);
+    }
+
+    // called by spawn animation
+    public virtual void afterFadeIn()
+    {
+        GetComponent<CapsuleCollider2D>().enabled = true;
+        body.simulated = true;
+        switchState(EnemyState.Idle);
+        StartCoroutine(navigator());
     }
 
     public void obliterate()
@@ -78,7 +87,7 @@ public class SkellyController : EnemyBase
         if (state == EnemyState.Spawning)
         {
             StopAllCoroutines();
-            deathSecondStage();
+            afterFadeOut();
         } else if (state == EnemyState.Dead || state == EnemyState.Dying)
         {
             return;
@@ -88,6 +97,7 @@ public class SkellyController : EnemyBase
         }
     }
 
+    // disables collision and starts death animation
     protected virtual void die(DamageType damageType)
     {
         StopAllCoroutines();
@@ -96,67 +106,29 @@ public class SkellyController : EnemyBase
         if (crow != null) crow.deregister(this);
         slowed = false;
 
-        deathFirstStage();
-    }
-
-    protected virtual IEnumerator performSpawn()
-    {
-        switchState(EnemyState.Spawning);
-        GetComponent<SpriteRenderer>().enabled = true;
-
-        float alpha = 0f;
-        while (alpha < 1f)
-        {
-            alpha += 0.1f;
-            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        animator.enabled = true;
-        GetComponent<CapsuleCollider2D>().enabled = true;
-        body.simulated = true;
-        switchState(EnemyState.Idle);
-        animator.ResetTrigger(Trigger.idle); // not needed after spawn
-        StartCoroutine(navigator());
-        yield break;
-    }
-
-    // disables collision and starts death animation
-    protected virtual void deathFirstStage()
-    {
-        switchState(EnemyState.Dying);
         GetComponent<CapsuleCollider2D>().enabled = false;
         body.simulated = false;
-        healthBar.fade();
-        spawner.removeFromLiving(this);
+        handler.removeFromLiving(gameObject);
+
+        switchState(EnemyState.Dying);
     }
 
-    // called by animation event, stops animation and performs fade
+    // called by animation event, followed by fade animation
     private void deathSecondStage()
     {
-        switchState(EnemyState.Dead);
-        animator.enabled = false;
-        currentProcess = StartCoroutine(deathFadeProcess());
+        healthBar.fade();
     }
 
-    protected virtual IEnumerator deathFadeProcess()
+    public virtual void afterFadeOut()
     {
-        float alpha = 1f;
-        while (alpha > 0f)
-        {
-            alpha -= 0.2f;
-            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
-            yield return new WaitForSeconds(0.1f);
-        }
-        GetComponent<SpriteRenderer>().sprite = defaultSprite;
-        GetComponent<SpriteRenderer>().enabled = false;
-        spawner.makeAvailable(this);
+        switchState(EnemyState.Dead);
+        reuseEnemy(gameObject);
     }
 
     // ---------------- MOVEMENT ----------------
     private void FixedUpdate()
     {
-        if (!movingState())
+        if (!inMovingState())
         {
             return;
         }
@@ -197,9 +169,6 @@ public class SkellyController : EnemyBase
 
     protected void rotate()
     {
-        // TODO check this works
-        //Vector2 motion = Vector2.MoveTowards(transform.position, target, 1);
-        //GetComponent<SpriteRenderer>().flipX = ((transform.position.x - motion.x) > 0);
         GetComponent<SpriteRenderer>().flipX = ((transform.position.x - target.x) > 0);
     }
 
@@ -239,32 +208,32 @@ public class SkellyController : EnemyBase
     protected void switchState(EnemyState state)
     {
         if (this.state == state) return;
+        if (state == EnemyState.Dying && !inLivingState()) return; // guarantee that there is no hanging die trigger
         this.state = state;
-
-        animator.ResetTrigger(Trigger.idle);
-        animator.ResetTrigger(Trigger.walk);
-        animator.ResetTrigger(Trigger.run);
 
         switch (state)
         {
+            case EnemyState.Spawning:
+                currentSpeed = 0;
+                animator.SetTrigger(Trigger.FADE_IN);
+                break;
+
             case EnemyState.Idle:
                 currentSpeed = 0;
-                animator.SetTrigger(Trigger.idle);
                 break;
 
             case EnemyState.Walking:
                 currentSpeed = SPEED_SLOW;
-                animator.SetTrigger(Trigger.walk);
+                animator.SetTrigger(Trigger.WALK);
                 break;
 
             case EnemyState.Following:
                 currentSpeed = SPEED_FAST;
                 if (currentProcess != null) StopCoroutine(currentProcess);
-                animator.SetTrigger(Trigger.run);
+                animator.SetTrigger(Trigger.RUN);
                 break;
 
             case EnemyState.InertiaRun:
-                currentSpeed = SPEED_FAST;
                 currentProcess = StartCoroutine(inertiaRun());
                 break;
 
@@ -272,32 +241,29 @@ public class SkellyController : EnemyBase
                 currentSpeed = 0;
                 if (currentProcess != null) StopCoroutine(currentProcess);
                 currentProcess = StartCoroutine(inertiaLook());
-                animator.SetTrigger(Trigger.idle);
+                animator.SetTrigger(Trigger.IDLE);
                 target = transform.position;
                 break;
 
             case EnemyState.Dying:
                 currentSpeed = 0;
-                animator.SetTrigger(Trigger.die);
+                animator.SetTrigger(Trigger.DIE);
                 break;
 
             case EnemyState.Dead:
-                animator.SetTrigger(Trigger.idle);
                 break;
         }
     }
 
-    private static class Trigger
-    {
-        public static readonly String walk = "walk";
-        public static readonly String run = "run";
-        public static readonly String idle = "idle";
-        public static readonly String die = "die";
-    }
-
-    private bool movingState()
+    private bool inMovingState()
     {
         return (state == EnemyState.Walking || state == EnemyState.Following || state == EnemyState.InertiaRun);
+    }
+
+    private bool inLivingState()
+    {
+        if (state == EnemyState.Spawning || state == EnemyState.Dying || state == EnemyState.Dead) return false;
+        return true;
     }
 
     // ---------------- TARGETTING ----------------
@@ -383,21 +349,26 @@ public class SkellyController : EnemyBase
     public override void damage(byte amount, DamageType type)
     {
         if (amount == 0) return;
-        if (amount < health) health -= amount;
+        if (amount < Health) Health -= amount;
         else
         {
-            health = 0;
+            Health = 0;
             if (type == DamageType.LMB || type == DamageType.RMB) mainChar.offerLife();
             die(type);
         }
-        healthBar.updateValue(maxHealth, health);
+        healthBar.updateValue(maxHealth, Health);
     }
 
     public int damageMax(DamageType type)
     {
         healthBar.updateValue(maxHealth, 0);
         die(type);
-        return health;
+        return Health;
+    }
+
+    public override void heal(byte amount)
+    {
+        // not applicable
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

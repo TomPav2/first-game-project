@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class LMBAttack : MonoBehaviour
 {
@@ -33,8 +33,17 @@ public class LMBAttack : MonoBehaviour
     private void FixedUpdate()
     {
         if (!move) return;
-        targetPos = Vector2.MoveTowards(targetPos, transform.position, Time.deltaTime * -speed);
-        transform.position = Vector2.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
+
+        if (invertControls)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetPos, Time.deltaTime * -speed);
+            targetPos = Vector2.MoveTowards(targetPos, transform.position, Time.deltaTime * speed);
+        }
+        else
+        {
+            targetPos = Vector2.MoveTowards(targetPos, transform.position, Time.deltaTime * -speed);
+            transform.position = Vector2.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
+        }
 
         if (fading && alpha > 0f)
         {
@@ -71,11 +80,20 @@ public class LMBAttack : MonoBehaviour
         Vector3 clickPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         clickPosition.z = 0;
         transform.right = clickPosition - transform.position;
+        if (invertControls) transform.right = -transform.right;
         targetPos = clickPosition;
 
         // perform one move so that it does not start at the centre of character
-        targetPos = Vector2.MoveTowards(targetPos, transform.position, -speed / 10);
-        transform.position = Vector2.MoveTowards(transform.position, targetPos, speed / 10);
+        if (invertControls)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetPos, -speed / 10);
+            targetPos = Vector2.MoveTowards(targetPos, transform.position, speed / 10);
+        }
+        else
+        {
+            targetPos = Vector2.MoveTowards(targetPos, transform.position, -speed / 10);
+            transform.position = Vector2.MoveTowards(transform.position, targetPos, speed / 10);
+        }
 
         // set moving, visible, enable collider
         move = true;

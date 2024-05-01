@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class Level1Manager : LevelManager
 {
@@ -55,7 +55,7 @@ public class Level1Manager : LevelManager
         base.playerDied();
     }
 
-    public void tooManyEnemies()
+    public override void tooManyEnemies()
     {
         spawnerManager.endStage();
         gameLost(CauseOfLoss.Overrun);

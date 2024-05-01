@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public abstract class LevelManager : MonoBehaviour
 {
@@ -80,4 +80,6 @@ public abstract class LevelManager : MonoBehaviour
     public abstract void enteredPentagram();
 
     public abstract void restrictedAccess();
+
+    public abstract void tooManyEnemies();
 }

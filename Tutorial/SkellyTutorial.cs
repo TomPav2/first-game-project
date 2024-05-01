@@ -2,6 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public class SkellyTutorial : SkellyController
 {
@@ -26,25 +27,12 @@ public class SkellyTutorial : SkellyController
 
         spawn(spawnPoint, Difficulty.BASE_HEALTH);
     }
-    protected override IEnumerator performSpawn()
+    public override void afterFadeIn()
     {
-        switchState(EnemyState.Spawning);
-        GetComponent<SpriteRenderer>().enabled = true;
-
-        float alpha = 0f;
-        while (alpha < 1f)
-        {
-            alpha += 0.1f;
-            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        GetComponent<Animator>().enabled = true;
         GetComponent<CapsuleCollider2D>().enabled = true;
         body.simulated = true;
         switchState(startingState);
         StartCoroutine(navigator());
-        yield break;
     }
 
     public override void damage(byte amount, DamageType type)
@@ -61,30 +49,20 @@ public class SkellyTutorial : SkellyController
     protected override void die(DamageType damageType)
     {
         StopAllCoroutines();
-        causeOfDeath = damageType;
-        if (damageType == DamageType.Contact) tutorial.showMessage("Do not touch the skeletons. Try again.", false);
-        deathFirstStage();
-    }
-
-    protected override void deathFirstStage()
-    {
-        switchState(EnemyState.Dying);
         GetComponent<CapsuleCollider2D>().enabled = false;
         body.simulated = false;
-        healthBar.fade();
+        healthBar.fade(); // TODO check
+
+        causeOfDeath = damageType;
+        if (damageType == DamageType.Contact) tutorial.showMessage("Do not touch the skeletons. Try again.", false);
+
+        switchState(EnemyState.Dying);
     }
 
-    protected override IEnumerator deathFadeProcess()
+    public override void afterFadeOut()
     {
-        float alpha = 1f;
-        while (alpha > 0f)
-        {
-            alpha -= 0.2f;
-            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, alpha); // TODO replace with animation
-            yield return new WaitForSeconds(0.1f);
-        }
+        switchState(EnemyState.Dead);
         GetComponent<SpriteRenderer>().sprite = defaultSprite;
-        GetComponent<SpriteRenderer>().enabled = false;
         tutorialDeathTrigger();
     }
 

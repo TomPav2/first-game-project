@@ -1,5 +1,5 @@
 using UnityEngine;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class UniversalManager : MonoBehaviour
 {

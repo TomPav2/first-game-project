@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class MainCharController : MonoBehaviour
 {
@@ -46,14 +46,14 @@ public class MainCharController : MonoBehaviour
         if (Input.GetKey(KeyCode.W) ^ Input.GetKey(KeyCode.S))
         {
             speedY = 1;
-            dirUp = Input.GetKey(KeyCode.W);
+            dirUp = Input.GetKey(KeyCode.W) ^ invertControls;
         }
         else if (speedY > 0) speedY -= 0.1f;
 
         if (Input.GetKey(KeyCode.A) ^ Input.GetKey(KeyCode.D))
         {
             speedX = 1;
-            if (Input.GetKey(KeyCode.A)) turnLeft(); else turnRight();
+            if (Input.GetKey(KeyCode.A) ^ invertControls) turnLeft(); else turnRight();
         }
         else if (speedX > 0) speedX -= 0.1f;
 

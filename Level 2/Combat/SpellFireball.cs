@@ -16,7 +16,6 @@ public class SpellFireball : Spell
     private bool active = false;
     private Vector3 targetPos;
     
-
     private void Awake()
     {
         animator = GetComponent<Animator>();

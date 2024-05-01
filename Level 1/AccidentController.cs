@@ -28,7 +28,6 @@ public class AccidentController : MonoBehaviour
     {
         randomise();
 
-        animator.ResetTrigger(Trigger.ANIMATION_STOP);
         onScreen = true;
         buttonImage.enabled = true;
         button.enabled = true;
@@ -44,7 +43,6 @@ public class AccidentController : MonoBehaviour
             button.enabled = false;
             if (byClick) manager.accidentCleared(this);
             onScreen = false;
-            animator.SetTrigger(Trigger.ANIMATION_STOP);
         }
     }
 

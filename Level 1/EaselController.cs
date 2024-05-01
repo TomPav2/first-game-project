@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using static SceneLoader;
+using static ScenePersistence;
 using static GameValues;
 using System.Collections.Generic;
 

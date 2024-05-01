@@ -1,9 +1,7 @@
-
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class BattleArenaController : ArenaController
+public class BattleArenaController : MonoBehaviour
 {
     [SerializeField] private GameObject waypointContainer;
     [SerializeField] private Level2Manager levelManager;
@@ -12,6 +10,7 @@ public class BattleArenaController : ArenaController
     [SerializeField] private GameObject gate;
 
     private List<Vector2> waypoints = new List<Vector2>();
+
     private void Awake()
     {
         hasWaypoints = true;
@@ -21,6 +20,7 @@ public class BattleArenaController : ArenaController
         }
     }
 
+    public bool hasWaypoints { get; protected set; }
 
     // ---------------- INTRO ----------------
 
@@ -29,12 +29,12 @@ public class BattleArenaController : ArenaController
     // ---------------- SECOND FIGHT ----------------
 
     // ---------------- THIRD FIGHT ----------------
-    public override void enemyDied(BossEnemyController enemy)
+    public void enemyDied(BossEnemyController enemy)
     {
-        throw new System.NotImplementedException();
+        // don't care, handled by individual fight controller
     }
 
-    public override Vector2 getWaypoint(Vector2 from)
+    public Vector2 getWaypoint(Vector2 from)
     {
         Vector2 selectedWaypoint = waypoints[Random.Range(0, waypoints.Count)];
         while (Vector2.Distance(selectedWaypoint, mainCharacterSheet.transform.position) < 10

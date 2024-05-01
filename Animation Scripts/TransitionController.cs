@@ -1,5 +1,5 @@
 using UnityEngine;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class TransitionController : MonoBehaviour
 {
@@ -38,6 +38,6 @@ public class TransitionController : MonoBehaviour
     // called by animation
     private void afterSecondTransition()
     {
-        SceneLoader.load(targetScene);
+        ScenePersistence.load(targetScene);
     }
 }

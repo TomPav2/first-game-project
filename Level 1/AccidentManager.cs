@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class AccidentManager : MonoBehaviour
 {
@@ -21,6 +21,8 @@ public class AccidentManager : MonoBehaviour
 
     public void accidentCleared(AccidentController accident)
     {
+        if (onScreenAccidents.Count == 0) return;
+
         onScreenAccidents.Remove(accident);
         readyAccidents.Add((accident));
         easel.setSlow(onScreenAccidents.Count, true);
@@ -33,6 +35,7 @@ public class AccidentManager : MonoBehaviour
 
     public void accidentAppeared()
     {
+        if (onScreenAccidents.Count == 0) return;
         easel.setSlow(onScreenAccidents.Count, false);
     }
 

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
-using static SceneLoader;
+using static ScenePersistence;
 
 public class RMBAttack : MonoBehaviour
 
@@ -76,6 +76,7 @@ public class RMBAttack : MonoBehaviour
                 Vector2 clickPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 from = transform.position;
                 Vector2 direction = clickPosition - from;
+                if (invertControls) direction = -direction;
                 RaycastHit2D hit = Physics2D.Raycast(from, direction, Mathf.Infinity, collideLayers);
 
                 // this should only occur in development, but it is safer to keep it
