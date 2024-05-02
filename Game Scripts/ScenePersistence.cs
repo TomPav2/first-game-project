@@ -9,7 +9,6 @@ public static class ScenePersistence
 
     public static bool inTutorial = false;
     public static bool isPaused = false;
-    public static bool inMinigame = false;
 
     public static bool lockControls = false;
     public static bool invertControls = false;
@@ -32,7 +31,6 @@ public static class ScenePersistence
     {
         cullEnemies();
         currentlyPainting = false;
-        inMinigame = false;
         invertControls = false;
         SceneManager.LoadScene(sceneName.ToString());
     }

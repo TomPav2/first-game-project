@@ -62,7 +62,6 @@ public class SkellyTutorial : SkellyController
     public override void afterFadeOut()
     {
         switchState(EnemyState.Dead);
-        GetComponent<SpriteRenderer>().sprite = defaultSprite;
         tutorialDeathTrigger();
     }
 

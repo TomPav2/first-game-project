@@ -98,7 +98,7 @@ public class RMBAttack : MonoBehaviour
                 laserLine.endWidth = laserIncreasing ? laserLine.endWidth + WIDTH_INTERVAL : laserLine.endWidth - WIDTH_INTERVAL;
                 if (laserLine.startWidth >= WIDTH_MAX) laserIncreasing = false;
                 else if (laserLine.startWidth <= WIDTH_MIN) laserIncreasing = true;
-
+                
                 // deal damage
                 if (hit.collider.CompareTag(Tag.ENEMY))
                 {

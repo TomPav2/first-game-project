@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static ScenePersistence;
 
@@ -10,6 +11,8 @@ public class UniversalManager : MonoBehaviour
     [SerializeField] private TransitionController transitionController;
 
     private LevelManager activeManager;
+
+    private Action escapeAction = null;
 
     private void Awake()
     {
@@ -32,8 +35,8 @@ public class UniversalManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (inMinigame) return;
-            if (isPaused) resume();
+            if (escapeAction != null) escapeAction();
+            else if (isPaused) resume();
             else pause();
         }
     }
@@ -47,11 +50,9 @@ public class UniversalManager : MonoBehaviour
 
     public void resume()
     {
-        if (hudController.pauseMenu(false))
-        {
-            Time.timeScale = 1;
-            isPaused = false;
-        }
+        hudController.pauseMenu(false);
+        Time.timeScale = 1;
+        isPaused = false;
     }
 
     public void restart()
@@ -63,4 +64,10 @@ public class UniversalManager : MonoBehaviour
     {
         transitionController.transitionToScene(Scene.MenuScene);
     }
+
+    public void waitingForEscape(Action action)
+    { escapeAction = action; }
+
+    public void clearEscape()
+    { escapeAction = null; }
 }

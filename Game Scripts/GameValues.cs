@@ -5,6 +5,7 @@ public static class GameValues
     public static class Tag
     {
         public static readonly String WALL = "Wall";
+        public static readonly String WALL_TOP = "WallsTop";
         public static readonly String PLAYER = "Player";
         public static readonly String ATTACK_LMB = "LMB Attack";
         public static readonly String ENEMY = "Enemy";
@@ -14,6 +15,7 @@ public static class GameValues
         public static readonly String BONUS = "Bonus";
         public static readonly String PENTAGRAM = "Pentagram";
         public static readonly String BARRIER = "Barrier";
+        public static readonly String SHIELD = "Shield";
     }
 
     public static class Difficulty

@@ -8,6 +8,7 @@ public class BattleArenaController : MonoBehaviour
     [SerializeField] private MainCharacterSheet mainCharacterSheet;
     [SerializeField] private GameObject barrier;
     [SerializeField] private GameObject gate;
+    [SerializeField] private TextHudController hudController;
 
     private List<Vector2> waypoints = new List<Vector2>();
 
@@ -21,6 +22,8 @@ public class BattleArenaController : MonoBehaviour
     }
 
     public bool hasWaypoints { get; protected set; }
+
+    public TextHudController getHudController() { return hudController; }
 
     // ---------------- INTRO ----------------
 

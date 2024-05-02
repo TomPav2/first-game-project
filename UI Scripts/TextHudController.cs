@@ -20,11 +20,10 @@ public class TextHudController : MonoBehaviour
     [SerializeField] private RavenController raven;
     [SerializeField] private CrowController crow;
     [SerializeField] private LevelManager levelManager;
+    [SerializeField] private UniversalManager universalManager;
 
     private static readonly Vector2 SMALL_TEXT_SIZE = new Vector2(800, 50);
     private static readonly Vector2 LARGE_TEXT_SIZE = new Vector2(1600, 50);
-
-    private bool inSettings = false;
 
     public void popUp(string main, string desc, string tertiary)
     {
@@ -40,13 +39,6 @@ public class TextHudController : MonoBehaviour
 
     public bool pauseMenu(bool show)
     {
-        if (inSettings)
-        {
-            settingsButtons.SetActive(false);
-            pauseButtons.SetActive(true);
-            inSettings = false;
-            return false;
-        }
         backdrop.enabled = show;
         if (show)
         {
@@ -101,7 +93,17 @@ public class TextHudController : MonoBehaviour
     }
 
     public void goToSettings(bool entering)
-    { inSettings = entering; }
+    { 
+        if (entering) { 
+            universalManager.waitingForEscape(() => goToSettings(false));
+        }
+        else
+        {
+            settingsButtons.SetActive(false);
+            pauseButtons.SetActive(true);
+            universalManager.clearEscape();
+        }
+    }
 
     public void wonGameMenu(string result)
     {

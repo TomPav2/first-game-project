@@ -16,6 +16,7 @@ public class WordGame : MonoBehaviour
     [SerializeField] private Level2Manager levelManager;
     [SerializeField] private GameObject prompt;
     [SerializeField] private GameObject barrier;
+    [SerializeField] private UniversalManager universalManager;
 
     private static readonly short OFFSET_X = -180;
     private static readonly short OFFSET_Y = -300;
@@ -30,6 +31,7 @@ public class WordGame : MonoBehaviour
     protected static byte attempt = 0;
     private bool needSetup = true;
     private bool playerInRange = false;
+    private bool inGame = false;
 
     public void playerApproached()
     {
@@ -43,13 +45,8 @@ public class WordGame : MonoBehaviour
 
     private void Update()
     {
-        if (inMinigame)
+        if (inGame)
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                closeGame();
-                return;
-            }
             foreach (char c in Input.inputString)
             {
                 if (c == '\b') // has backspace/delete been pressed?
@@ -81,27 +78,28 @@ public class WordGame : MonoBehaviour
     }
 
     private void openGame()
-    {
+    {        
+        universalManager.waitingForEscape(()  => closeGame());
         lockControls = true;
-        inMinigame = true;
         GetComponent<Image>().enabled = true;
         letterContainer.SetActive(true);
         setupWordGame();
+        inGame = true;
     }
 
     private void closeGame()
     {
         lockControls = false;
-        inMinigame = false;
         GetComponent<Image>().enabled = false;
         letterContainer.SetActive(false);
-        StartCoroutine(delayedToggle());
 
         if (attempt > 0)
         {
             hudController.popUp("Never give up!", "Or else...", null);
             mainCharacterSheet.damage(1);
         }
+        universalManager.clearEscape();
+        inGame = false;
     }
 
     private void success()
@@ -172,19 +170,6 @@ public class WordGame : MonoBehaviour
         levelManager.givePlayerHeart(barrier);
         hudController.popUp("You got a heart!", "It's quite heavy...", "Hand it in before continuing.");
         GameObject.Destroy(gameObject);
-        yield break;
-    }
-
-    // TODO rework this so the minigame is closed by universal controller
-    private IEnumerator delayedToggle()
-    {
-        bool toggle = true;
-        while (toggle)
-        {
-            toggle = false;
-            yield return null;
-        }
-        inMinigame = false;
         yield break;
     }
 

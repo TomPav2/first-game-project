@@ -10,8 +10,6 @@ public class Fight3Controller : FightController
     [SerializeField] private BossEnemyController enemy2;
     [SerializeField] private BossEnemyController enemy3;
 
-    [SerializeField] private TextHudController textHud;
-
     // camera work
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private GameObject mainChar;
@@ -19,13 +17,13 @@ public class Fight3Controller : FightController
 
     private static readonly Vector3 CAMERA_OFFSET = new Vector3(0, 7, 0);
 
-    public void begin()
+    public override void begin()
     {
         enemiesToKill = 3;
         StartCoroutine(introRoutine());
     }
 
-    private IEnumerator introRoutine()
+    protected override IEnumerator introRoutine()
     {
         lockControls = true;
         textHud.popUp("The Three Mages", null, null);
@@ -62,8 +60,6 @@ public class Fight3Controller : FightController
         enemy3.beginFight();
         yield break;
     }
-
-
 
     private void setCamToManual()
     {

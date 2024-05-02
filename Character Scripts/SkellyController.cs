@@ -9,11 +9,10 @@ public class SkellyController : EnemyBase, IFading
     // pointers
     [SerializeField] protected SliderController healthBar;
     [SerializeField] protected Rigidbody2D body;
-    [SerializeField] protected Sprite defaultSprite;
     [SerializeField] private Animator animator;
     protected MainCharacterSheet mainChar;
+    protected ISpawnerHandler handler;
     private LevelManager manager;
-    private ISpawnerHandler handler;
     private RavenController raven;
     private CrowController crow;
 
@@ -167,7 +166,7 @@ public class SkellyController : EnemyBase, IFading
         body.MovePosition(motion);
     }
 
-    protected void rotate()
+    protected virtual void rotate()
     {
         GetComponent<SpriteRenderer>().flipX = ((transform.position.x - target.x) > 0);
     }

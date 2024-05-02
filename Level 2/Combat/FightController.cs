@@ -5,7 +5,14 @@ using static ScenePersistence;
 public abstract class FightController : MonoBehaviour
 {
     [SerializeField] private BattleArenaController arenaController;
+    protected TextHudController textHud;
     protected byte enemiesToKill;
+
+    private void Awake()
+    {
+        textHud = arenaController.getHudController();
+    }
+    public abstract void begin();
 
     public void registerTakedown()
     {
@@ -25,4 +32,6 @@ public abstract class FightController : MonoBehaviour
         finishFight();
         yield break;
     }
+
+    protected abstract IEnumerator introRoutine();
 }
