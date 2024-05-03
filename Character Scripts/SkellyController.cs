@@ -21,7 +21,7 @@ public class SkellyController : EnemyBase, IFading
     private bool isInFinalArea = false;
     private bool noIdlingOnTarget = true;
 
-    private float distanceTolerance = 0.2f;
+    private static readonly float DISTANCE_TOLERANCE = 0.2f * 0.2f;
     private float lastDistance = 10000f;
     private byte currentSpeed = 0;
     private byte distanceCountdown = 10;
@@ -132,10 +132,10 @@ public class SkellyController : EnemyBase, IFading
             return;
         }
 
-        float distanceToTarget = getDistanceToTarget();
+        float? distanceToTarget = getDistanceToTargetSquared();
 
         // if target is reached...
-        if (distanceToTarget <= distanceTolerance)
+        if (distanceToTarget.HasValue && distanceToTarget.Value <= DISTANCE_TOLERANCE)
         {
             if (state == EnemyState.InertiaRun)
             {
@@ -154,10 +154,10 @@ public class SkellyController : EnemyBase, IFading
             }
         }
 
-        if (state == EnemyState.Walking)
+        if (distanceToTarget.HasValue && state == EnemyState.Walking)
         {
-            if (distanceToTarget > lastDistance) targetWaypoint(); // this is needed because some enemies would block each other
-            else lastDistance = distanceToTarget;
+            if (distanceToTarget.Value > lastDistance) targetWaypoint(); // this is needed because some enemies would block each other
+            else lastDistance = distanceToTarget.Value;
         }
 
         Vector2 motion = slowed
@@ -172,16 +172,17 @@ public class SkellyController : EnemyBase, IFading
     }
 
     // for efficiency, distance doesn't need to be checked every frame
-    private float getDistanceToTarget()
+    private float? getDistanceToTargetSquared()
     {
         if (state == EnemyState.Following) return 0;
         if (distanceCountdown == 0)
         {
             distanceCountdown = 10;
-            return Vector2.Distance(transform.position, target);
+            Vector2 currentPos = transform.position;
+            return (target - currentPos).sqrMagnitude;
         }
         distanceCountdown--;
-        return 10;
+        return null;
     }
 
     private IEnumerator inertiaRun()

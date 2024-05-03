@@ -77,7 +77,7 @@ public class SpellFireball : Spell
         {
             mainChar.damage(1);
             hit();
-        } else if (collision.CompareTag(Tag.WALL))
+        } else if (collision.CompareTag(Tag.WALL_TOP))
         {
             hit();
         }
