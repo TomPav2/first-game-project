@@ -75,6 +75,8 @@ public class MainCharController : MonoBehaviour
         this.speedUpgrade = speedUpgrade;
     }
 
+    public bool isFacingRight() { return dirRight; }
+
     private void turnRight()
     {
         if (!dirRight)

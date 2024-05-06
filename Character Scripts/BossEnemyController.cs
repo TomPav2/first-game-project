@@ -193,7 +193,7 @@ public class BossEnemyController : EnemyBase
         yield break;
     }
 
-    // ---------------- COMBAT DEFENSIFE ----------------
+    // ---------------- COMBAT DEFENSIVE ----------------
     public override void damage(byte amount, DamageType type)
     {
         if (amount == 0) return;
