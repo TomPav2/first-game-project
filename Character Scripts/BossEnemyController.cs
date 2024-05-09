@@ -19,7 +19,7 @@ public class BossEnemyController : EnemyBase
     private short maxHealth = Difficulty.BOSS_ENEMY_HEALTH;
     private short health = Difficulty.BOSS_ENEMY_HEALTH;
     private int mana = 50;
-    private bool hasAltSpell = true;
+    private bool hasAltSpell = false;
 
     // movement
     private Vector2 target;
@@ -92,7 +92,6 @@ public class BossEnemyController : EnemyBase
         switchState(State.Death);
         GetComponent<Rigidbody2D>().simulated = false;
         GetComponent<CapsuleCollider2D>().enabled = false;
-        GetComponentInParent<FightController>().registerTakedown();
     }
 
     // called by animation
@@ -105,6 +104,7 @@ public class BossEnemyController : EnemyBase
     // called by animation
     private void deathAnimationFinished()
     {
+        GetComponentInParent<FightController>().registerTakedown();
         Destroy(gameObject);
     }
 

@@ -27,6 +27,7 @@ public class Level2Manager : LevelManager
 
     public void givePlayerHeart(GameObject openBarrier)
     {
+        hudController.popUp("You got a heart!", "It's quite heavy...", "Hand it in before continuing.");
         playerHasHeart = true;
         aCHeart.SetActive(true);
         updateBarriers(openBarrier);

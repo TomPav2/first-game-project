@@ -14,7 +14,7 @@ public abstract class FightController : MonoBehaviour
     }
     public abstract void begin();
 
-    public void registerTakedown()
+    public virtual void registerTakedown()
     {
         enemiesToKill--;
         if (enemiesToKill == 0) StartCoroutine(waitForRemainingEnemies());
@@ -22,8 +22,8 @@ public abstract class FightController : MonoBehaviour
 
     private void finishFight()
     {
-        // TODO
-        Debug.Log("Well Done");
+        arenaController.nextFight();
+        Destroy(gameObject);
     }
 
     private IEnumerator waitForRemainingEnemies()

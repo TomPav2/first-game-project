@@ -32,7 +32,7 @@ public class AssassinController : EnemyBase, IFading
     private int health = MAX_HEALTH;
 
     // movement
-    private static readonly float SPEED_RUN = 20;
+    private static readonly float SPEED_RUN = 18;
     private static readonly float SPEED_WALK = 10;
     private static readonly float SPEED_SNEAK = 3;
     private Vector2 moveTarget;
@@ -346,6 +346,13 @@ public class AssassinController : EnemyBase, IFading
 
     private IEnumerator specialAttack()
     {
+        // move back to prepare
+        while ( isInRange(BLINK_RANGE_SQUARED*1.5f) )
+        {
+            switchState(State.Retreating); // must be called every time in case of fallback blink
+            yield return new WaitForSeconds(kingMove(true));
+        }
+
         setTargetToPlayer();
         switchState(State.Charging);
 

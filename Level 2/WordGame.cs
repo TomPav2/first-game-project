@@ -168,7 +168,6 @@ public class WordGame : MonoBehaviour
     {
         yield return new WaitForSeconds(3);
         levelManager.givePlayerHeart(barrier);
-        hudController.popUp("You got a heart!", "It's quite heavy...", "Hand it in before continuing.");
         GameObject.Destroy(gameObject);
         yield break;
     }

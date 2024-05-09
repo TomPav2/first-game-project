@@ -54,6 +54,15 @@ public class Fight1Controller : FightController, ISpawnerHandler
 
     protected override IEnumerator introRoutine()
     {
+        textHud.popUp("Welcome!", "To the Arena", null);
+        yield return new WaitForSeconds(3);
+
+        textHud.popUp(null, "Win three fights to proceed", null);
+        yield return new WaitForSeconds(2);
+
+        textHud.popUp("Get ready", "...for the first fight...", null);
+        yield return new WaitForSeconds(3);
+
         textHud.popUp("The buggers found shields!", null, null);
         yield return new WaitForSeconds(2);
 

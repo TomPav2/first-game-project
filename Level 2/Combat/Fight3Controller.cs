@@ -23,8 +23,19 @@ public class Fight3Controller : FightController
         StartCoroutine(introRoutine());
     }
 
+    public override void registerTakedown()
+    {
+        base.registerTakedown();
+        if (enemiesToKill == 1 && enemy1 != null) enemy1.unlockAltSpell();
+    }
+
     protected override IEnumerator introRoutine()
     {
+        textHud.popUp("Excellent!", null, null);
+        yield return new WaitForSeconds(2);
+        textHud.popUp("Take a deep breath...", "Before the final challenge...", null);
+        yield return new WaitForSeconds(3);
+
         lockControls = true;
         textHud.popUp("The Three Mages", null, null);
         
@@ -39,7 +50,7 @@ public class Fight3Controller : FightController
 
         // second enemy
         cameraTarget.transform.position = enemy2.transform.position + CAMERA_OFFSET;
-        textHud.popUp("[name] the Green", "Heals / Curses", null, 0.2f);
+        textHud.popUp("Korreg the Green", "Heals / Curses", null, 0.2f);
         enemy2.gameObject.SetActive(true);
         yield return new WaitForSeconds(2);
         enemy2.showOffEffect();
@@ -47,7 +58,7 @@ public class Fight3Controller : FightController
 
         // second enemy
         cameraTarget.transform.position = enemy3.transform.position + CAMERA_OFFSET;
-        textHud.popUp("[name] the Colourblind", "Summoner", null, 0.2f);
+        textHud.popUp("Zhon the Colourblind", "Summoner", null, 0.2f);
         enemy3.gameObject.SetActive(true);
         yield return new WaitForSeconds(5);
 
