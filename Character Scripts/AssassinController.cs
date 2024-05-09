@@ -7,10 +7,14 @@ using static UnityEngine.EventSystems.EventTrigger;
 public class AssassinController : EnemyBase, IFading
 {
     [SerializeField] private MainCharacterSheet mainChar;
+    [SerializeField] private SliderController healthBar;
+    [SerializeField] private FightController fight;
     [SerializeField] private GameObject daggerRight;
     [SerializeField] private GameObject daggerLeft;
     [SerializeField] private GameObject bow;
     [SerializeField] private AssassinWeaponController arrow;
+    [SerializeField] private GameObject smokeFX1;
+    [SerializeField] private GameObject smokeFX2;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D body;
@@ -21,15 +25,15 @@ public class AssassinController : EnemyBase, IFading
 
     // combat values
     private static readonly float ATTACK_RANGE_SQUARED = 5 * 5;
-    private static readonly float ATTACK_RANGE_UP_SQUARED = 8 * 8;
-    private static readonly float ATTACK_RANGE_DOWN_SQUARED = 6 * 6;
+    private static readonly float ATTACK_RANGE_UP_SQUARED = 7 * 7;
+    private static readonly float ATTACK_RANGE_DOWN_SQUARED = 5 * 5;
     private static readonly float BLINK_RANGE_SQUARED = 15 * 15;
-    private static readonly int MAX_HEALTH;
+    private static readonly int MAX_HEALTH = 800;
     private int health = MAX_HEALTH;
 
     // movement
-    private static readonly float SPEED_RUN = 10;
-    private static readonly float SPEED_WALK = 5;
+    private static readonly float SPEED_RUN = 20;
+    private static readonly float SPEED_WALK = 10;
     private static readonly float SPEED_SNEAK = 3;
     private Vector2 moveTarget;
     private float currentSpeed = 0;
@@ -39,25 +43,29 @@ public class AssassinController : EnemyBase, IFading
     private static readonly Vector3 BOW_LEFT = new Vector3(-0.77f, 2.5f, 0);
 
     private State currentState;
+    private Coroutine sneakProcess;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         body = GetComponent<Rigidbody2D>();
+        boundsBottomLeft = smokeFX1.transform.position;
+        boundsTopRight = smokeFX2.transform.position;
     }
 
     public void testPrint()
     {
-        StartCoroutine(shootBow());
+        StartCoroutine(approach());
     }
 
     // ----------- DIRECTIONS -----------
-    
+
     private Vector2 position2d()
     {
         return new Vector2(transform.position.x, transform.position.y);
     }
+
     // for movement
     private Vector2 getDiffToPlayer()
     {
@@ -83,7 +91,7 @@ public class AssassinController : EnemyBase, IFading
 
     private Vector2 perpendicular(Vector2 heading)
     {
-        return new Vector2(heading.y, - heading.x);
+        return new Vector2(heading.y, -heading.x);
     }
 
     private Direction getCardinalDirection(Vector2 heading)
@@ -94,14 +102,19 @@ public class AssassinController : EnemyBase, IFading
             return heading.y > 0 ? Direction.Up : Direction.Down;
     }
 
-    private Vector2? getSidestepPosition()
+    private Vector2? getSidestepPosition(Vector2 position, Vector2 normalisedHeading)
     {
-        // coinflip
-        // check it
-        // return or
-        // do the other one
-        // check it
-        // return or
+        bool dir = flipACoin();
+        Vector2 movement = perpendicular(normalisedHeading);
+        
+        // try first direction
+        Vector2 moveTarget = dir ? position + movement : position - movement;
+        if (checkPositionBounds(moveTarget)) return moveTarget;
+
+        // try second direction
+        moveTarget = dir ? position - movement : position + movement;
+        if (checkPositionBounds(moveTarget)) return moveTarget;
+
         return null;
     }
 
@@ -138,7 +151,7 @@ public class AssassinController : EnemyBase, IFading
     private void FixedUpdate()
     {
         if (currentSpeed == 0) return;
-
+        
         body.MovePosition(Vector2.MoveTowards(body.position, moveTarget, Time.deltaTime * currentSpeed));
         rotateToPlayer();
     }
@@ -147,34 +160,55 @@ public class AssassinController : EnemyBase, IFading
     {
         if (currentState == State.Shooting)
         {
+            // turns the bow which is being controlled by animator
             bow.transform.right = mainChar.transform.position - bow.transform.position;
             return;
         }
     }
 
-    private void moveForward()
+    private float moveSideways(Vector2? reuseVector)
     {
-        if (Input.GetMouseButton(0))
+        Vector2 primaryMovement = reuseVector.HasValue ?
+            reuseVector.Value :
+            normaliseVector(getDiffToPlayerOffset());
+
+        Vector2? sideMoveTarget = getSidestepPosition(position2d(), primaryMovement);
+        if (sideMoveTarget.HasValue)
         {
-            // get side position
+            moveTarget = sideMoveTarget.Value;
+            return Vector2.Distance(position2d(), sideMoveTarget.Value) / currentSpeed;
         }
+
+        StartCoroutine(blink(fallbackPosition()));
+        return 0.2f;
     }
 
-    private void stayStill()
+    private float kingMove(bool backward)
     {
-        if (Input.GetMouseButton(0))
+        Vector2 primaryMovement = normaliseVector(getDiffToPlayerOffset());
+        if (backward) primaryMovement *= -1;
+        Vector2 primaryMoveTarget = position2d() + primaryMovement;
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
         {
-            // get side position
+            // get side position if player is attacking
+            Vector2? sideMoveTarget = getSidestepPosition(primaryMoveTarget, primaryMovement);
+            if (sideMoveTarget.HasValue)
+            {
+                moveTarget = sideMoveTarget.Value;
+                return Vector2.Distance(position2d(), sideMoveTarget.Value) / currentSpeed;
+            }
         }
-    }
-    private void moveBack()
-    {
-        // todo
-    }
-
-    private Vector2 calculatePrimaryDirection()
-    {
-        return Vector2.one; // TODO
+        else
+        {
+            // otherwise move forward/backward
+            if (checkPositionBounds(primaryMoveTarget))
+            {
+                moveTarget = primaryMoveTarget;
+                return primaryMovement.magnitude / currentSpeed;
+            }
+        }
+        // if not viable, move simply sideways (handles fallback)
+        return moveSideways(primaryMovement);
     }
 
     private void setTargetToPlayer()
@@ -185,15 +219,16 @@ public class AssassinController : EnemyBase, IFading
 
     private void rotateToPlayer()
     {
-        if ( mainChar.transform.position.x > transform.position.x)
+        if (mainChar.transform.position.x > transform.position.x)
         {
-            if ( spriteRenderer.flipX )
+            if (spriteRenderer.flipX)
             {
                 spriteRenderer.flipX = false;
                 daggerRight.SetActive(true);
                 daggerLeft.SetActive(false);
             }
-        } else if ( !spriteRenderer.flipX )
+        }
+        else if (!spriteRenderer.flipX)
         {
             spriteRenderer.flipX = true;
             daggerRight.SetActive(false);
@@ -210,31 +245,43 @@ public class AssassinController : EnemyBase, IFading
         return true;
     }
 
+    private Vector2 fallbackPosition()
+    {
+        return transform.parent.position;
+    }
+
     // ----------- STATES -----------
     private void switchState(State state)
     {
         if (state == currentState) return;
         currentState = state;
 
-        switch(state)
+        switch (state)
         {
             case State.Still:
                 currentSpeed = 0;
                 animator.SetTrigger(Trigger.IDLE);
                 break;
+
             case State.Shooting:
                 currentSpeed = 0;
                 animator.SetTrigger(Trigger.IDLE);
                 break;
+
             case State.Sneaking:
                 currentSpeed = SPEED_SNEAK;
                 break;
+
             case State.Approaching:
                 currentSpeed = SPEED_WALK;
+                animator.SetTrigger(Trigger.WALK);
                 break;
+
             case State.Retreating:
                 currentSpeed = SPEED_WALK;
+                animator.SetTrigger(Trigger.WALK);
                 break;
+
             case State.Charging:
                 currentSpeed = SPEED_RUN;
                 animator.SetTrigger(Trigger.RUN);
@@ -242,6 +289,8 @@ public class AssassinController : EnemyBase, IFading
 
             case State.Death:
                 currentSpeed = 0;
+                StopAllCoroutines();
+                GetComponent<CapsuleCollider2D>().enabled = false;
                 animator.SetTrigger(Trigger.DIE);
                 break;
         }
@@ -249,14 +298,13 @@ public class AssassinController : EnemyBase, IFading
 
     public void afterFadeIn()
     {
-        //StartCoroutine(sneakAttack());
-        // todo temporary for dev
-        switchState(State.Still);
+        GetComponent<CapsuleCollider2D>().enabled = true;
+        sneakProcess = StartCoroutine(sneakAttack());
     }
 
     public void afterFadeOut()
     {
-        throw new System.NotImplementedException();
+        fight.registerTakedown();
     }
 
     private enum State
@@ -273,7 +321,30 @@ public class AssassinController : EnemyBase, IFading
 
     // ----------- COMBAT -----------
 
-    private IEnumerator chargeAttackProcess()
+    private IEnumerator blink(Vector2 blinkTarget)
+    {
+        // setup positions and start animations
+        Vector2 blinkStart = position2d();
+        blinkStart.y += (OFFSET + 0.5f);
+        smokeFX1.transform.position = blinkStart;
+        smokeFX1.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 360));
+        Vector2 smokeBlinkTarget = blinkTarget;
+        smokeBlinkTarget.y += (OFFSET + 0.5f);
+        smokeFX2.transform.position = smokeBlinkTarget;
+        smokeFX2.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 360));
+        switchState(State.Still);
+        smokeFX1.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+        smokeFX2.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+
+        // move after a small delay
+        yield return new WaitForSeconds(0.1f);
+        transform.position = blinkTarget;
+        yield return null;
+        rotateToPlayer();
+        yield break;
+    }
+
+    private IEnumerator specialAttack()
     {
         setTargetToPlayer();
         switchState(State.Charging);
@@ -285,17 +356,33 @@ public class AssassinController : EnemyBase, IFading
             setTargetToPlayer();
         }
 
-        // blink behind player
-        currentSpeed = 0;
-        Vector2 blinkTarget = getDiffToPlayerOffset() * 2 + position2d();
-        blinkTarget.y -= OFFSET;
-        body.MovePosition(blinkTarget);
-        yield return null;
-        currentSpeed = SPEED_RUN;
+        // see if blink strike can be performed
+        Vector2 heading = getDiffToPlayerOffset();
+
+        Vector2 forwardTarget = heading * 2 + position2d();
+        if (checkPositionBounds(forwardTarget))
+        {
+            StartCoroutine(blinkStrike(forwardTarget));
+            yield break;
+        }
+
+        // blink back or to fallback and shoot
+        Vector2 backTarget = position2d() - heading;
+        if (checkPositionBounds(backTarget)) yield return blink(backTarget);
+        else yield return blink(fallbackPosition());
+        StartCoroutine(shootBow());
+        yield break;
+    }
+
+    private IEnumerator blinkStrike(Vector2 blinkTarget)
+    {
+        yield return blink(blinkTarget);
 
         // continue running at the existing target
+        switchState(State.Charging);
         yield return new WaitForSeconds(Vector2.Distance(position2d(), moveTarget) / currentSpeed * 0.8f);
-        StartCoroutine(stabAtPlayer());
+        yield return stabAtPlayer();
+        StartCoroutine(retreatThenApproach());
         yield break;
     }
 
@@ -303,21 +390,22 @@ public class AssassinController : EnemyBase, IFading
     {
         animator.SetLayerWeight(1, 1);
         Direction dir = getCardinalDirection(getDiffToPlayerOffset());
-        switch(dir)
+        switch (dir)
         {
             case Direction.Up:
                 animator.SetTrigger("stabUp");
                 break;
+
             case Direction.Down:
                 animator.SetTrigger("stabDown");
                 break;
+
             default:
                 animator.SetTrigger("stabSide");
                 break;
         }
         yield return new WaitForSeconds(0.6f);
-        animator.SetLayerWeight(1, 0); // TODO retreat
-        switchState(State.Still);
+        animator.SetLayerWeight(1, 0);
         yield break;
     }
 
@@ -331,7 +419,7 @@ public class AssassinController : EnemyBase, IFading
         // hide daggers
         if (spriteRenderer.flipX) daggerLeft.SetActive(false);
         else daggerRight.SetActive(false);
-        
+
         // draw bow
         bow.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
         yield return new WaitForSeconds(0.5f);
@@ -344,7 +432,7 @@ public class AssassinController : EnemyBase, IFading
         // show daggers
         if (spriteRenderer.flipX) daggerLeft.SetActive(true);
         else daggerRight.SetActive(true);
-        // TODO
+        StartCoroutine(approachThenRetreat());
         yield break;
     }
 
@@ -359,7 +447,64 @@ public class AssassinController : EnemyBase, IFading
             setTargetToPlayer();
         }
         switchState(State.Still);
-        StartCoroutine(stabAtPlayer());
+        yield return stabAtPlayer();
+        StartCoroutine(retreatThenApproach());
+        yield break;
+    }
+
+    private IEnumerator retreat()
+    {
+        float timer = 0;
+        while (timer < 9)
+        {
+            switchState(State.Retreating); // must be called every time in case of fallback blink
+            float moveTime = (Random.Range(0, 5) > 0) ? kingMove(true) : moveSideways(null);
+            timer += moveTime;
+            yield return new WaitForSeconds(moveTime);
+        }
+        yield break;
+    }
+    private IEnumerator approach()
+    {
+        Coroutine aggression = StartCoroutine(aggressiveRoutine());
+        float timer = 0;
+        while (timer < 9)
+        {
+            switchState(State.Approaching); // must be called every time in case of fallback blink
+            float moveTime = (Random.Range(0, 5) > 0) ? kingMove(false) : moveSideways(null);
+            timer += moveTime;
+            yield return new WaitForSeconds(moveTime);
+        }
+        StopCoroutine(aggression);
+        yield break;
+    }
+
+    private IEnumerator aggressiveRoutine()
+    {
+        while (true)
+        {
+            if (isInAttackDistance(getCardinalDirection(getDiffToPlayerOffset())))
+            {
+                StartCoroutine(stabAtPlayer());
+                yield return new WaitForSeconds(1);
+            }
+            else yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+    private IEnumerator retreatThenApproach()
+    {
+        yield return retreat();
+        yield return approach();
+        StartCoroutine(specialAttack());
+        yield break;
+    }
+
+    private IEnumerator approachThenRetreat()
+    {
+        yield return approach();
+        yield return retreat();
+        StartCoroutine(specialAttack());
         yield break;
     }
 
@@ -368,7 +513,21 @@ public class AssassinController : EnemyBase, IFading
         if (type == DamageType.RMB && flipACoin()) return;
         health -= amount;
         if (health < 0) health = 0;
-        // todo healthbar and death
+        healthBar.updateValue(MAX_HEALTH, health);
+        if (currentState == State.Sneaking)
+        {
+            if (sneakProcess != null) StopCoroutine(sneakProcess);
+            StartCoroutine(shootBow());
+        }
+        else if (health == 0) switchState(State.Death);
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag(Tag.ATTACK_LMB))
+        {
+            LMBAttack projectile = collision.GetComponent<LMBAttack>();
+            damage(projectile.Hit(true), DamageType.LMB);
+        }
     }
 
     public override void heal(byte amount)
