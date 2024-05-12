@@ -22,8 +22,8 @@ public class SkellyController : EnemyBase, IFading
     private bool noIdlingOnTarget = true;
 
     private static readonly float DISTANCE_TOLERANCE = 0.2f * 0.2f;
+    protected byte currentSpeed = 0;
     private float lastDistance = 10000f;
-    private byte currentSpeed = 0;
     private byte distanceCountdown = 10;
 
     private static readonly byte SPEED_FAST = 10;
@@ -42,7 +42,6 @@ public class SkellyController : EnemyBase, IFading
     // ---------------- LIFECYCLE ----------------
     private void Awake()
     {
-        //healthBar = GetComponentInChildren<SliderController>(); // TODO remove if this works
         body = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
@@ -125,7 +124,7 @@ public class SkellyController : EnemyBase, IFading
     }
 
     // ---------------- MOVEMENT ----------------
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (!inMovingState())
         {
@@ -220,6 +219,7 @@ public class SkellyController : EnemyBase, IFading
 
             case EnemyState.Idle:
                 currentSpeed = 0;
+                animator.SetTrigger(Trigger.IDLE);
                 break;
 
             case EnemyState.Walking:
@@ -255,12 +255,12 @@ public class SkellyController : EnemyBase, IFading
         }
     }
 
-    private bool inMovingState()
+    protected bool inMovingState()
     {
         return (state == EnemyState.Walking || state == EnemyState.Following || state == EnemyState.InertiaRun);
     }
 
-    private bool inLivingState()
+    protected bool inLivingState()
     {
         if (state == EnemyState.Spawning || state == EnemyState.Dying || state == EnemyState.Dead) return false;
         return true;
@@ -353,7 +353,7 @@ public class SkellyController : EnemyBase, IFading
         else
         {
             Health = 0;
-            if (type == DamageType.LMB || type == DamageType.RMB) mainChar.offerLife();
+            if (type == DamageType.LMB || type == DamageType.RMB && mainChar != null) mainChar.offerLife();
             die(type);
         }
         healthBar.updateValue(maxHealth, Health);

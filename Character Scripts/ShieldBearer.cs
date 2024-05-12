@@ -3,12 +3,12 @@ using static GameValues;
 
 public class ShieldBearer : SkellyController
 {
-    [SerializeField] private PolygonCollider2D shieldCollider;
-    [SerializeField] private Rigidbody2D shieldBody;
-    [SerializeField] private Transform shieldTransform;
+    [SerializeField] protected PolygonCollider2D shieldCollider;
+    [SerializeField] protected Rigidbody2D shieldBody;
+    [SerializeField] protected Transform shieldTransform;
 
-    private static readonly Vector3 SCALE_RIGHT = new Vector3(0.1f, 0.1f, 0.1f);
-    private static readonly Vector3 SCALE_LEFT = new Vector3(-0.1f, 0.1f, 0.1f);
+    protected static readonly Vector3 SCALE_RIGHT = new Vector3(0.1f, 0.1f, 0.1f);
+    protected static readonly Vector3 SCALE_LEFT = new Vector3(-0.1f, 0.1f, 0.1f);
 
     public override void afterFadeIn()
     {

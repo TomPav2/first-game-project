@@ -28,6 +28,8 @@ public class MainCharController : MonoBehaviour
     private float speedY = 0;
     private float speedUpgrade = 1;
 
+    private bool hitRecentlyBySpike = false;
+
     private void Awake()
     {
         activeSpriteRight = spriteRight;
@@ -102,11 +104,19 @@ public class MainCharController : MonoBehaviour
         activeSpriteRight = spriteRightBonus;
         activeSpriteLeft = spriteLeftBonus;
         sprite.sprite = dirRight ? activeSpriteRight : activeSpriteLeft;
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
 
         activeSpriteRight = spriteRight;
         activeSpriteLeft = spriteLeft;
         sprite.sprite = dirRight ? activeSpriteRight : activeSpriteLeft;
+        yield break;
+    }
+
+    private IEnumerator spikeDamageCooldown()
+    {
+        hitRecentlyBySpike = true;
+        yield return new WaitForSeconds(2);
+        hitRecentlyBySpike = false;
         yield break;
     }
 
@@ -122,9 +132,18 @@ public class MainCharController : MonoBehaviour
         {
             tutorial.nextStep();
         }
-        else if (collision.CompareTag(Tag.PENTAGRAM)){
+        else if (collision.CompareTag(Tag.PENTAGRAM))
+        {
             levelManager.enteredPentagram();
-        }        
+        }
+        else if (collision.CompareTag(Tag.SPIKES))
+        {
+            if (!hitRecentlyBySpike)
+            {
+                characterSheet.damage(1);
+                StartCoroutine(spikeDamageCooldown());
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

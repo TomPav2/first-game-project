@@ -16,6 +16,8 @@ public static class GameValues
         public static readonly String PENTAGRAM = "Pentagram";
         public static readonly String BARRIER = "Barrier";
         public static readonly String SHIELD = "Shield";
+        public static readonly String SPIKES = "Spikes";
+        public static readonly String ARROW = "Arrow";
     }
 
     public static class Difficulty
@@ -69,8 +71,7 @@ public enum EnemyState
         RMB,
         Raven,
         Crow,
-        Contact,
-        Spikes
+        Contact
     }
 
     public enum CauseOfLoss
