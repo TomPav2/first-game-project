@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
-using static ScenePersistence;
 
 public class BossEnemyController : EnemyBase
 {
