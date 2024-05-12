@@ -6,7 +6,7 @@ using static ScenePersistence;
 public class BossEnemyController : EnemyBase
 {
     // pointers
-    [SerializeField] private BattleArenaController arena;
+    [SerializeField] private ArenaController arena;
     [SerializeField] private SliderController healthBar;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private Spell primarySpell;

@@ -4,7 +4,7 @@ using static ScenePersistence;
 
 public abstract class FightController : MonoBehaviour
 {
-    [SerializeField] private BattleArenaController arenaController;
+    [SerializeField] private ArenaController arenaController;
     protected TextHudController textHud;
     protected byte enemiesToKill;
 

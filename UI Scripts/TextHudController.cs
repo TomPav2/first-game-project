@@ -127,7 +127,7 @@ public class TextHudController : MonoBehaviour
                 break;
             case CauseOfLoss.Overrun:
                 title = "Too many enemies";
-                subtitle = "They piled up and destroyed your art";
+                subtitle = "They piled up and destroyed your art supplies";
                 break;
         }
 

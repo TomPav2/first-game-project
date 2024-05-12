@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
 
-public class BattleArenaController : MonoBehaviour
+public class BattleArenaController : ArenaController
 {
     [SerializeField] private GameObject waypointContainer;
     [SerializeField] private Level2Manager levelManager;
     [SerializeField] private MainCharacterSheet mainCharacterSheet;
     [SerializeField] private GameObject barrier;
     [SerializeField] private GameObject gate;
-    [SerializeField] private TextHudController hudController;
     [SerializeField] private FightController fight1;
     [SerializeField] private FightController fight2;
     [SerializeField] private FightController fight3;
@@ -29,11 +28,8 @@ public class BattleArenaController : MonoBehaviour
         fights = new List<FightController> { fight1, fight2, fight3 };
     }
 
-    public bool hasWaypoints { get; protected set; }
 
-    public TextHudController getHudController() { return hudController; }
-
-    public void nextFight()
+    public override void nextFight()
     {
         if (fightIndex == fights.Count)
         {
@@ -47,7 +43,7 @@ public class BattleArenaController : MonoBehaviour
         }
     }
     
-    public Vector2 getWaypoint(Vector2 from)
+    public override Vector2 getWaypoint(Vector2 from)
     {
         Vector2 selectedWaypoint = waypoints[Random.Range(0, waypoints.Count)];
         while (Vector2.Distance(selectedWaypoint, mainCharacterSheet.transform.position) < 10

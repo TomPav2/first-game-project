@@ -69,7 +69,8 @@ public enum EnemyState
         RMB,
         Raven,
         Crow,
-        Contact
+        Contact,
+        Spikes
     }
 
     public enum CauseOfLoss
