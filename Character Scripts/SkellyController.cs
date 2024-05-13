@@ -368,7 +368,9 @@ public class SkellyController : EnemyBase, IFading
 
     public override void heal(byte amount)
     {
-        // not applicable
+        Health += amount;
+        if (Health > maxHealth) Health = maxHealth;
+        healthBar.updateValue(maxHealth, Health);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

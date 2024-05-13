@@ -7,6 +7,7 @@ public class SpellCurse : Spell
     {
         channeled = true;
         manacost = 3;
+        invertControls = true;
     }
 
     public override byte channel()

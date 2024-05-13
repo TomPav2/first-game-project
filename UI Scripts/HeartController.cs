@@ -60,6 +60,7 @@ public class HeartController : MonoBehaviour
         {
             newHp = fillHeart(i, newHp);
         }
+        oldHp = newHp;
     }
 
     private byte fillHeart(int index, byte amount)

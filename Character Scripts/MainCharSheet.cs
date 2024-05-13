@@ -34,7 +34,6 @@ public class MainCharacterSheet : MonoBehaviour
     private Bonus.Speed activeSpeed;
     private readonly List<int> emptyUpgrades = new List<int> { 0, 1, 2 };
 
-
     private LevelManager levelManager;
 
     private void Start()
@@ -113,9 +112,10 @@ public class MainCharacterSheet : MonoBehaviour
         if (levelDifficulty == LevelDifficulty.Easy) easel.stopPainting();
         if (health <= amount)
         {
+            health = 0;
+            healthBar.displayHp(health);
             explosion.explode();
             levelManager.playerDied();
-            health = 0;
         }
         else
         {
