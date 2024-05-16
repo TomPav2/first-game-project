@@ -55,12 +55,12 @@ public class HeartController : MonoBehaviour
             if (healRoutine != null) StopCoroutine(healRoutine);
             healRoutine = StartCoroutine(healFlash());
         }
+        oldHp = newHp;
 
         for (int i = 0; i < health.Length; i++)
         {
             newHp = fillHeart(i, newHp);
         }
-        oldHp = newHp;
     }
 
     private byte fillHeart(int index, byte amount)

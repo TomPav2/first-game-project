@@ -121,8 +121,8 @@ public class MainCharacterSheet : MonoBehaviour
         {
             health -= amount;
             if (activeHealth == Bonus.Health.Maxhealth) laserAttack.addCharge(100);
+            healthBar.displayHp(health);
         }
-        healthBar.displayHp(health);
     }
 
     public void rechargeLaser()

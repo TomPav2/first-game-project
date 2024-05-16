@@ -6,6 +6,7 @@ public class BossExplosionController : MonoBehaviour
 {
     [SerializeField] private GameObject worldHoles;
     [SerializeField] private GameObject worldHoleTargets;
+    [SerializeField] private GameObject entranceBlock;
     [SerializeField] private MainCharacterSheet mainChar;
     private Animator animator;
 
@@ -21,6 +22,10 @@ public class BossExplosionController : MonoBehaviour
     {
         transform.position = worldHoleTargets.transform.GetChild(index).position;
         animator.SetTrigger(Trigger.ANIMATION_START);
+        if (index == 0)
+        {
+            entranceBlock.SetActive(true);
+        }
     }
 
     public void startExtraExplosions()

@@ -29,6 +29,7 @@ public class MainCharController : MonoBehaviour
     private float speedUpgrade = 1;
 
     private bool hitRecentlyBySpike = false;
+    private bool hitRecentlyByArrow = false;
 
     private void Awake()
     {
@@ -119,6 +120,13 @@ public class MainCharController : MonoBehaviour
         hitRecentlyBySpike = false;
         yield break;
     }
+    private IEnumerator arrowDamageCooldown()
+    {
+        hitRecentlyByArrow = true;
+        yield return new WaitForSeconds(2);
+        hitRecentlyByArrow = false;
+        yield break;
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -142,6 +150,14 @@ public class MainCharController : MonoBehaviour
             {
                 characterSheet.damage(1);
                 StartCoroutine(spikeDamageCooldown());
+            }
+        }
+        else if (collision.CompareTag(Tag.ARROW))
+        {
+            if (!hitRecentlyByArrow)
+            {
+                characterSheet.damage(1);
+                StartCoroutine(arrowDamageCooldown());
             }
         }
     }

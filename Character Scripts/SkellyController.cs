@@ -76,7 +76,6 @@ public class SkellyController : EnemyBase, IFading
     {
         GetComponent<CapsuleCollider2D>().enabled = true;
         body.simulated = true;
-        switchState(EnemyState.Idle);
         StartCoroutine(navigator());
     }
 
@@ -296,6 +295,11 @@ public class SkellyController : EnemyBase, IFading
 
                 case EnemyState.InertiaStand:
                     updateTarget();
+                    yield return new WaitForSeconds(0.1f);
+                    break;
+
+                case EnemyState.Spawning:
+                    switchState(EnemyState.Idle);
                     yield return new WaitForSeconds(0.1f);
                     break;
 
