@@ -4,8 +4,11 @@ using static GameValues;
 
 public class SpellGreenDeath : Spell
 {
-    [SerializeField] private Transform targetter;
+    [SerializeField] private Transform targetterCentre;
+    [SerializeField] private Transform targetterLeft;
+    [SerializeField] private Transform targetterRight;
     [SerializeField] private MainCharacterSheet mainChar;
+    [SerializeField] private BossFightController bossfight;
     
     private SpriteRenderer spriteRenderer;
     private Animator animator;
@@ -15,6 +18,10 @@ public class SpellGreenDeath : Spell
     private static readonly Vector2 START_OFFSET = new Vector2(-1.5f, 1.5f);
 
     private bool active = false;
+    private Transform targetter;
+    private bool movementType;
+    // true - targetterCentre, move only X axis
+    // faslse - left and right, movy onyly Y axis
 
     private void Awake()
     {
@@ -30,12 +37,19 @@ public class SpellGreenDeath : Spell
     {
         if (!active) return;
 
-        targetter.position = new Vector3(mainChar.transform.position.x, targetter.position.y, 0);
+        updateTargetter(targetter, movementType);
         transform.position = Vector2.MoveTowards(transform.position, targetter.position, Time.deltaTime * SPEED);
     }
 
     public override void cast(Vector2 startPos)
     {
+        // select target
+        updateTargetter(targetterCentre, true);
+        updateTargetter(targetterLeft, false);
+        updateTargetter(targetterRight, false);
+        setUpTarget();
+
+        // set spell in motion
         transform.position = startPos + START_OFFSET;
         spriteRenderer.enabled = true;
         animator.enabled = true;
@@ -51,11 +65,46 @@ public class SpellGreenDeath : Spell
         active = false;
     }
 
+    private void updateTargetter(Transform target, bool horizontal)
+    {
+        target.position = horizontal
+            ? new Vector3(mainChar.transform.position.x, target.position.y, 0)
+            : new Vector3(target.position.x, mainChar.transform.position.y, 0);
+    }
+
+    private void setUpTarget()
+    {
+        targetter = targetterCentre;
+        movementType = true;
+        if (mainChar.transform.position.y < 200) return;
+        
+        float nearest = Vector3.Distance(targetter.position, mainChar.transform.position);
+        float next = Vector3.Distance(targetterLeft.position, mainChar.transform.position);
+        if (next < nearest)
+        {
+            nearest = next;
+            targetter = targetterLeft;
+            movementType = false;
+        }
+
+        next = Vector3.Distance(targetterRight.position, mainChar.transform.position);
+        if (next < nearest)
+        {
+            nearest = next;
+            targetter = targetterRight;
+            movementType = false;
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag(Tag.PLAYER))
         {
             mainChar.damage(1);
+        }
+        else if (collision.CompareTag(Tag.BONUS))
+        {
+            bossfight.hitIntroBox();
         }
         hide();
     }

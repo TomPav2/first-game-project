@@ -352,15 +352,14 @@ public class SkellyController : EnemyBase, IFading
     // ---------------- COMBAT ----------------
     public override void damage(byte amount, DamageType type)
     {
-        if (amount == 0) return;
-        if (amount < Health) Health -= amount;
-        else
+        if (amount > Health) Health = 0;
+        else Health -= amount;
+        healthBar.updateValue(maxHealth, Health);
+        if (Health == 0)
         {
-            Health = 0;
             if (type == DamageType.LMB || type == DamageType.RMB && mainChar != null) mainChar.offerLife();
             die(type);
         }
-        healthBar.updateValue(maxHealth, Health);
     }
 
     public int damageMax(DamageType type)
@@ -382,6 +381,8 @@ public class SkellyController : EnemyBase, IFading
         if (collision.gameObject.tag == Tag.PLAYER)
         {
             mainChar.damage(1);
+            Health = 0;
+            healthBar.updateValue(maxHealth, Health);
             die(DamageType.Contact);
         }
     }

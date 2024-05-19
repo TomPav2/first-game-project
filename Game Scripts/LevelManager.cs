@@ -49,7 +49,7 @@ public abstract class LevelManager : MonoBehaviour
         return foundTarget;
     }
 
-    public bool charLoS(Vector2 from)
+    public virtual bool charLoS(Vector2 from)
     {
         Vector2 charPos = mainCharTransform.position;
         Vector2 direction = charPos - from;

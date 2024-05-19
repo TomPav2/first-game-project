@@ -56,7 +56,7 @@ public class Fight3Controller : FightController
         enemy2.showOffEffect();
         yield return new WaitForSeconds(1);
 
-        // second enemy
+        // third enemy
         cameraTarget.transform.position = enemy3.transform.position + CAMERA_OFFSET;
         textHud.popUp("Zhon the Colourblind", "Summoner", null, 0.2f);
         enemy3.gameObject.SetActive(true);

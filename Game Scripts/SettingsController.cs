@@ -6,7 +6,7 @@ public class SettingsController : MonoBehaviour
 {
     [SerializeField] private Toggle checkboxFullscreen;
     [SerializeField] private Toggle checkboxFont;
-    [SerializeField] private TutorialController tutorial;
+    [SerializeField] private UniversalManager manager;
 
 
     private void Awake()
@@ -23,6 +23,6 @@ public class SettingsController : MonoBehaviour
     public void toggleFont()
     {
         Settings.altFont = !Settings.altFont;
-        if (tutorial != null) tutorial.updateFont();
+        if (manager != null) manager.updateFont();
     }
 }

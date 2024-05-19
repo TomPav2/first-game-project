@@ -22,10 +22,6 @@ public class BossExplosionController : MonoBehaviour
     {
         transform.position = worldHoleTargets.transform.GetChild(index).position;
         animator.SetTrigger(Trigger.ANIMATION_START);
-        if (index == 0)
-        {
-            entranceBlock.SetActive(true);
-        }
     }
 
     public void startExtraExplosions()
@@ -33,10 +29,19 @@ public class BossExplosionController : MonoBehaviour
         StartCoroutine(explosionProcess());
     }
 
+    public void bossDied()
+    {
+        bossAlive = false;
+    }
+
     // called by animation
     private void explosionApex()
     {
         worldHoles.transform.GetChild(index).gameObject.SetActive(true);
+        if (index == 0)
+        {
+            entranceBlock.SetActive(true);
+        }
         index++;
     }
 

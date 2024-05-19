@@ -107,12 +107,17 @@ public class TextHudController : MonoBehaviour
 
     public void wonGameMenu(string result)
     {
-        showEndMenu("You won", "", result);
+        showEndMenu("You won!", "The skeleton threat is no more", result);
     }
 
     public void stopQueuedText()
     {
         StopAllCoroutines();
+    }
+
+    public void lostGameMenu()
+    {
+        showEndMenu("You died", "", "");
     }
 
     public void lostGameMenu(CauseOfLoss cause, int score)

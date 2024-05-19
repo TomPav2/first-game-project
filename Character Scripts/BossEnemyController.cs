@@ -11,6 +11,7 @@ public class BossEnemyController : EnemyBase
     [SerializeField] private Spell primarySpell;
     [SerializeField] private Spell secondarySpell;
     [SerializeField] private GameObject introEffect;
+    [SerializeField] private FightController fightController;
 
     private Animator animator;
     private Rigidbody2D body;
@@ -27,6 +28,7 @@ public class BossEnemyController : EnemyBase
     private static readonly Vector3 RIGHT = new Vector3(1, 1, 1);
 
     private State state = State.Waiting;
+    private bool begunFight = false;
 
     private void Awake()
     {
@@ -81,6 +83,8 @@ public class BossEnemyController : EnemyBase
 
     public void beginFight()
     {
+        if (begunFight) return;
+        begunFight = true;
         if (introEffect != null) Destroy(introEffect);
         StartCoroutine(castingRoutine());
         if (arena.hasWaypoints) StartCoroutine(movementRoutine());
@@ -103,7 +107,9 @@ public class BossEnemyController : EnemyBase
     // called by animation
     private void deathAnimationFinished()
     {
-        GetComponentInParent<FightController>().registerTakedown();
+        FightController controller = fightController;
+        if (controller == null) controller = GetComponentInParent<FightController>();
+        controller.registerTakedown();
         Destroy(gameObject);
     }
 

@@ -7,7 +7,7 @@ public class SpellProjectileHeal : Spell
     [SerializeField] private GameObject bossTarget;
     [SerializeField] private LayerMask collideLayers;
 
-    private static readonly float SPEED = 12;
+    private static readonly float SPEED = 16;
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private PolygonCollider2D polygonCollider;
@@ -18,7 +18,7 @@ public class SpellProjectileHeal : Spell
 
     private void Awake()
     {
-        manacost = 70;
+        manacost = 50;
         channeled = false;
 
         spriteRenderer = GetComponent<SpriteRenderer>();

@@ -1,8 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static ScenePersistence;
 using static GameValues;
+using System.Collections;
 
 public class Level2Manager : LevelManager
 {
@@ -12,6 +12,7 @@ public class Level2Manager : LevelManager
 
     private HashSet<GameObject> barriers = new HashSet<GameObject>();
     private bool playerHasHeart = false;
+    private float time = 0;
 
     private void Awake()
     {
@@ -23,6 +24,8 @@ public class Level2Manager : LevelManager
         {
             barriers.Add(barrier.gameObject);
         }
+
+        StartCoroutine(timerRoutine()); // TODO move this
     }
 
     public void givePlayerHeart(GameObject openBarrier)
@@ -64,7 +67,32 @@ public class Level2Manager : LevelManager
 
     public override void endScreen(CauseOfLoss cause)
     {
-        throw new System.NotImplementedException(); // display time
+        StopAllCoroutines();
+        hudController.lostGameMenu();
+    }
+
+    public void winScreen()
+    {
+        StopAllCoroutines();
+        int seconds = Mathf.RoundToInt(time);
+        int minutes = seconds / 60;
+        seconds %= 60;
+
+        hudController.wonGameMenu("Time: " + minutes + ":" + seconds);
+    }
+
+    private IEnumerator timerRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.1f);
+            time += 0.1f;
+        }
+    }
+
+    public override bool charLoS(Vector2 from)
+    {
+        return true;
     }
 
     public override (Vector2 pos, bool doNotWait) getWaypoint(Transform from, bool inCentralArea)

@@ -116,7 +116,7 @@ public class MainCharController : MonoBehaviour
     private IEnumerator spikeDamageCooldown()
     {
         hitRecentlyBySpike = true;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         hitRecentlyBySpike = false;
         yield break;
     }

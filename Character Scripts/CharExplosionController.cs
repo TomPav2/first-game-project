@@ -4,6 +4,8 @@ public class CharExplosionController : MonoBehaviour
 {
     [SerializeField] GameObject character;
 
+    private bool exploded = false;
+
     private void Awake()
     {
         hideExplosion();
@@ -11,6 +13,7 @@ public class CharExplosionController : MonoBehaviour
 
     public void explode()
     {
+        if (exploded) return; exploded = true;
         GetComponent<SpriteRenderer>().enabled = true;
         GetComponent<Animator>().enabled = true;
     }
