@@ -1,11 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
 
-public class ArrowPortalController : MonoBehaviour
+public class ArrowPortalController : ShooterController
 {
-    [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private MainCharController mainChar;
 
     private static readonly Vector3 MOVEMENT = new Vector3(6, 0, 0);
@@ -14,7 +12,6 @@ public class ArrowPortalController : MonoBehaviour
     private bool dirRight;
     private bool isMoving;
 
-    private readonly List<ArrowSimpleController> freeArrows = new List<ArrowSimpleController>();
     private Animator animator;
 
     private void Awake()
@@ -37,11 +34,6 @@ public class ArrowPortalController : MonoBehaviour
         StartCoroutine(shootingRoutine());
     }
 
-    public void reuseArrow(ArrowSimpleController arrow)
-    {
-        freeArrows.Add(arrow);
-    }
-
     private void setupMovement()
     {
         dirRight = mainChar.transform.position.x > startpos.x;
@@ -58,22 +50,6 @@ public class ArrowPortalController : MonoBehaviour
         // do nothing, called by animation
     }
 
-    private ArrowSimpleController getArrow()
-    {
-        if (freeArrows.Count > 0)
-        {
-            ArrowSimpleController arrow = freeArrows[freeArrows.Count - 1];
-            freeArrows.RemoveAt(freeArrows.Count - 1);
-            return arrow;
-        } else
-        {
-            GameObject newArrow = Instantiate(arrowPrefab);
-            ArrowSimpleController newController = newArrow.GetComponent<ArrowSimpleController>();
-            newController.portal = this;
-            return newController;
-        }
-    }
-
     private IEnumerator shootingRoutine()
     {
         byte count = 0;
@@ -81,7 +57,7 @@ public class ArrowPortalController : MonoBehaviour
         isMoving = true;
         while (count < 40)
         {
-            getArrow().shoot();
+            getProjectile().shootStraight(transform.position);
             count++;
             yield return new WaitForSeconds(0.1f);
         }

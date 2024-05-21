@@ -53,6 +53,7 @@ public class BossController : EnemyBase
     private void die()
     {
         explosions.bossDied();
+        gameObject.GetComponent<RapidBlastController>().bossDied();
         GetComponent<CapsuleCollider2D>().enabled = false;
         GetComponent<Animator>().SetTrigger(Trigger.DIE);
         fightController.registerTakedown();

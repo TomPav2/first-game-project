@@ -74,6 +74,8 @@ public class Level2Manager : LevelManager
     public void winScreen()
     {
         StopAllCoroutines();
+        lockControls = true;
+        isPaused = true;
         int seconds = Mathf.RoundToInt(time);
         int minutes = seconds / 60;
         seconds %= 60;

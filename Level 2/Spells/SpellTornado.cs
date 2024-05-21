@@ -12,7 +12,7 @@ public class SpellTornado : Spell
     private Animator animator;
     private PolygonCollider2D polygonCollider;
 
-    private static readonly float SPEED = 15;
+    private static readonly float SPEED = 25;
 
     private bool active = true;
     private bool direction = true;
@@ -45,11 +45,11 @@ public class SpellTornado : Spell
         Vector2 currentPos = transform.position;
         if (direction)
         {
-            target = navPoints[Random.Range(4, 8)].position;
+            target = navPoints[Random.Range(navPoints.Count/2, navPoints.Count)].position;
         }
         else
         {
-            target = navPoints[Random.Range(0, 4)].position;
+            target = navPoints[Random.Range(0, navPoints.Count/2)].position;
         }
         direction = !direction;
 

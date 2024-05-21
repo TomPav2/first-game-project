@@ -50,7 +50,7 @@ public class BossExplosionController : MonoBehaviour
         while (bossAlive && index < worldHoles.transform.childCount)
         {
             explode();
-            yield return new WaitForSeconds(30);
+            yield return new WaitForSeconds(15);
         }
         yield break;
     }

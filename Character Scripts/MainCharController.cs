@@ -30,6 +30,7 @@ public class MainCharController : MonoBehaviour
 
     private bool hitRecentlyBySpike = false;
     private bool hitRecentlyByArrow = false;
+    private bool hitRecentlyByBlast = false;
 
     private void Awake()
     {
@@ -123,8 +124,15 @@ public class MainCharController : MonoBehaviour
     private IEnumerator arrowDamageCooldown()
     {
         hitRecentlyByArrow = true;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1.5f);
         hitRecentlyByArrow = false;
+        yield break;
+    }
+    private IEnumerator blastDamageCooldown()
+    {
+        hitRecentlyByBlast= true;
+        yield return new WaitForSeconds(0.5f);
+        hitRecentlyByBlast = false;
         yield break;
     }
 
@@ -158,6 +166,14 @@ public class MainCharController : MonoBehaviour
             {
                 characterSheet.damage(1);
                 StartCoroutine(arrowDamageCooldown());
+            }
+        }
+        else if (collision.CompareTag(Tag.GREEN_BLAST))
+        {
+            if (!hitRecentlyByBlast)
+            {
+                characterSheet.damage(1);
+                StartCoroutine(blastDamageCooldown());
             }
         }
     }

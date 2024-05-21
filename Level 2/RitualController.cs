@@ -15,6 +15,7 @@ public class RitualController : MonoBehaviour
     [SerializeField] private WorldTransition transition;
     [SerializeField] private GameObject mainArea;
     [SerializeField] private GameObject bossArea;
+    [SerializeField] private GameObject bossFight;
 
     // UI controllers
     [SerializeField] private TextHudController hudController;
@@ -87,6 +88,7 @@ public class RitualController : MonoBehaviour
         GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_STOP);
         Destroy(mainArea);
         bossArea.SetActive(true);
+        bossFight.SetActive(true);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

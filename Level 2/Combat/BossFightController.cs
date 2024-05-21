@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static ScenePersistence;
+using static GameValues;
 
 public class BossFightController : FightController
 {
@@ -63,6 +64,7 @@ public class BossFightController : FightController
     {
         base.registerTakedown();
         if (enemiesToKill == 1) explosions.startExtraExplosions();
+        else if (enemiesToKill == 3) boss.GetComponent<RapidBlastController>().startShooting();
     }
 
     public void hitIntroBox()
@@ -72,6 +74,10 @@ public class BossFightController : FightController
             dialogBoxDamaged = true;
             textPanel.GetComponent<Image>().color = textBoxFaded;
             textField.color = textFontFaded;
+            textPanel.transform.eulerAngles = new Vector3(0, 0, flipACoin() ? 3 : -3);
+            Vector3 panelPos = textPanel.transform.position;
+            panelPos.y -= 1;
+            textPanel.transform.position = panelPos;
         } else
         {
             finishIntro();

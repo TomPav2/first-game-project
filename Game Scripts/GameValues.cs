@@ -18,6 +18,7 @@ public static class GameValues
         public static readonly String SHIELD = "Shield";
         public static readonly String SPIKES = "Spikes";
         public static readonly String ARROW = "Arrow";
+        public static readonly String GREEN_BLAST = "GreenBlast";
     }
 
     public static class Difficulty

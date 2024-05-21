@@ -1,8 +1,6 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class AssassinController : EnemyBase, IFading
 {

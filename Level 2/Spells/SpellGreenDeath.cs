@@ -38,13 +38,13 @@ public class SpellGreenDeath : Spell
         if (!active) return;
 
         updateTargetter(targetter, movementType);
-        transform.position = Vector2.MoveTowards(transform.position, targetter.position, Time.deltaTime * SPEED);
+        //transform.position = Vector2.MoveTowards(transform.position, targetter.position, Time.deltaTime * SPEED);
+        transform.position += curvedMove(transform.position, targetter.position);
     }
 
     public override void cast(Vector2 startPos)
     {
         // select target
-        updateTargetter(targetterCentre, true);
         updateTargetter(targetterLeft, false);
         updateTargetter(targetterRight, false);
         setUpTarget();
@@ -74,26 +74,28 @@ public class SpellGreenDeath : Spell
 
     private void setUpTarget()
     {
-        targetter = targetterCentre;
-        movementType = true;
-        if (mainChar.transform.position.y < 200) return;
+        if (mainChar.transform.position.y < 200 ||
+            (mainChar.transform.position.x > -15 &&
+            mainChar.transform.position.x < 21))
+        {
+            targetter = targetterCentre;
+            movementType = true;
+            return;
+        }
         
-        float nearest = Vector3.Distance(targetter.position, mainChar.transform.position);
-        float next = Vector3.Distance(targetterLeft.position, mainChar.transform.position);
-        if (next < nearest)
-        {
-            nearest = next;
-            targetter = targetterLeft;
-            movementType = false;
-        }
+        float left = Vector3.Distance(targetterLeft.position, mainChar.transform.position);
+        float right = Vector3.Distance(targetterRight.position, mainChar.transform.position);
+        movementType = false;
+        targetter = left < right ? targetterLeft : targetterRight;
+    }
 
-        next = Vector3.Distance(targetterRight.position, mainChar.transform.position);
-        if (next < nearest)
-        {
-            nearest = next;
-            targetter = targetterRight;
-            movementType = false;
-        }
+    private Vector3 curvedMove(Vector2 pos, Vector2 target)
+    {
+        Vector2 movement = target - pos;
+        movement = Time.deltaTime * SPEED * movement.normalized;
+        if (movementType) movement.x *= 3;
+        else movement.y *= 3;
+        return movement;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

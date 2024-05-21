@@ -18,6 +18,8 @@ public class DamageFX : MonoBehaviour
     void Start()
     {
         _fullScreenDamage.SetActive(false);
+        _intensity = 0;
+        _material.SetFloat(_flashIntensity, _intensity);
     }
 
     public void playDamageEffect(byte amount)
