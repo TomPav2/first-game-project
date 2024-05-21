@@ -71,16 +71,14 @@ public class UniversalManager : MonoBehaviour
 
     private void pause()
     {
-        isPaused = true;
-        Time.timeScale = 0;
+        pauseGame();
         hudController.pauseMenu(true);
     }
 
     public void resume()
     {
         hudController.pauseMenu(false);
-        Time.timeScale = 1;
-        isPaused = false;
+        unPauseGame();
     }
 
     public void restart()

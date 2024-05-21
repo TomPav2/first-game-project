@@ -75,7 +75,7 @@ public class Level2Manager : LevelManager
     {
         StopAllCoroutines();
         lockControls = true;
-        isPaused = true;
+        pauseGame();
         int seconds = Mathf.RoundToInt(time);
         int minutes = seconds / 60;
         seconds %= 60;

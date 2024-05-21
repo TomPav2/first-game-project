@@ -108,6 +108,7 @@ public class MainCharacterSheet : MonoBehaviour
 
     public void damage(byte amount)
     {
+        if (health == 0) return;
         damageFX.playDamageEffect(amount);
         if (levelDifficulty == LevelDifficulty.Easy) easel.stopPainting();
         if (health <= amount)

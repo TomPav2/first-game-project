@@ -27,6 +27,18 @@ public static class ScenePersistence
         None, Easy, Hard
     }
 
+    public static void pauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0;
+    }
+
+    public static void unPauseGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1;
+    }
+
     public static void load(Scene sceneName)
     {
         cullEnemies();

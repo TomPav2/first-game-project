@@ -1,7 +1,7 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static ScenePersistence;
 
 public class SliderController : MonoBehaviour
 {
@@ -69,7 +69,7 @@ public class SliderController : MonoBehaviour
     {
         while (alpha > 0)
         {
-            alpha -= FADE_AMOUNT;
+            if (!isPaused) alpha -= FADE_AMOUNT;
             if (alpha < 0) alpha = 0;
             updateVisibility();
             yield return null;
