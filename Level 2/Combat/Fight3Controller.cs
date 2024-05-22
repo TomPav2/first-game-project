@@ -9,6 +9,7 @@ public class Fight3Controller : FightController
     [SerializeField] private BossEnemyController enemy1;
     [SerializeField] private BossEnemyController enemy2;
     [SerializeField] private BossEnemyController enemy3;
+    [SerializeField] private SpellCurse curse;
 
     // camera work
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
@@ -52,7 +53,9 @@ public class Fight3Controller : FightController
         cameraTarget.transform.position = enemy2.transform.position + CAMERA_OFFSET;
         textHud.popUp("Korreg the Green", "Heals / Curses", null, 0.2f);
         enemy2.gameObject.SetActive(true);
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
+        curse.startCurse();
+        yield return new WaitForSeconds(1);
         enemy2.showOffEffect();
         yield return new WaitForSeconds(1);
 

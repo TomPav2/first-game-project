@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using static GameValues;
+using static VectorUtil;
 
 public class SpellFireball : Spell
 {
@@ -14,7 +15,7 @@ public class SpellFireball : Spell
     private static readonly byte DURATION = 4;
 
     private bool active = false;
-    private Vector3 targetPos;
+    private Vector3 movement;
     
     private void Awake()
     {
@@ -30,8 +31,7 @@ public class SpellFireball : Spell
     {
         if (!active) return;
 
-        targetPos = Vector2.MoveTowards(targetPos, transform.position, Time.deltaTime * -SPEED);
-        transform.position = Vector2.MoveTowards(transform.position, targetPos, Time.deltaTime * SPEED);
+        transform.position += movement * Time.deltaTime;
     }
 
     public override void cast(Vector2 startPos)
@@ -40,8 +40,8 @@ public class SpellFireball : Spell
 
         // set position and rotation
         transform.position = startPos;
-        targetPos = mainChar.transform.position;
-        transform.right = targetPos - transform.position;
+        movement = calculateDirection(startPos, mainChar.transform.position) * SPEED;
+        transform.right = movement;
 
         // enable sprite and collisions
         spriteRenderer.enabled = true;
