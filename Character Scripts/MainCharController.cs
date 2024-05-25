@@ -12,7 +12,6 @@ public class MainCharController : MonoBehaviour
     [SerializeField] private Sprite spriteLeft;
     [SerializeField] private Sprite spriteRightBonus;
     [SerializeField] private Sprite spriteLeftBonus;
-    [SerializeField] private GameObject healthBar;
     [SerializeField] private RMBAttack laserAttack;
     [SerializeField] private MainCharacterSheet characterSheet;
     [SerializeField] private TutorialController tutorial;
@@ -47,6 +46,17 @@ public class MainCharController : MonoBehaviour
             return;
         }
 
+        if (speedX > 0 || speedY > 0)
+        {
+            float moveX = ( (dirRight ? speedX : -speedX) * speed * speedUpgrade * Time.deltaTime ) + body.position.x;
+            float moveY = ( ( dirUp   ? speedY : -speedY) * speed * speedUpgrade * Time.deltaTime ) + body.position.y;
+            body.MovePosition(new Vector3(moveX, moveY, 0));
+        }
+    }
+
+    private void Update()
+    {
+        if (isPaused || lockControls) return;
         if (Input.GetKey(KeyCode.W) ^ Input.GetKey(KeyCode.S))
         {
             speedY = 1;
@@ -60,13 +70,6 @@ public class MainCharController : MonoBehaviour
             if (Input.GetKey(KeyCode.A) ^ invertControls) turnLeft(); else turnRight();
         }
         else if (speedX > 0) speedX -= 0.1f;
-
-        if (speedX > 0 || speedY > 0)
-        {
-            float moveX = ( (dirRight ? speedX : -speedX) * speed * speedUpgrade * Time.deltaTime ) + body.position.x;
-            float moveY = ( ( dirUp   ? speedY : -speedY) * speed * speedUpgrade * Time.deltaTime ) + body.position.y;
-            body.MovePosition(new Vector3(moveX, moveY, 0));
-        }
     }
 
     public void init(LevelManager manager)

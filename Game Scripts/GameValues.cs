@@ -45,6 +45,7 @@ public static class GameValues
         public static readonly String IDLE = "idle";
         public static readonly String DIE = "die";
         public static readonly String TURN_RIGHT = "turnRight";
+        public static readonly String DESTROY = "destroyAnim";
     }
 
     public static class Settings
