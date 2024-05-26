@@ -44,9 +44,16 @@ public class MenuController : MonoBehaviour
         Application.Quit();
     }
 
-    public void buttonEasy() {
+    public void buttonEasy()
+    {
         inTutorial = tutorial;
         levelDifficulty = LevelDifficulty.Easy;
+        StartCoroutine(fadeAndLoad());
+    }
+
+    public void buttonHard()
+    {
+        levelDifficulty = LevelDifficulty.Hard;
         StartCoroutine(fadeAndLoad());
     }
 

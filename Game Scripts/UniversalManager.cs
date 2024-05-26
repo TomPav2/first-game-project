@@ -40,6 +40,8 @@ public class UniversalManager : MonoBehaviour
         currentLevel.SetActive(true);
         mainCharacter.GetComponent<MainCharacterSheet>().init(activeManager);
         mainCharacter.GetComponent<MainCharController>().init(activeManager);
+        Application.targetFrameRate = 60;
+        Time.timeScale = 1;
     }
 
     private void Start()

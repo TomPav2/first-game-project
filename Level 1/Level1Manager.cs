@@ -22,8 +22,6 @@ public class Level1Manager : LevelManager
     private void Awake()
     {
         if (levelDifficulty != LevelDifficulty.Easy) gameObject.SetActive(false);
-        Application.targetFrameRate = 60;
-        Time.timeScale = 1;
 
         // instantiate waypoints as structs rather than accessing them as gameobjects
         for (int i = 0; i < waypointContainer.transform.childCount; i++)

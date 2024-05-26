@@ -98,6 +98,7 @@ public class SafeboxController : MonoBehaviour
         buttonImage.color = colorDefault;
         lockControls = false;
         safeBoxUI.SetActive(false);
+        universalManager.clearEscape();
         if (success)
         {
             playerPresent = false;

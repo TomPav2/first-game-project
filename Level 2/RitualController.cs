@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
@@ -25,16 +24,6 @@ public class RitualController : MonoBehaviour
     private byte heartsCount = 0;
 
     private List<GameObject> hearts = new List<GameObject>();
-
-    private static List<String> messages = new List<string> {
-        "You don't know where you are...",
-        "You don't know why you're here...",
-        "You're not entirely sure who you are...",
-        "But somehow you know this: you must face the skeletons head-on.",
-        "Their leader split the essence of life into three parts and locked them away.",
-        "You must find them and bring them here to begin the ritual.",
-        "Good luck!"
-    };
 
     private void Awake()
     {
