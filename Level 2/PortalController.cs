@@ -22,7 +22,6 @@ public class PortalController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         if (teleportToJumpgame || teleportToMain) animator.SetTrigger(Trigger.ANIMATION_START);
-        if (teleportToJumpgame) transportPlayer(); // TODO dev only
     }
     private void FixedUpdate()
     {

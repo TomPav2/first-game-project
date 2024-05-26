@@ -11,6 +11,7 @@ public class JumpCharController : MonoBehaviour
     [SerializeField] private PortalController catchPortal;
     [SerializeField] private PortalController dropPortal;
     [SerializeField] private MainCharacterSheet mainChar;
+    [SerializeField] private CharExplosionController explosion;
     [SerializeField] private TextHudController hudController;
 
     [SerializeField] private SpriteRenderer chestRenderer;
@@ -162,6 +163,7 @@ public class JumpCharController : MonoBehaviour
             if (!hasHeart) body.gravityScale = 30;
             hudController.popUp(null, "Ow! You take some fall damage.", null);
             mainChar.damage(1);
+            if (mainChar.getHealth() == 0) explosion.explode();
         }
     }
 

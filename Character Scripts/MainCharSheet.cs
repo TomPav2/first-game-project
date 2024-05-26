@@ -126,6 +126,11 @@ public class MainCharacterSheet : MonoBehaviour
         }
     }
 
+    public byte getHealth()
+    {
+        return health;
+    }
+
     public void rechargeLaser()
     {
         laserAttack.addCharge(2000);
