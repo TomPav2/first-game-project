@@ -7,7 +7,7 @@ public class AssassinWeaponController : MonoBehaviour
     [SerializeField] MainCharacterSheet mainCharacterSheet;
     [SerializeField] MainCharController mainCharController;
 
-    private bool primed = true;
+    private static bool primed = true;
 
     // for arrows
     private bool inFlight = false;

@@ -17,7 +17,7 @@ public class TutorialController : MonoBehaviour
     [SerializeField] private GameObject rmbAttack;
     [SerializeField] private SpawnerTutorial spawner;
     [SerializeField] private ThrowItem throwObject;
-    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private Level1Manager levelManager;
     [SerializeField] private RectTransform continuePrompt;
 
     private bool waitingForInput = false;

@@ -19,7 +19,7 @@ public class TextHudController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI buttonCrow;
     [SerializeField] private RavenController raven;
     [SerializeField] private CrowController crow;
-    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private Level1Manager levelManager;
     [SerializeField] private UniversalManager universalManager;
 
     private static readonly Vector2 SMALL_TEXT_SIZE = new Vector2(800, 50);

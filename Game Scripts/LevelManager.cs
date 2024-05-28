@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
 using static ScenePersistence;
@@ -74,8 +72,6 @@ public abstract class LevelManager : MonoBehaviour
     // --------- LEVEL SPECIFIC --------
     
     public abstract void endScreen(CauseOfLoss cause);
-
-    public abstract void setupNextStage();
 
     public abstract void enteredPentagram();
 

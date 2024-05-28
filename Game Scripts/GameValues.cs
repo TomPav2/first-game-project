@@ -51,6 +51,7 @@ public static class GameValues
     public static class Settings
     {
         public static bool altFont = false;
+        public static float volume = 0.5f;
     }
 
 public enum EnemyState

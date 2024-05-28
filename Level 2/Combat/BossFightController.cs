@@ -25,6 +25,11 @@ public class BossFightController : FightController
     [SerializeField] private LeverMaster enemy4;
     [SerializeField] private GameObject leverCamTarget;
 
+    // audio
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip introClip;
+    [SerializeField] private AudioClip fightClip;
+
     private static readonly Vector3 CAMERA_OFFSET = new Vector3(0, 10, 0);
     private static readonly float CAMERA_SPEED = 80;
     private Vector3 movement;
@@ -88,6 +93,7 @@ public class BossFightController : FightController
     {
         intro = StartCoroutine(introRoutine());
         introRunning = true;
+        audioController.playTrack(introClip);
     }
 
     protected override IEnumerator introRoutine()
@@ -102,6 +108,7 @@ public class BossFightController : FightController
         Vector2 bossFocus = boss.transform.position + CAMERA_OFFSET;
         yield return moveCamRoutine(bossFocus);
 
+        boss.playSFX();
         showMessage("The Big Bone");
         yield return waitForInput();
 
@@ -166,6 +173,7 @@ public class BossFightController : FightController
         boss.beginFight();
 
         lockControls = false;
+        audioController.playTrack(fightClip);
     }
 
     private void showMessage(String message)

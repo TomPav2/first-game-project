@@ -16,6 +16,9 @@ public class Level2Manager : LevelManager
     [SerializeField] private TextMeshProUGUI textField;
     [SerializeField] private UniversalManager universalManager;
 
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip defaultClip;
+
     private HashSet<GameObject> barriers = new HashSet<GameObject>();
     private bool playerHasHeart = false;
     private float time = 0;
@@ -47,6 +50,7 @@ public class Level2Manager : LevelManager
         player.GetComponent<Rigidbody2D>().position = ritual.transform.position;
         lockControls = true;
         StartCoroutine(introRoutine());
+        audioController.playTrack(defaultClip);
     }
 
     private void Update()
@@ -180,11 +184,6 @@ public class Level2Manager : LevelManager
     public override void addScore(DamageType type)
     {
         // no score on hard mode
-    }
-
-    public override void setupNextStage()
-    {
-        // not in hard mode
     }
 
     public override void tooManyEnemies()

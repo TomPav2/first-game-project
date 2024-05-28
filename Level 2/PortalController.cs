@@ -15,6 +15,10 @@ public class PortalController : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private JumpCharController jumpCharController;
 
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip defaultClip;
+    [SerializeField] private AudioClip platformerClip;
+
     private Animator animator;
     private bool catching = false;
 
@@ -45,6 +49,7 @@ public class PortalController : MonoBehaviour
         lockControls = true;
         toEnable.SetActive(true);
         virtualCamera.Follow = cameraTarget.transform;
+        audioController.playTrack(platformerClip);
         toDisable.SetActive(false);
     }
 
@@ -54,6 +59,7 @@ public class PortalController : MonoBehaviour
         virtualCamera.Follow = cameraTarget.transform;
         jumpCharController.resetPos();
         lockControls = false;
+        audioController.playTrack(defaultClip);
         StartCoroutine(delayedDisable());
     }
 

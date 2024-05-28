@@ -18,6 +18,10 @@ public class WordGame : MonoBehaviour
     [SerializeField] private GameObject barrier;
     [SerializeField] private UniversalManager universalManager;
 
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip defaultClip;
+    [SerializeField] private AudioClip wordgameClip;
+
     private static readonly short OFFSET_X = -180;
     private static readonly short OFFSET_Y = -300;
 
@@ -41,6 +45,11 @@ public class WordGame : MonoBehaviour
     public void playerLeft()
     {
         playerInRange = false;
+    }
+
+    private void Awake()
+    {
+        if (levelDifficulty != LevelDifficulty.Hard) Destroy(gameObject);
     }
 
     private void Update()
@@ -84,6 +93,7 @@ public class WordGame : MonoBehaviour
         GetComponent<Image>().enabled = true;
         letterContainer.SetActive(true);
         setupWordGame();
+        audioController.playTrack(wordgameClip);
         inGame = true;
     }
 
@@ -99,6 +109,7 @@ public class WordGame : MonoBehaviour
             mainCharacterSheet.damage(1);
         }
         universalManager.clearEscape();
+        audioController.playTrack(defaultClip);
         inGame = false;
     }
 
@@ -107,7 +118,7 @@ public class WordGame : MonoBehaviour
         attempt = 0;
         closeGame();
         hudController.popUp("Correct!", "The word was " + Guesser.TARGET_WORD, null);
-        GameObject.Destroy(sensor.gameObject);
+        Destroy(sensor.gameObject);
         StartCoroutine(endThis());
     }
 
@@ -143,10 +154,8 @@ public class WordGame : MonoBehaviour
 
     private string getRandomWord()
     {
-        //if (wordArray == null) possibleWords = wordList.text.ToUpper().Split(',');
-        //return possibleWords[UnityEngine.Random.Range(0, possibleWords.Count())]; // TODO temporary
-
-        return "APPLE";
+        if (possibleWords == null) possibleWords = wordList.text.ToUpper().Split(',');
+        return possibleWords[UnityEngine.Random.Range(0, possibleWords.Length)];
     }
 
     private GameObject makeLP(byte x, byte y)

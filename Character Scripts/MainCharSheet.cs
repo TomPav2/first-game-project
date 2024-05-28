@@ -139,7 +139,6 @@ public class MainCharacterSheet : MonoBehaviour
     private void applyBonus(Enum bonusType)
     {
         hudController.popUp(Bonus.getBonusName(bonusType), Bonus.getBonusDesc(bonusType), null);
-        levelManager.hideBonusItem();
         switch (bonusType)
         {
             case Bonus.Health.Regen:

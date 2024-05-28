@@ -14,6 +14,10 @@ public class BattleArenaController : ArenaController
     [SerializeField] private FightController fight2;
     [SerializeField] private FightController fight3;
 
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip defaultClip;
+    [SerializeField] private AudioClip battleClip;
+
     private List<Vector2> waypoints = new List<Vector2>();
     private List<FightController> fights;
     private int fightIndex = 0;
@@ -57,6 +61,8 @@ public class BattleArenaController : ArenaController
     private IEnumerator finishRoutine()
     {
         hudController.popUp("Congratulations!", null, null);
+        audioController.playTrack(defaultClip);
+        mainCharacterSheet.rechargeLaser();
         yield return new WaitForSeconds(3);
         levelManager.givePlayerHeart(barrier);
         gate.SetActive(false);
@@ -69,6 +75,7 @@ public class BattleArenaController : ArenaController
         {
             GetComponent<BoxCollider2D>().enabled = false;
             gate.SetActive(true);
+            audioController.playTrack(battleClip);
             nextFight();
         }
     }

@@ -37,6 +37,16 @@ public class BossController : EnemyBase
         healthBar.updateValue(MAX_HEALTH, health);
     }
 
+    public void playSFX()
+    {
+        if (Settings.volume > 0)
+        {
+            AudioSource audioSource = GetComponent<AudioSource>();
+            audioSource.volume = Settings.volume;
+            audioSource.Play();
+        }
+    }
+
     public void introAttack()
     {
         StartCoroutine(greenDeathIntroRoutine());

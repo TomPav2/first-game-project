@@ -11,6 +11,15 @@ public class Level1Manager : LevelManager
     [SerializeField] private EaselController easel;
     [SerializeField] private GameObject pentagram;
 
+    [SerializeField] private AudioController audioController;
+    [SerializeField] private AudioClip defaultTrack;
+    [SerializeField] private AudioClip tutorialTrack;
+    [SerializeField] private AudioClip track1;
+    [SerializeField] private AudioClip track2;
+    [SerializeField] private AudioClip track3;
+    [SerializeField] private AudioClip track4start;
+    [SerializeField] private AudioClip track4loop;
+
     private List<Area> areas = new List<Area>();
     private List<Waypoint> waypoints = new List<Waypoint>();
     private List<Stage> stages = new List<Stage>();
@@ -37,7 +46,12 @@ public class Level1Manager : LevelManager
     private void Start()
     {
         isPaused = false;
-        if (!inTutorial) setupNextStage();
+        if (inTutorial) audioController.playTrack(tutorialTrack);
+        else
+        {
+            setupNextStage();
+            audioController.playTrack(defaultTrack);
+        }
     }
 
     // ------------ game control ------------
@@ -138,9 +152,10 @@ public class Level1Manager : LevelManager
     public void startStage()
     {
         spawnerManager.startStage(stages[0]);
+        audioController.playTrack(stages[0].audio);
     }
 
-    public override void setupNextStage()
+    public void setupNextStage()
     {
         lockControls = false;
         easel.setUp(stages[0].bonusSpawn);
@@ -148,12 +163,14 @@ public class Level1Manager : LevelManager
 
     public void finishStage()
     {
+        audioController.playTrack(defaultTrack);
         if (stages.Count > 1)
         {
             totalScore += stages[0].number * (1000 + score);
             score = 0;
             spawnerManager.endStage();
             hideBonusItem();
+            audioController.unloadClips(stages[0].audio);
             stages.RemoveAt(0);
             mainCharacter.heal(4);
             mainCharacter.rechargeLaser();
@@ -164,7 +181,7 @@ public class Level1Manager : LevelManager
 
     public void ending()
     {
-        hudController.popUp("Final painting complete!", "Stand in the pentagram when you're ready", null); // TODO actual endgame screen
+        hudController.popUp("Final painting complete!", "Stand in the pentagram when you're ready", null);
         easel.gameObject.SetActive(false);
         pentagram.SetActive(true);
     }
@@ -178,19 +195,23 @@ public class Level1Manager : LevelManager
     private void initStages()
     {
         Stage stage1 = new Stage().setNumber(1).setMaxSpawners(1).setIntensity(0.5f).setSlowSpawnerInterval(4)
-            .setSlowSpawnerLifetime(150).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(50).setBonusSpawn(0.75f);
+            .setSlowSpawnerLifetime(150).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(50).setBonusSpawn(0.75f)
+            .setAudio(track1);
         stages.Add(stage1);
 
         Stage stage2 = new Stage().setNumber(2).setMaxSpawners(1).setIntensity(0.8f).setSlowSpawnerInterval(3.5f)
-            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(0.8f).setFastSpawnerLifetime(40).setBonusSpawn(0.5f);
+            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(0.8f).setFastSpawnerLifetime(40).setBonusSpawn(0.5f)
+            .setAudio(track2);
         stages.Add(stage2);
 
         Stage stage3 = new Stage().setNumber(3).setMaxSpawners(2).setIntensity(0.95f).setSlowSpawnerInterval(3)
-            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(2.0f).setFastSpawnerLifetime(90).setBonusSpawn(0.25f);
+            .setSlowSpawnerLifetime(180).setFastSpawnerInterval(2.0f).setFastSpawnerLifetime(90).setBonusSpawn(0.25f)
+            .setAudio(track3);
         stages.Add(stage3);
 
         Stage stage4 = new Stage().setNumber(4).setMaxSpawners(3).setIntensity(1.3f).setSlowSpawnerInterval(4)
-            .setSlowSpawnerLifetime(300).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(60).setBonusSpawn(1.1f);
+            .setSlowSpawnerLifetime(300).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(60).setBonusSpawn(1.1f)
+            .setAudio(new List<AudioClip> { track4start, track4loop });
         stages.Add(stage4);
     }
 
@@ -269,7 +290,7 @@ public class Level1Manager : LevelManager
 
     public record Stage
     {
-        public byte number { get; private set; }
+        public byte number { get; private set; } // the number of the stage, starting at 1
         public byte maxSpawners { get; private set; } // the amount of spawners that can be active at a time
         public float intensity { get; private set; } // the fraction of time the player should spend fighting enemies
         public float slowSpawnerInterval { get; private set; } // the average time between two enemies spawning (per spawner)
@@ -277,6 +298,7 @@ public class Level1Manager : LevelManager
         public float fastSpawnerInterval { get; private set; } // the average time between two enemies spawning (per spawner)
         public int fastSpawnerLifetime { get; private set; } // the average time a spawner should be active
         public float bonusSpawn { get; private set; } // at what % completion should bonus spawn
+        public List<AudioClip> audio { get; private set; } // tracks to play when this stage starts
 
         public Stage setNumber(byte number)
         {
@@ -325,6 +347,19 @@ public class Level1Manager : LevelManager
             this.bonusSpawn = bonusSpawn;
             return this;
         }
+
+        public Stage setAudio(AudioClip audio)
+        {
+            this.audio = new List<AudioClip> { audio };
+            return this;
+        }
+        public Stage setAudio(List<AudioClip> audioMultiple)
+        {
+            this.audio = audioMultiple;
+            return this;
+        }
+
+
     }
 
 

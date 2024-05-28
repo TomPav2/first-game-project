@@ -15,9 +15,16 @@ public class RitualController : MonoBehaviour
     [SerializeField] private GameObject mainArea;
     [SerializeField] private GameObject bossArea;
     [SerializeField] private GameObject bossFight;
+    [SerializeField] private GameObject platformer;
 
     // UI controllers
     [SerializeField] private TextHudController hudController;
+
+    // audio
+    [SerializeField] AudioController audioController;
+    [SerializeField] AudioClip clip1;
+    [SerializeField] AudioClip clip2;
+    [SerializeField] AudioClip clip3;
 
     private bool playerInPosition = false;
     private bool firstPhaseCompleted = false;
@@ -39,8 +46,10 @@ public class RitualController : MonoBehaviour
         heartsCount++;
         if (heartsCount == 3) startRitual();
     }
+
     public void startRitual()
     {
+        audioController.playTrack(new List<AudioClip>() { clip1, clip2, clip3 });
         heart1.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
         heart2.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
         heart3.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
@@ -76,6 +85,7 @@ public class RitualController : MonoBehaviour
         lockControls = false;
         GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_STOP);
         Destroy(mainArea);
+        Destroy(platformer);
         bossArea.SetActive(true);
         bossFight.SetActive(true);
     }

@@ -146,6 +146,7 @@ public class MainCharController : MonoBehaviour
             StartCoroutine(pickUpBonusProcess());
             if (levelDifficulty == LevelDifficulty.Easy) characterSheet.applyRandomBonus();
             else if (levelDifficulty == LevelDifficulty.Hard) characterSheet.applyRMBBonus();
+            levelManager.hideBonusItem();
         }
         else if (collision.gameObject.CompareTag(Tag.RAVEN) && inTutorial)
         {
