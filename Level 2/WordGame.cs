@@ -8,6 +8,7 @@ using static ScenePersistence;
 public class WordGame : MonoBehaviour
 {
     [SerializeField] private GameObject letterPanelPrefab;
+    [SerializeField] private GameObject guide;
     [SerializeField] private TextAsset wordList;
     [SerializeField] private TextHudController hudController;
     [SerializeField] private MainCharacterSheet mainCharacterSheet;
@@ -91,6 +92,7 @@ public class WordGame : MonoBehaviour
         universalManager.waitingForEscape(()  => closeGame());
         lockControls = true;
         GetComponent<Image>().enabled = true;
+        guide.SetActive(true);
         letterContainer.SetActive(true);
         setupWordGame();
         audioController.playTrack(wordgameClip);
@@ -102,6 +104,7 @@ public class WordGame : MonoBehaviour
         lockControls = false;
         GetComponent<Image>().enabled = false;
         letterContainer.SetActive(false);
+        guide.SetActive(false);
 
         if (attempt > 0)
         {

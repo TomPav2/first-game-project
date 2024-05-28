@@ -46,7 +46,7 @@ public class TutorialController : MonoBehaviour
         "First, fast portals. They will quickly spawn a wave of enemies before vanishing.",
         "This can be challenging, especially if there are multiple portals active. But you can handle it, right? Just don't get cornered.",
         "Then there are, of course, slow portals. They spawn enemies annoyingly slowly, just enough to distract you from your objective.",
-        "You can wait them out, but since enemies grow stronger over time, it's not advised. There is an another strategy, but before that...",
+        "You can wait them out, but since enemies grow stronger over time, it's not advised. There is another strategy, but before that...",
         // Portal appears
         "The last type of portal is the tutorial portal. Look, it's pretty harmless. I'll poke it to spawn a few enemies for your warmup.",
         // Spawn three enemies, wait for them to die
@@ -181,6 +181,7 @@ public class TutorialController : MonoBehaviour
     {
         hideMessage();
         waitingForEnemies++;
+        tutorialEnemies[0].GetComponent<SpriteRenderer>().enabled = true;
         tutorialEnemies[0].spawnInState(EnemyState.Idle, DamageType.RMB, this);
     }
 
@@ -194,6 +195,7 @@ public class TutorialController : MonoBehaviour
     {
         hideMessage();
         waitingForEnemies++;
+        tutorialEnemies[1].GetComponent<SpriteRenderer>().enabled = true;
         tutorialEnemies[1].spawnInState(EnemyState.Following, DamageType.LMB, this);
     }
 
@@ -232,6 +234,7 @@ public class TutorialController : MonoBehaviour
     {
         foreach (SkellyTutorial enemy in tutorialEnemies)
         {
+            enemy.GetComponent<SpriteRenderer>().enabled = true;
             enemy.spawnInState(EnemyState.Following, DamageType.None, this);
             yield return new WaitForSeconds(delay);
         }

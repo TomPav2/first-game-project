@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class Fight1Controller : FightController, ISpawnerHandler
 {

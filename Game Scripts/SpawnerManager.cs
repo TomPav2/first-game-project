@@ -30,7 +30,7 @@ public class SpawnerManager : MonoBehaviour, ISpawnerHandler
     }
 
     // ------------ enemy lifecycle ------------
-    public SkellyController getSkeleton(bool overloaded) //TODO reuse enemies
+    public SkellyController getSkeleton(bool overloaded)
     {
         if (livingEnemies.Count >= (Difficulty.MAX_ENEMIES - 1))
         {

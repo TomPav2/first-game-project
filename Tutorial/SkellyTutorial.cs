@@ -1,8 +1,5 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using static GameValues;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class SkellyTutorial : SkellyController
 {
@@ -51,7 +48,7 @@ public class SkellyTutorial : SkellyController
         StopAllCoroutines();
         GetComponent<CapsuleCollider2D>().enabled = false;
         body.simulated = false;
-        healthBar.fade(); // TODO check
+        healthBar.fade();
 
         causeOfDeath = damageType;
         if (damageType == DamageType.Contact) tutorial.showMessage("Do not touch the skeletons. Try again.", false);

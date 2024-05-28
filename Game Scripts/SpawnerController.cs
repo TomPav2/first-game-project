@@ -136,7 +136,7 @@ public class SpawnerController : MonoBehaviour
     {
         particles.Stop();
         GetComponent<SpriteRenderer>().enabled = false;
-        spawnerManager.stoppedSpawning(this);
+        if (spawnerManager != null) spawnerManager.stoppedSpawning(this);
     }
 
     private void spawnEnemy(SkellyController enemy)

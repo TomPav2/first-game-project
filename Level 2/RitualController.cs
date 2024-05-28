@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameValues;
@@ -44,15 +45,7 @@ public class RitualController : MonoBehaviour
     {
         hearts[heartsCount].SetActive(true);
         heartsCount++;
-        if (heartsCount == 3) startRitual();
-    }
-
-    public void startRitual()
-    {
-        audioController.playTrack(new List<AudioClip>() { clip1, clip2, clip3 });
-        heart1.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
-        heart2.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
-        heart3.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+        if (heartsCount == 3) StartCoroutine(startRitual());
     }
 
     // called by animation
@@ -88,6 +81,16 @@ public class RitualController : MonoBehaviour
         Destroy(platformer);
         bossArea.SetActive(true);
         bossFight.SetActive(true);
+    }
+
+    private IEnumerator startRitual()
+    {
+        audioController.playTrackQuick(new List<AudioClip>() { clip1, clip2, clip3 });
+        yield return new WaitForSeconds(3.5f);
+        heart1.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+        heart2.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+        heart3.GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
+        yield break;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

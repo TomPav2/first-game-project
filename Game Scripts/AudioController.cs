@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Timeline;
 using static GameValues;
+using static ScenePersistence;
 
 public class AudioController : MonoBehaviour
 {
@@ -14,10 +14,6 @@ public class AudioController : MonoBehaviour
     private State state;
     private bool switchingState = false;
     private byte updateTicks = 120;
-
-    [SerializeField] AudioClip testTrack1;
-    [SerializeField] AudioClip testTrack2;
-    [SerializeField] AudioTrack actualTrack;
 
     private void Awake()
     {
@@ -48,6 +44,13 @@ public class AudioController : MonoBehaviour
         if (state == State.Stopped) return;
         toPlay = tracks;
         switchTrack(1);
+    }
+
+    public void playTrackQuick(List<AudioClip> tracks)
+    {
+        if (state == State.Stopped) return;
+        toPlay = tracks;
+        switchTrack(0);
     }
 
     public void stopPlaying()
@@ -84,7 +87,7 @@ public class AudioController : MonoBehaviour
 
     private void switchState(State state)
     {
-        if (state == this.state) return;
+        if (currentScene == Scene.MenuScene || state == this.state) return;
         this.state = state;
         if (state == State.Stopped)
         {

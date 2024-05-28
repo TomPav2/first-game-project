@@ -1,4 +1,5 @@
 using UnityEngine;
+using static GameValues;
 
 public class SpawnerTutorial : SpawnerController
 {
@@ -11,6 +12,7 @@ public class SpawnerTutorial : SpawnerController
         GetComponent<Animator>().enabled = true;
         emission.rateOverTimeMultiplier = 0;
         particleSpeed = 5;
+        GetComponent<Animator>().SetTrigger(Trigger.ANIMATION_START);
 
         return true;
     }

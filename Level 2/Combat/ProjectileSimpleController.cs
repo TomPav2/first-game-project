@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static Cinemachine.CinemachineOrbitalTransposer;
 using static GameValues;
 
 public class ProjectileSimpleController : MonoBehaviour

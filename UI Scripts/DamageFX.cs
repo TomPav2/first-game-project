@@ -28,6 +28,12 @@ public class DamageFX : MonoBehaviour
         effectRoutine = StartCoroutine(takeDamageEffect(amount));
     }
 
+    public void stopDamageEffect()
+    {
+        if (effectRoutine != null) StopCoroutine(effectRoutine);
+        _fullScreenDamage.SetActive(false);
+    }
+
     private IEnumerator takeDamageEffect(byte amount)
     {
         _intensity = (amount * 0.1f) + 0.1f;

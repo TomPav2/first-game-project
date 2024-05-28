@@ -11,6 +11,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private Toggle checkboxTutorial;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject startMenu;
+    [SerializeField] private AudioController audioController;
 
     private List<FadeController> fadeControllers = new List<FadeController>();
     private bool tutorial = false;
@@ -65,6 +66,7 @@ public class MenuController : MonoBehaviour
     // ---------- MENU ANIMATIONS ------------
     private IEnumerator fadeAndLoad()
     {
+        audioController.stopPlaying();
         fadeControllers.ForEach(fadeController =>
         {
             fadeController.startFadeOut();

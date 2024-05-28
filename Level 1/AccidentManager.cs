@@ -12,8 +12,8 @@ public class AccidentManager : MonoBehaviour
 
     private void Awake()
     {
-        //if (levelDifficulty != LevelDifficulty.Easy) gameObject.SetActive(false); //TODO inactive for debugging
-        foreach (AccidentController accident in GetComponentsInChildren<AccidentController>(true))
+        if (levelDifficulty != LevelDifficulty.Easy) Destroy(gameObject);
+        else foreach (AccidentController accident in GetComponentsInChildren<AccidentController>(true))
         {
             readyAccidents.Add(accident);
         }

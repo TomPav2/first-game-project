@@ -15,7 +15,8 @@ public static class ScenePersistence
 
     public static bool currentlyPainting = false;
 
-    public static LevelDifficulty levelDifficulty = LevelDifficulty.Hard; //TODO temporary for development
+    public static LevelDifficulty levelDifficulty = LevelDifficulty.None;
+    public static Scene currentScene = Scene.MenuScene;
 
     public enum Scene
     {
@@ -41,6 +42,7 @@ public static class ScenePersistence
 
     public static void load(Scene sceneName)
     {
+        currentScene = sceneName;
         cullEnemies();
         currentlyPainting = false;
         invertControls = false;
