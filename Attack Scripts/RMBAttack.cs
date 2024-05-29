@@ -25,7 +25,7 @@ public class RMBAttack : MonoBehaviour
     private static readonly float WIDTH_MAX = 1f;
     private static readonly float WIDTH_INTERVAL = 0.08f;
 
-    private float chargeDelay = 0.5f;
+    private float chargeDelay = 0.7f;
     private float chargeInterval = 0.1f;
     private byte chargeAmount = 1;
 

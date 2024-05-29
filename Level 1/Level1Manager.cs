@@ -58,7 +58,7 @@ public class Level1Manager : LevelManager
 
     public override void endScreen(CauseOfLoss cause)
     {
-        hudController.lostGameMenu(cause, score);
+        hudController.lostGameMenu(cause, totalScore);
     }
 
     public override void playerDied()
@@ -170,7 +170,7 @@ public class Level1Manager : LevelManager
             score = 0;
             spawnerManager.endStage();
             hideBonusItem();
-            audioController.unloadClips(stages[0].audio);
+            //audioController.unloadClips(stages[0].audio);
             stages.RemoveAt(0);
             mainCharacter.heal(4);
             mainCharacter.rechargeLaser();
@@ -181,6 +181,7 @@ public class Level1Manager : LevelManager
 
     public void ending()
     {
+        spawnerManager.endStage();
         hudController.popUp("Final painting complete!", "Stand in the pentagram when you're ready", null);
         easel.gameObject.SetActive(false);
         pentagram.SetActive(true);
@@ -188,6 +189,7 @@ public class Level1Manager : LevelManager
 
     public override void enteredPentagram()
     {
+        lockControls = true;
         hudController.wonGameMenu("Score: " + totalScore.ToString());
     }
 
@@ -209,8 +211,8 @@ public class Level1Manager : LevelManager
             .setAudio(track3);
         stages.Add(stage3);
 
-        Stage stage4 = new Stage().setNumber(4).setMaxSpawners(3).setIntensity(1.3f).setSlowSpawnerInterval(4)
-            .setSlowSpawnerLifetime(300).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(60).setBonusSpawn(1.1f)
+        Stage stage4 = new Stage().setNumber(4).setMaxSpawners(3).setIntensity(1.5f).setSlowSpawnerInterval(5)
+            .setSlowSpawnerLifetime(210).setFastSpawnerInterval(1.5f).setFastSpawnerLifetime(60).setBonusSpawn(1.1f)
             .setAudio(new List<AudioClip> { track4start, track4loop });
         stages.Add(stage4);
     }

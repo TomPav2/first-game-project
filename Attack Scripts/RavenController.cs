@@ -20,7 +20,7 @@ public class RavenController : MonoBehaviour
 
     public void summon()
     {
-        if (spriteRenderer.enabled) upgraded = true;
+        if (spriteRenderer.enabled) upgrade();
         else
         {
             spriteRenderer.enabled = true;

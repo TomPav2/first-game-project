@@ -62,7 +62,7 @@ public class AccidentManager : MonoBehaviour
 
     private IEnumerator randomAccidentTimer()
     {
-        while (true)
+        while (easel.isPainting())
         {
             yield return new WaitForSeconds(Random.Range(5, 10));
             if (readyAccidents.Count > 1)

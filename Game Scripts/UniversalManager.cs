@@ -46,6 +46,7 @@ public class UniversalManager : MonoBehaviour
         panelSizeAlternative = new Vector2(-880, -890);
         
         updateFont();
+        GetComponent<DamageFX>().stopDamageEffect();
         isPaused = false;
     }
 
@@ -74,16 +75,16 @@ public class UniversalManager : MonoBehaviour
 
     public void restart()
     {
-        transitionController.transitionToScene(Scene.GameScene);
         GetComponent<DamageFX>().stopDamageEffect();
         audioController.stopPlaying();
+        transitionController.transitionToScene(Scene.GameScene);
     }
 
     public void exit()
     {
-        transitionController.transitionToScene(Scene.MenuScene);
         GetComponent<DamageFX>().stopDamageEffect();
         audioController.stopPlaying();
+        transitionController.transitionToScene(Scene.MenuScene);
     }
 
     public void waitingForEscape(Action action)

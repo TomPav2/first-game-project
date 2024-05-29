@@ -31,6 +31,7 @@ public class UIElementController : MonoBehaviour
 
     public void popUpText(string text)
     {
+        if (text  == null) return;
         showText(text);
         animator.ResetTrigger(Trigger.ANIMATION_STOP);
         animator.SetTrigger(Trigger.FADE_TEXT);

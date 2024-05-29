@@ -32,6 +32,7 @@ public class DamageFX : MonoBehaviour
     {
         if (effectRoutine != null) StopCoroutine(effectRoutine);
         _fullScreenDamage.SetActive(false);
+        _material.SetFloat(_flashIntensity, 0);
     }
 
     private IEnumerator takeDamageEffect(byte amount)

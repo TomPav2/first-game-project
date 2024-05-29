@@ -22,6 +22,7 @@ public abstract class LevelManager : MonoBehaviour
     protected void gameLost(CauseOfLoss cause)
     {
         lockControls = true;
+        pauseGame();
         endScreen(cause);
     }
 

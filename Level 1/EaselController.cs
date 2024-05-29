@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using static ScenePersistence;
 using static GameValues;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 public class EaselController : MonoBehaviour, IFading
 {
@@ -34,9 +35,11 @@ public class EaselController : MonoBehaviour, IFading
 
     private float target;
     private float progress = 0;
+    private float accidentCutoff;
     private short notifyAtValue = -1;
     private bool readyToPaint = false;
     private byte index = 0;
+    private bool startAccidents = true;
 
     private float paintSpeed = 1;
     private int bonusProgress = 0;
@@ -47,6 +50,7 @@ public class EaselController : MonoBehaviour, IFading
     private void Awake()
     {
         target = Difficulty.PAINTING_TARGET;
+        accidentCutoff = target * 0.99f;
 
         art.Add(art1);
         art.Add(art2);
@@ -90,6 +94,7 @@ public class EaselController : MonoBehaviour, IFading
         index++;
 
         readyToPaint = true;
+        startAccidents = true;
     }
 
     public void speedUpgrade()
@@ -97,6 +102,7 @@ public class EaselController : MonoBehaviour, IFading
         if (progress > 0) progress = (progress * 2 / 3);
         if (notifyAtValue > 0) notifyAtValue = (short)(notifyAtValue * 2 / 3);
         target = (short)(target * 2 / 3);
+        accidentCutoff = target * 0.99f;
     }
 
     // accident control
@@ -106,7 +112,7 @@ public class EaselController : MonoBehaviour, IFading
         if (amount == 0)
         {
             paintSpeed = 1;
-            sliderFill.color = COLOR_FAST;
+            if (clearedMistake) sliderFill.color = COLOR_FAST;
         }
         else
         {
@@ -140,7 +146,7 @@ public class EaselController : MonoBehaviour, IFading
     void IFading.afterFadeIn()
     {
         StartCoroutine(paintRoutine());
-        accidents.startAccidents();
+        if (startAccidents) accidents.startAccidents();
     }
 
     public void stopPainting()
@@ -148,6 +154,11 @@ public class EaselController : MonoBehaviour, IFading
         accidents.stopAccidents();
         sliderFill.color = COLOR_INACTIVE;
         brush.startFadeOut();
+    }
+
+    public bool isPainting()
+    {
+        return currentlyPainting;
     }
 
     void IFading.afterFadeOut()
@@ -188,6 +199,12 @@ public class EaselController : MonoBehaviour, IFading
                 notifyAtValue = (short)(target + 10);
                 levelManager.showBonusItem();
             }
+            if (startAccidents && progress >= accidentCutoff)
+            {
+                startAccidents = false;
+                accidents.stopAccidents();
+            }
+
             currentArt.color = new Color(1, 1, 1, (progress / target));
             yield return new WaitForSeconds(0.1f);
         }

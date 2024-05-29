@@ -36,6 +36,11 @@ public class SpawnerController : MonoBehaviour
         spawnerManager = GetComponentInParent<ISpawnerHandler>();
     }
 
+    public void testSpawn()
+    {
+        spawnEnemy(spawnerManager.getSkeleton(false));
+    }
+
     private void appear()
     {
         overloadMeter = 0;
@@ -165,6 +170,7 @@ public class SpawnerController : MonoBehaviour
         while (toSpawn > 0)
         {
             spawnEnemy(spawnerManager.getSkeleton(true));
+            toSpawn--;
             yield return new WaitForSeconds(0.3f);
         }
         disengage();

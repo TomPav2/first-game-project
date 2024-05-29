@@ -154,7 +154,7 @@ public class SkellyController : EnemyBase, IFading
 
         if (distanceToTarget.HasValue && state == EnemyState.Walking)
         {
-            if (distanceToTarget.Value > lastDistance) targetWaypoint(); // this is needed because some enemies would block each other
+            if (distanceToTarget.Value >= lastDistance) targetWaypoint(); // this is needed because some enemies would block each other
             else lastDistance = distanceToTarget.Value;
         }
 
